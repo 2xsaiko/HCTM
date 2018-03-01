@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "type": "forge:ore_dict",
+      "ore": "wireBundledDyed"
+    },
+    {
+      "type": "forge:ore_dict",
+      "ore": "dyePink"
+    }
+  ],
+  "result": {
+    "item": "rswires:bundled_cable",
+    "data": 7
+  }
+}

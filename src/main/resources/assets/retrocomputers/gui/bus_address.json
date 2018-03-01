@@ -1,0 +1,19 @@
+{
+  "elements": [
+    {
+      "type": "frame",
+      "relx": "center",
+      "rely": "center",
+      "width": 97,
+      "height": 39,
+      "elements": [
+        {
+          "type": "retrocomputers:address_board",
+          "name": "address",
+          "relx": "center",
+          "rely": "center"
+        }
+      ]
+    }
+  ]
+}

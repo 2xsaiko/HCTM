@@ -1,0 +1,33 @@
+{
+  "defaults": {
+    "model": "retrocomputers:memory",
+    "textures": {
+      "bottom": "retrocomputers:blocks/backplane_top",
+      "particle": "#top",
+      "side": "retrocomputers:blocks/backplane_side",
+      "front": "retrocomputers:blocks/backplane_front",
+      "top": "retrocomputers:blocks/memory_top"
+    },
+    "uvlock": false
+  },
+  "forge_marker": 1,
+  "variants": {
+    "facing": {
+      "east": {
+        "y": 90
+      },
+      "north": {
+        "y": 0
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": 270
+      }
+    },
+    "inventory": {
+      "transform": "forge:default-block"
+    }
+  }
+}

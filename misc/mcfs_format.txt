@@ -1,0 +1,127 @@
+		   MineCraft FileSystem (MCFS) documentation
+
+
+				Disk format
+
+Each floppy disk capacity is limited to 2048 sectors by the disk drive.
+Each sector is 128 bytes long so the maximum physical capacity of a disk
+is 256 kilobytes. An MCFS formatted disk can hold (2048-16)*126 bytes
+(250 kilobytes) of user data.
+
+  Sector	Description
+ 0 -    3	MCFS boot loader
+ 4 -    5	Sector allocation map (2048 bits, one bit / sector)
+ 6 -   15	Directory (4 entries / sector, maximum 40 entries)
+16 - 2047	Available for files
+
+
+
+				 Boot loader
+
+This small loader only job is to load the bootable programs which are
+then executed. The boot loaders remaps itself after the execution into the
+two stack area at $0100 and $0200 which makes possible to load the program
+from $0500 like the original RPC8/e boot code does.
+
+Most of the possible cases are handled and visible during the boot sequence,
+these are the following:
+- detects drive errors during the boot (for example: destroyed cable)
+- handles read errors (for example: a truncated disk image)
+- detects available memory and display and error message when a programs
+  doesn't fit into the memory.
+- warns if disk is not bootable
+
+Sector    Byte
+  0-3     0-511 Boot loader which is loaded to memory and started at
+		address $0500
+
+   0	122-123 Starting sector of the bootable file.
+		If sector = 0 then the disk is not bootable.
+
+   0	124-127	MCFS magic constant: $4d $43 $46 $53 "MCFS"
+
+
+
+			   Sector allocation map
+
+Sector allocation map (SAM) is a plain bitmap for each physical sector.
+Bitmap is linear, however the least significant bit is on the left
+
+Sector	Byte	Content
+   4	  0	SAM for sector 0-7
+		Example: the byte value is $a5 so the sector availability
+		looks like this:
+
+				 2^7 6 5 4 3 2 1 0
+				-------------------
+				   1 0 1 0 0 1 0 1
+
+			sector:    0 1 2 3 4 5 6 7
+
+		in this case sector 0,2,5 and 7 is occupied and sector
+		1,3,4,6 is available.
+		
+   4	  1	SAM for sector 8-15
+   4	  2	SAM for sector 15-23
+  ...    ...
+   4	 127	SAM for sector 1016-1023
+   5	  0	SAM for sector 1024-1031
+   5	  1	SAM for sector 1032-1039
+  ...    ...		
+   5	 126	SAM for sector 2032-2039
+   5	 127	SAM for sector 2040-2047
+
+
+			    Directory structure
+
+The first entry of a directory structure is the header which contains the name
+of the disk. Each entry is 32 bytes long, the maximum length of a filename
+is 28. Each sector is 128 bytes long so 4 entries fits into one sector.
+10 sectors are available for directory entries so the maximum capacity is 39
+files plus the header (40 in total).
+
+Sector	 Byte	Content
+   6	  0- 3	Unused
+   6	  4-31	Disk name. all characters MSB is set to 1 ($80)
+
+   6     32-63	Directory entry #1
+   6	 32-33	  Starting sector of the file.
+		  If sector = 0 the directory entry is free.
+   6     34-35	  Size of the file in sectors
+   6     36-63	  File name
+
+   6     64-95	Directory entry #2
+   6	 64-65	  Starting sector of the file.
+		  If sector = 0 the directory entry is free.
+   6     66-67	  Size of the file in sectors
+   6     68-95	  File name
+
+  ...    ...
+
+  15	 96-127	Directory entry #39
+  15	 96- 97	  Starting sector of the file.
+		  If sector = 0 the directory entry is free.
+  15     98- 99	  Size of the file in sectors
+  15    100-127	  File name
+
+
+				File format
+
+First two bytes of each sector were used as a pointer to the next sector
+of the file, so only 126 out of the 128 bytes of a sector were used for file
+contents. In the last sector of a file the higher value of a pointer is set
+to $ff and the lower value of the pointer holds the remaining bytes used on
+the actual sector.
+
+Sector	Byte
+  xx	0-1	Pointer to next sector #yy (word)
+		If byte 1 is $ff then the number of bytes which used
+		within the sector is contained in byte 0.
+  xx	2-127	User data
+
+  yy	0-1	Pointer to next sector #zz (word)
+		If byte 1 is $ff then the number of bytes which used
+		within the sector is contained in byte 0.
+  yy	2-127	User data
+
+  zz	...

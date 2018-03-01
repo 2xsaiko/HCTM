@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IbI",
+    "BFB",
+    "ICI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "b": {
+      "item": "quacklib:component",
+      "data": 19
+    },
+    "B": {
+      "item": "quacklib:component",
+      "data": 21
+    },
+    "F": {
+      "item": "tubes:filter"
+    },
+    "C": {
+      "item": "retrocomputers:ribbon_cable"
+    }
+  },
+  "result": {
+    "item": "retrocomputers:sortron",
+    "data": 0
+  }
+}

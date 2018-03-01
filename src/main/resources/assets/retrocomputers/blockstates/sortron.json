@@ -1,0 +1,46 @@
+{
+  "defaults": {
+    "model": "retrocomputers:sortron",
+    "textures": {
+      "front": "retrocomputers:blocks/sortron_in",
+      "back": "retrocomputers:blocks/sortron_out",
+      "particle": "#side",
+      "side": "retrocomputers:blocks/sortron_side"
+    },
+    "uvlock": false
+  },
+  "forge_marker": 1,
+  "variants": {
+    "facing": {
+      "up": {
+        "x": 90
+      },
+      "down": {
+        "x": -90
+      },
+      "east": {
+        "y": 270
+      },
+      "north": {
+        "y": 180
+      },
+      "south": {
+        "y": 0
+      },
+      "west": {
+        "y": 90
+      }
+    },
+    "pulling": {
+      "true": {
+        "textures": {
+          "side": "retrocomputers:blocks/sortron_side_pull"
+        }
+      },
+      "false": {}
+    },
+    "inventory": {
+      "transform": "forge:default-block"
+    }
+  }
+}

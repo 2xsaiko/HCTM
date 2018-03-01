@@ -1,0 +1,31 @@
+{
+  "repeat_keys": true,
+  "scale": [2],
+  "elements": [
+    {
+      "type": "frame",
+      "relx": "center",
+      "rely": "center",
+      "width": 338,
+      "height": 218,
+      "elements": [
+        {
+          "type": "retrocomputers:screen",
+          "name": "screen",
+          "border_r": 0.03,
+          "border_g": 0.02,
+          "border_b": 0.0,
+          "bg_r": 0.09,
+          "bg_g": 0.07,
+          "bg_b": 0,
+          "px_r": 0.78,
+          "px_g": 0.57,
+          "px_b": 0.01,
+          "crt": true,
+          "x": 5,
+          "y": 5
+        }
+      ]
+    }
+  ]
+}

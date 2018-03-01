@@ -1,0 +1,26 @@
+{
+  "diskette_eject": {
+    "category": "block",
+    "sounds": ["retrocomputers:diskette_eject"]
+  },
+  "diskette_insert": {
+    "category": "block",
+    "sounds": ["retrocomputers:diskette_insert"]
+  },
+  "drive_spin": {
+    "category": "block",
+    "sounds": ["retrocomputers:drive_spin0"]
+  },
+  "drive_begin": {
+    "category": "block",
+    "sounds": ["retrocomputers:drive_begin0", "retrocomputers:drive_begin1", "retrocomputers:drive_begin2", "retrocomputers:drive_begin3"]
+  },
+  "drive_skip_tiny": {
+    "category": "block",
+    "sounds": ["retrocomputers:drive_skip_tiny0", "retrocomputers:drive_skip_tiny1", "retrocomputers:drive_skip_tiny2", "retrocomputers:drive_skip_tiny3"]
+  },
+  "drive_skip_large": {
+    "category": "block",
+    "sounds": ["retrocomputers:drive_skip_large0", "retrocomputers:drive_skip_large1", "retrocomputers:drive_skip_large2", "retrocomputers:drive_skip_large3"]
+  }
+}

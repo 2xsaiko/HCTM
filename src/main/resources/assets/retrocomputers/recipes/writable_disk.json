@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WWW",
+    "W W",
+    "WIW"
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:planks",
+      "data": 32767
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "retrocomputers:writable_disk",
+    "data": 0
+  }
+}

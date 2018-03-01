@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DR"
+  ],
+  "key": {
+    "D": {
+      "item": "retrocomputers:writable_disk"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "retrocomputers:disk",
+    "data": 0
+  }
+}

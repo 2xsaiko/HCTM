@@ -1,0 +1,15 @@
+tile.retrocomputers:computer.name=Computer
+tile.retrocomputers:terminal.name=Terminal
+tile.retrocomputers:disk_drive.name=Diskettenlaufwerk
+tile.retrocomputers:redstone_port.name=Redstone-Port
+tile.retrocomputers:radio.name=Wireless Transceiver
+tile.retrocomputers:backplane.name=Backplane
+tile.retrocomputers:memory.name=8K-RAM-Modul
+tile.retrocomputers:ribbon_cable.name=Flachbandkabel
+tile.retrocomputers:sortron.name=Sortron
+
+item.retrocomputers:writable_disk.name=Diskette
+item.retrocomputers:debug.name=Debug-Item
+item.retrocomputers:screwdriver.name=Schraubenzieher
+
+itemGroup.retrocomputers:main=RetroComputers

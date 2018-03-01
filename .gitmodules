@@ -1,0 +1,4 @@
+[submodule "XC8010-Assembler"]
+	path = XC8010-Assembler
+  url = git://github.com/therealfarfetchd/XC8010-Assembler.git
+  branch = master

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GlG",
+    "GlG",
+    "GrG"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:glass_pane"
+    },
+    "l": {
+      "item": "quacklib:component",
+      "data": 4
+    },
+    "r": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "rswires:lamp_off",
+    "data": 4
+  }
+}

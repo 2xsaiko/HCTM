@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "sCs",
+    "CCC",
+    "sCs"
+  ],
+  "key": {
+    "s": {
+      "item": "minecraft:string"
+    },
+    "C": {
+      "type": "forge:ore_dict",
+      "ore": "wireInsulated"
+    }
+  },
+  "result": {
+    "item": "rswires:bundled_cable",
+    "data": 0,
+    "count": 12
+  }
+}

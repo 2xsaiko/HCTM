@@ -1,0 +1,15 @@
+item.powerline:battery.name=Battery
+
+tile.powerline:pump.name=Pump
+tile.powerline:lvwire.name=Low Voltage Power Line
+tile.powerline:hvwire.name=High Voltage Power Line
+tile.powerline:grate.name=Grate
+tile.powerline:fluid_pipe.name=Fluid Pipe
+tile.powerline:blue_alloy_furnace.name=Powered Alloy Furnace
+tile.powerline:battery_box.name=Battery Box
+tile.powerline:player_link.name=Player Link
+
+powerline:container.blue_alloy_furnace=Powered Alloy Furnace
+powerline:container.battery_box=Battery Box
+
+itemGroup.powerline=Powerline

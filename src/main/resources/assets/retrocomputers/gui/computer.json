@@ -1,0 +1,223 @@
+{
+  "elements": [
+    {
+      "type": "frame",
+      "r": 0.25,
+      "g": 0.25,
+      "b": 0.25,
+      "relx": "center",
+      "rely": "center",
+      "width": 186,
+      "height": 160,
+      "elements": [
+        {
+          "type": "label",
+          "shadow": false,
+          "background": false,
+          "r": 0.5,
+          "g": 0.5,
+          "b": 0.5,
+          "value": "#tile.retrocomputers:computer.name"
+        },
+        {
+          "type": "frame",
+          "r": 0.3,
+          "g": 0.3,
+          "b": 0.3,
+          "x": 10,
+          "y": 40,
+          "width": 166,
+          "height": 54,
+          "elements": [
+            {
+              "type": "label",
+              "shadow": false,
+              "x": 30,
+              "y": -7,
+              "rely": "center",
+              "value": "TO"
+            },
+            {
+              "type": "retrocomputers:light",
+              "name": "timeout_light",
+              "x": 12,
+              "y": -7,
+              "r": 0.75,
+              "g": 0.75,
+              "b": 0,
+              "rely": "center"
+            },
+            {
+              "type": "label",
+              "shadow": false,
+              "x": 30,
+              "y": -20,
+              "rely": "center",
+              "value": "ERR"
+            },
+            {
+              "type": "retrocomputers:light",
+              "name": "error_light",
+              "x": 12,
+              "y": -20,
+              "rely": "center"
+            },
+            {
+              "type": "retrocomputers:red_button",
+              "name": "reset_err",
+              "x": 0,
+              "y": -20,
+              "rely": "center"
+            },
+            {
+              "type": "label",
+              "shadow": false,
+              "x": -65,
+              "y": 40,
+              "relx": "center",
+              "value": "CPU"
+            },
+            {
+              "type": "retrocomputers:light",
+              "name": "cpu_light",
+              "x": -65,
+              "y": 30,
+              "r": 0,
+              "g": 0.75,
+              "b": 0,
+              "relx": "center"
+            },
+            {
+              "type": "label",
+              "shadow": false,
+              "x": -30,
+              "y": 40,
+              "relx": "center",
+              "value": "LINK"
+            },
+            {
+              "type": "label",
+              "shadow": false,
+              "x": 0,
+              "y": 40,
+              "relx": "center",
+              "value": "FAIL"
+            },
+            {
+              "type": "label",
+              "shadow": false,
+              "x": -15,
+              "y": 14,
+              "relx": "center",
+              "value": "BUS"
+            },
+            {
+              "type": "retrocomputers:light",
+              "name": "link_light",
+              "x": -30,
+              "y": 30,
+              "r": 0,
+              "g": 0.75,
+              "b": 0,
+              "relx": "center"
+            },
+            {
+              "type": "retrocomputers:light",
+              "name": "fail_light",
+              "r": 1.0,
+              "g": 0.5,
+              "b": 0,
+              "x": 0,
+              "y": 30,
+              "relx": "center"
+            },
+            {
+              "type": "retrocomputers:red_button",
+              "name": "reset_button",
+              "x": 33,
+              "y": 28,
+              "relx": "center"
+            },
+            {
+              "type": "label",
+              "shadow": false,
+              "x": 33,
+              "y": 40,
+              "relx": "center",
+              "value": "RST"
+            },
+            {
+              "type": "retrocomputers:red_button",
+              "name": "hreset_button",
+              "x": 33,
+              "y": 3,
+              "relx": "center"
+            },
+            {
+              "type": "label",
+              "shadow": false,
+              "x": 33,
+              "y": 15,
+              "relx": "center",
+              "value": "HRST"
+            },
+            {
+              "type": "label",
+              "shadow": false,
+              "x": 62,
+              "y": 2,
+              "relx": "center",
+              "value": "PAUSE"
+            },
+            {
+              "type": "retrocomputers:flip_switch",
+              "name": "run_button",
+              "variant": "toggle",
+              "x": 62,
+              "y": 15,
+              "relx": "center"
+            },
+            {
+              "type": "label",
+              "shadow": false,
+              "x": 62,
+              "y": 40,
+              "relx": "center",
+              "value": "RUN"
+            }
+          ]
+        },
+        {
+          "type": "label",
+          "shadow": false,
+          "x": -46,
+          "y": 110,
+          "relx": "center",
+          "value": "#tile.retrocomputers:disk_drive.name"
+        },
+        {
+          "type": "label",
+          "shadow": false,
+          "x": 46,
+          "y": 110,
+          "relx": "center",
+          "value": "#tile.retrocomputers:terminal.name"
+        },
+        {
+          "type": "retrocomputers:address_board",
+          "name": "diskaddr",
+          "x": -46,
+          "y": 126,
+          "relx": "center"
+        },
+        {
+          "type": "retrocomputers:address_board",
+          "name": "termaddr",
+          "x": 46,
+          "y": 126,
+          "relx": "center"
+        }
+      ]
+    }
+  ]
+}

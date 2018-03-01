@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WIW",
+    "WIW",
+    "WIW"
+  ],
+  "key": {
+    "I": {
+      "item": "quacklib:component",
+      "data": 20
+    },
+    "W": {
+      "item": "minecraft:wool",
+      "data": 9
+    }
+  },
+  "result": {
+    "item": "rswires:insulated_wire",
+    "data": 9,
+    "count": 12
+  }
+}

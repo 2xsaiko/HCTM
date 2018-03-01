@@ -1,0 +1,38 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "texture": "#front",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#back",
+          "cullface": "south"
+        },
+        "up": {
+          "texture": "#side",
+          "cullface": "up",
+          "rotation": 0
+        },
+        "down": {
+          "texture": "#side",
+          "cullface": "down",
+          "rotation": 180
+        },
+        "east": {
+          "texture": "#side",
+          "cullface": "east",
+          "rotation": 90
+        },
+        "west": {
+          "texture": "#side",
+          "cullface": "west",
+          "rotation": 270
+        }
+      },
+      "from": [0, 0, 0],
+      "to": [16, 16, 16]
+    }
+  ]
+}

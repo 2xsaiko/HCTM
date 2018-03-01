@@ -1,0 +1,21 @@
+{
+  "defaults": {
+    "model": "powerline:solar_panel",
+    "textures": {
+      "bottom": "powerline:blocks/solar_panel_bottom",
+      "side": "powerline:blocks/solar_panel_side",
+      "top": "powerline:blocks/solar_panel_top",
+      "particle": "#top"
+    }
+  },
+  "forge_marker": 1,
+  "variants": {
+    "powered": {
+      "true": {},
+      "false": {}
+    },
+    "inventory": {
+      "transform": "forge:default-block"
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "defaults": {
+    "model": "retrocomputers:block_directional",
+    "textures": {
+      "back": "retrocomputers:blocks/drive_back",
+      "bottom": "retrocomputers:blocks/drive_bottom",
+      "front": "retrocomputers:blocks/drive_front",
+      "particle": "#top",
+      "side": "retrocomputers:blocks/drive_side",
+      "top": "retrocomputers:blocks/drive_top"
+    },
+    "uvlock": false
+  },
+  "forge_marker": 1,
+  "variants": {
+    "state": {
+      "0": {},
+      "1": {
+        "textures": {
+          "front": "retrocomputers:blocks/drive_front_disk"
+        }
+      },
+      "2": {
+        "textures": {
+          "front": "retrocomputers:blocks/drive_front_light"
+        }
+      },
+      "3": {
+        "textures": {
+          "front": "retrocomputers:blocks/drive_front_disk_light"
+        }
+      }
+    },
+    "facing": {
+      "east": {
+        "y": 90
+      },
+      "north": {
+        "y": 0
+      },
+      "south": {
+        "y": 180
+      },
+      "west": {
+        "y": 270
+      }
+    },
+    "inventory": {
+      "transform": "forge:default-block"
+    }
+  }
+}

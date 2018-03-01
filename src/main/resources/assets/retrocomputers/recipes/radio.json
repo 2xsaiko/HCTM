@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IBI",
+    "WRW",
+    "ICI"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "B": {
+      "item": "minecraft:iron_bars"
+    },
+    "W": {
+      "item": "minecraft:planks",
+      "data": 32767
+    },
+    "C": {
+      "item": "retrocomputers:ribbon_cable"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "result": {
+    "item": "retrocomputers:radio",
+    "data": 0
+  }
+}

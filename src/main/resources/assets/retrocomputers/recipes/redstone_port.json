@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IWI",
+    "RCW"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "W": {
+      "item": "minecraft:planks",
+      "data": 32767
+    },
+    "C": {
+      "item": "retrocomputers:ribbon_cable"
+    },
+    "R": {
+      "item": "rswires:bundled_cable",
+      "data": 32767
+    }
+  },
+  "result": {
+    "item": "retrocomputers:redstone_port",
+    "data": 0
+  }
+}

@@ -1,0 +1,154 @@
+New registers:
+	I - Index, used by some of the new instructions
+	D - Used by the math extension as the higher 16-bit of the 32-bit value (multiply / divide).
+
+NXT ($02) - NExT word
+	PC = (I), I = I + 2
+	8-bit mode example: 
+		lda (regI)
+		sta ptr
+		lda (regI+1)
+		sta ptr+1
+		inc regI
+		inc regI
+		jmp (ptr)
+
+
+ENT ($22) - Enter word
+	RHI, I = PC + 2, PC = (PC)
+
+NXA ($42) - NeXt byte/word to Accumulator
+	A = (I), if M=0 then I = I + 1 else I = I + 2
+	example:
+		lda (regI)	; 16-bit word when M flag is set
+		inc regI
+	.if flagM=1
+		inc regI
+	.fi
+
+
+TXI ($5c) - Transfer X to I
+	regI = regX
+	N,Z flags updated
+
+
+TIX ($dc) - Transfer I to X
+	regX = regI
+	N,Z flags affected
+
+
+RER ($82) - push effective RElative address to R stack
+	(R)     = ( PC + value ) >> 8
+	(R - 1) = ( PC + value ) & 0xff
+	R = R - 2
+
+	This function works like the branches but instead of setting PC it push the result in the R stack
+
+REA ($44) - push address to R stack
+	(R)     = value >> 8
+	(R - 1) = value & 0xff
+	R = R - 2
+
+	This functions simply puts the value to R stack
+	
+	8-bit mode example:
+		lda #>value
+		sta (regR)
+		dec regR
+		lda #<value
+		sta (regR)
+		dec regR
+		
+REI ($54) - push indirect zp address to R stack
+	(R)     = (value) >> 8
+	(R - 1) = (value+1) & 0xff
+	R = R - 2
+
+	Works like the previous instruction but address came from indirected zero page address
+	
+	8-bit mode example:
+		lda (value)
+		sta (regR)
+		dec regR
+		inc value
+		lda (value)
+		sta (regR)
+		dec regR
+
+RHI ($0b) - push I register to R stack
+	(R)     = I >> 8
+	(R - 1) = I & 0xff
+	R = R - 2
+
+	example:
+		lda I
+		sta (regR)
+		dec regR
+		lda I+1
+		sta (regR)
+		dec regR
+
+RLI ($2b) - pull I register from R stack
+	the opposite of RHI
+
+RHA ($4b) - push A register to R stack
+	Depends on flagM, instruction like PHA
+
+RLA ($6b) - pull A register from R stack
+	Depends on flagM, instruction like PLA
+
+RHX ($1b) - push X register to R stack
+	Depends on flagX, instruction like PHX
+
+RLX ($3b) - pull X register from R stack
+	Depends on flagX, instruction like PLX
+
+RHY ($5b) - push y register to R stack
+	Depends on flagX, instruction like PHY
+
+RLY ($7b) - pull y register from R stack
+	Depends on flagX, instruction like PLY
+
+TXR ($8b) - Transfer X to R
+	if flagX = 0 then R = X
+
+	SP messed up if flagX = 1, SP = R & 0xff | X & 0xff
+
+TRX ($ab) - Transfer R to X
+	X = R
+	N,Z flags affected
+
+TXI ($5c) - Transfer X to I
+	I = X
+	N,Z flags affected
+
+TIX ($dc) - Transfer I to X
+	X = I
+	N,Z flags affected
+
+ORA, AND, EOR, ADC, STA, LDA, CMP, SBC
+	Works like the standard 65816 r,S and (r,S),Y instructions just using R instead of S
+
+MUL - signed (c=0) or unsigned (c=1) MULtiply (16-bit * 16-bit)
+	supports BCD mode
+
+DIV - signed (c=0) or unsigned (c=1) DIVide (32-bit / 16-bit)
+	supports BCD mode
+
+ZEA - zero extend A / clear D
+	D = 0
+SEA - signed extend A
+	if the highest bit of A is set then D = 0xffff else D = 0
+
+TAD - Transfer A to D
+	D = A
+	N,Z flags affected
+
+TDA - Transfer D to A
+	A = D
+	N,Z flags affected
+
+PHD - PusH D to stack
+	
+PLD - PulL D from stack
+
