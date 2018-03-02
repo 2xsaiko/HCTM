@@ -8,6 +8,8 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.network.NetworkRegistry
 import org.apache.logging.log4j.LogManager
+import therealfarfetchd.hctm.base.utils.HCTMCompatibleVersions
+import therealfarfetchd.hctm.base.utils.KotlinLangAdapter
 import therealfarfetchd.retrocomputers.common.Proxy
 import therealfarfetchd.retrocomputers.common.item.ReadonlyDisk
 
@@ -15,7 +17,7 @@ const val ModID = "retrocomputers"
 const val ClientProxy = "therealfarfetchd.$ModID.client.Proxy"
 const val ServerProxy = "therealfarfetchd.$ModID.common.Proxy"
 
-@Mod(modid = ModID, acceptedMinecraftVersions = "1.12,1.12.1,1.12.2", modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter")
+@Mod(modid = ModID, acceptedMinecraftVersions = HCTMCompatibleVersions, modLanguageAdapter = KotlinLangAdapter)
 object RetroComputers {
   val Logger = LogManager.getLogger(ModID)!!
   val Net = NetworkRegistry.INSTANCE.newSimpleChannel(ModID)!!

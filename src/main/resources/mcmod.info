@@ -2,18 +2,13 @@
   "modListVersion": 2,
   "modList": [
     {
-      "modid": "hctm-base",
-      "name": "HCTM Base",
-      "version": "${hctm_build}",
+      "modid": "hctm",
+      "name": "HCTM",
+      "version": "${version}",
       "mcversion": "${mcversion}",
       "url": "https://github.com/therealfarfetchd/hctm",
-      "updateUrl": "",
       "authorList": ["the_real_farfetchd"],
-      "logoFile": "assets/hctm-base/banner.png",
-      "requiredMods": ["forge", "forgelin@>=${forgelin_version}", "quacklib@>=${quacklib_version}"],
-      "dependencies": ["quacklib"],
-      "useDependencyInformation": true,
-      "description": "The common base for all HCTM components."
+      "description": "the_real_farfetchd's tech mod"
     },
 
     {
@@ -24,8 +19,8 @@
       "url": "https://github.com/therealfarfetchd/hctm",
       "authorList": ["the_real_farfetchd"],
       "logoFile": "assets/retrocomputers/banner.png",
-      "requiredMods": ["hctm-base@${hctm_build}", "mcmultipart@>=${mcmp_version}"],
-      "dependencies": ["hctm-base"],
+      "requiredMods": ["forge", "forgelin@>=${forgelin_version}", "quacklib@>=${quacklib_version}", "mcmultipart@>=${mcmp_version}"],
+      "dependencies": ["quacklib"],
       "useDependencyInformation": true,
       "description": "RetroComputers adds programmable computers to Minecraft. It's not like ComputerCraft though, in that it can be programmed in actual machine code, which means you can totally program your own OS if you know assembly!"
     },
@@ -37,8 +32,8 @@
       "url": "https://github.com/therealfarfetchd/hctm",
       "authorList": ["the_real_farfetchd"],
       "logoFile": "assets/rswires/banner.png",
-      "requiredMods": ["hctm-base@${hctm_build}", "mcmultipart@>=${mcmp_version}"],
-      "dependencies": ["hctm-base"],
+      "requiredMods": ["forge", "forgelin@>=${forgelin_version}", "quacklib@>=${quacklib_version}", "mcmultipart@>=${mcmp_version}"],
+      "dependencies": ["quacklib"],
       "useDependencyInformation": true,
       "description": "Better than redstone and it sticks to walls and stuff! No more awkward magical floating wires. Unless you want them."
     },
@@ -51,8 +46,8 @@
       "updateUrl": "",
       "authorList": ["the_real_farfetchd"],
       "logoFile": "assets/powerline/banner.png",
-      "requiredMods": ["hctm-base@${hctm_build}", "mcmultipart@>=${mcmp_version}"],
-      "dependencies": ["hctm-base"],
+      "requiredMods": ["forge", "forgelin@>=${forgelin_version}", "quacklib@>=${quacklib_version}", "mcmultipart@>=${mcmp_version}"],
+      "dependencies": ["quacklib"],
       "useDependencyInformation": true,
       "description": "Recreates a power system from older versions of Minecraft."
     },
@@ -65,8 +60,8 @@
       "updateUrl": "",
       "authorList": ["the_real_farfetchd"],
       "logoFile": "assets/tubes/banner.png",
-      "requiredMods": ["hctm-base@${hctm_build}", "mcmultipart@>=${mcmp_version}"],
-      "dependencies": ["hctm-base"],
+      "requiredMods": ["forge", "forgelin@>=${forgelin_version}", "quacklib@>=${quacklib_version}", "mcmultipart@>=${mcmp_version}"],
+      "dependencies": ["quacklib"],
       "useDependencyInformation": true,
       "description": "Cool item transport."
     }

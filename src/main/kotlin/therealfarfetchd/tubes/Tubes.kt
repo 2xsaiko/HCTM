@@ -6,13 +6,15 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import org.apache.logging.log4j.LogManager
+import therealfarfetchd.hctm.base.utils.HCTMCompatibleVersions
+import therealfarfetchd.hctm.base.utils.KotlinLangAdapter
 import therealfarfetchd.tubes.common.Proxy
 
 const val ModID = "tubes"
 const val ClientProxy = "therealfarfetchd.$ModID.client.Proxy"
 const val ServerProxy = "therealfarfetchd.$ModID.common.Proxy"
 
-@Mod(modid = ModID, acceptedMinecraftVersions = "1.12,1.12.1,1.12.2", modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter")
+@Mod(modid = ModID, acceptedMinecraftVersions = HCTMCompatibleVersions, modLanguageAdapter = KotlinLangAdapter)
 object Powerline {
   val Logger = LogManager.getLogger(ModID)!!
 

@@ -1,11 +1,15 @@
-@file:Suppress("PropertyName", "LocalVariableName")
+@file:Suppress("PropertyName", "LocalVariableName", "UNCHECKED_CAST")
 
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+import groovy.json.internal.LazyMap
 import net.minecraftforge.gradle.user.UserBaseExtension
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.time.*
-import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalField
+import java.util.UUID
+
+// import java.time.*
+// import java.time.format.DateTimeFormatter
 
 val mod_name: String by extra
 val mod_version: String by extra
@@ -18,7 +22,11 @@ val quacklib_version: String by extra
 val mcmp_version: String by extra
 val jei_version: String by extra
 
-val hctm_build: String = DateTimeFormatter.ofPattern("YYYYMMddHHmmss").format(LocalDateTime.now())
+// val hctm_build: String = DateTimeFormatter.ofPattern("YYYYMMddHHmmss").format(LocalDateTime.now())
+
+var jarFile: FileTree by extra
+var mcModInfo: Map<String, Any> by extra
+mcModInfo = JsonSlurper().parse(File("src/main/resources/mcmod.info")) as Map<String, Any>
 
 val Project.minecraft: UserBaseExtension
   get() = extensions.getByName<UserBaseExtension>("minecraft")
@@ -45,6 +53,13 @@ apply {
 
 version = mod_version
 group = "therealfarfetchd"
+
+jarFile = zipTree((tasks.getByName("jar") as Jar).archivePath)
+
+defComponentTask("retrocomputers")
+defComponentTask("powerline")
+defComponentTask("rswires")
+defComponentTask("tubes")
 
 repositories {
   maven { setUrl("https://modmaven.k-4u.nl/") }
@@ -77,14 +92,18 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.withType<Jar> {
-  doFirst {
-    println("Building HCTM version $hctm_build")
-  }
+  // doFirst { println("Building HCTM version $hctm_build") }
 
   inputs.properties += "version" to project.version
   inputs.properties += "mcversion" to project.minecraft.version
 
-  baseName = mod_name
+  if (name == "jar")
+    baseName = mod_name
+
+  // from(java.sourceSets["main"].resources) {
+  //   include("/mcmod.info")
+  //   rename { "/assets/hctm-base/mod.info" }
+  // }
 
   filesMatching("/mcmod.info") {
     expand(mapOf(
@@ -92,10 +111,49 @@ tasks.withType<Jar> {
       "mcversion" to project.minecraft.version,
       "quacklib_version" to quacklib_version,
       "forgelin_version" to forgelin_version,
-      "hctm_build" to hctm_build,
       "mcmp_version" to mcmp_version
     ))
   }
+}
+
+var counter = 0
+
+fun createStrippedModInfo(modid: String): File {
+  val f = File("build/processing/${counter++}/mcmod.info")
+  f.parentFile.mkdirs()
+  if (f.exists()) f.delete()
+  f.createNewFile()
+  val mod = (mcModInfo["modList"] as List<Map<String, Any>>).firstOrNull { it["modid"] == modid } ?: return f
+  f.writeText(JsonOutput.toJson(mapOf(
+    "modListVersion" to mcModInfo["modListVersion"],
+    "modList" to listOf(mod)
+  )))
+  f.deleteOnExit()
+
+  return f
+}
+
+fun defComponentTask(componentName: String) {
+  val task = task<Jar>("${componentName}Jar") {
+    dependsOn("reobfJar")
+
+    from(jarFile) {
+      // include("/mcmod.info")
+      include("/pack.mcmeta")
+
+      // include("/assets/hctm-base/**")
+      // include("/therealfarfetchd/hctm/**")
+
+      include("/assets/$componentName/**")
+      include("/therealfarfetchd/$componentName/**")
+    }
+
+    from(createStrippedModInfo(componentName))
+
+    version = mod_version
+    baseName = componentName
+  }
+  artifacts { add("archives", task) }
 }
 
 fun DependencyHandler.deobfCompile(
