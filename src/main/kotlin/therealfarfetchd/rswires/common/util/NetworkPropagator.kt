@@ -46,6 +46,7 @@ object NetworkPropagator {
         if (enabled.isNotEmpty()) {
           network.forEach { it.setOutput(true) }
         }
+        network.forEach { it.propagating = false }
         network.forEach { it.endPropagating() }
       } finally {
         network.forEach { it.propagating = false }
