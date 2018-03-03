@@ -38,18 +38,16 @@ object NetworkPropagator {
   private fun propagate(condIn: IRedstoneConductor, channel: Any?) {
     with(Context()) {
       mapNetwork(condIn to channel)
+      var skipIter = false
       try {
-        network.onEach { it.propagating = true }
-          .forEach { it.setOutput(false) }
-
-        val enabled = network.filter { it.getInput() }
-        if (enabled.isNotEmpty()) {
-          network.forEach { it.setOutput(true) }
-        }
+        network.forEach { it.propagating = true }
+        val channelHasPower = network.any { it.getInput() }
+        network.forEach { it.setOutput(channelHasPower) }
         network.forEach { it.propagating = false }
+        skipIter = true
         network.forEach { it.endPropagating() }
       } finally {
-        network.forEach { it.propagating = false }
+        if (!skipIter) network.forEach { it.propagating = false }
         pending -= network
       }
     }
