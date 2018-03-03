@@ -1,4 +1,4 @@
-@file:Suppress("PropertyName", "LocalVariableName", "UNCHECKED_CAST")
+@file:Suppress("PropertyName", "LocalVariableName", "UNCHECKED_CAST", "UNNECESSARY_SAFE_CALL")
 
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
@@ -67,9 +67,14 @@ repositories {
 }
 
 dependencies {
-  deobfCompile("quacklib", "quacklib", quacklib_version)
+  runtimeOnly("net.shadowfacts", "Forgelin", forgelin_version)
+  compileOnly(kotlin("stdlib-jre8", kotlin_version))
+  compileOnly(kotlin("reflect", kotlin_version))
+
+  findProject(":QuackLib")?.also { compile(it) }
+  ?: deobfCompile("quacklib", "quacklib", quacklib_version)
+
   deobfCompile("MCMultiPart2", "MCMultiPart-exp", mcmp_version)
-  compile("net.shadowfacts", "Forgelin", forgelin_version)
 
   runtime("mezz.jei", "jei_$mc_version", jei_version)
   deobfProvided("mezz.jei", "jei_$mc_version", jei_version, classifier = "api")

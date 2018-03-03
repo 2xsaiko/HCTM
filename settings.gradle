@@ -1,2 +1,5 @@
 rootProject.name = 'hctm'
 rootProject.buildFileName = 'build.gradle.kts'
+
+if (file('QuackLib').isDirectory())
+    include ':QuackLib'

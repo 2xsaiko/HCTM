@@ -2,3 +2,7 @@
 	path = XC8010-Assembler
   url = git://github.com/therealfarfetchd/XC8010-Assembler.git
   branch = master
+[submodule "QuackLib"]
+	path = QuackLib
+	url = ssh://git@github.com/therealfarfetchd/QuackLib.git
+	branch = 1.12
