@@ -1,5 +1,10 @@
 rootProject.name = 'hctm'
 rootProject.buildFileName = 'build.gradle.kts'
 
-if (file('QuackLib').isDirectory())
-    include ':QuackLib'
+def includeSM(String submodule) {
+    def file = file(submodule)
+    if (file.isDirectory() && file.list().length > 0)
+        include(":$submodule")
+}
+
+includeSM 'QuackLib'
