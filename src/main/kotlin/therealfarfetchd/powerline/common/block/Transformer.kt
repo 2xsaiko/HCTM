@@ -17,8 +17,8 @@ import therealfarfetchd.quacklib.common.api.util.BlockDef
 class Transformer : QBlockConnectable() {
   var facing: EnumFacing = EnumFacing.NORTH
 
-  val lvcond = PowerConductor(neighborSupport { it.base == facing && it.side == EnumFacing.DOWN }, DefaultConductorConfiguration.LVCable)
-  val hvcond = PowerConductor(neighborSupport { it.base == facing.opposite && it.side == EnumFacing.DOWN }, DefaultConductorConfiguration.HVCable)
+  val lvcond = PowerConductor(neighborSupport { it.direction == facing && it.part == EnumFacing.DOWN }, DefaultConductorConfiguration.LVCable)
+  val hvcond = PowerConductor(neighborSupport { it.direction == facing.opposite && it.part == EnumFacing.DOWN }, DefaultConductorConfiguration.HVCable)
 
   override fun getItem(): ItemStack = Item.makeStack()
 

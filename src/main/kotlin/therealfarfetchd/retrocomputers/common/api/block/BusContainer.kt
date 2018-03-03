@@ -2,6 +2,7 @@ package therealfarfetchd.retrocomputers.common.api.block
 
 import therealfarfetchd.quacklib.common.api.INeighborSupport
 import therealfarfetchd.quacklib.common.api.util.EnumFaceLocation
+import therealfarfetchd.quacklib.common.api.util.EnumFacingExtended
 import therealfarfetchd.quacklib.common.api.util.QNBTCompound
 
 open class BusContainer(val ns: INeighborSupport<BusContainer>) {
@@ -12,7 +13,7 @@ open class BusContainer(val ns: INeighborSupport<BusContainer>) {
     var set = emptySet<BusContainer>()
     var newest = setOf(this)
     while (newest.isNotEmpty()) {
-      val newer = newest.flatMap { EnumFaceLocation.Values.map(it.ns::getNeighborAt) }.filterNotNull() - set
+      val newer = newest.flatMap { EnumFacingExtended.Values.map(it.ns::getNeighborAt) }.filterNotNull() - set
       set += newer
       newest = newer.toSet()
     }

@@ -37,8 +37,8 @@ class Grate : QBlock(), ITickable {
   var facing: EnumFacing = EnumFacing.UP
 
   val fluid = FluidPipeContainer(INeighborSupport { (f, c) ->
-    if (f == facing && c == null)
-      world.getTileEntity(pos.offset(f))?.getCapability(Capabilities.Connectable, f.opposite)?.getEdge(null) as? FluidPipeContainer
+    if (f == null && c == facing)
+      world.getTileEntity(pos.offset(c))?.getCapability(Capabilities.Connectable, c.opposite)?.getEdge(null) as? FluidPipeContainer
     else null
   })
 
@@ -132,7 +132,7 @@ class Grate : QBlock(), ITickable {
     return when (block) {
       is BlockLiquid -> state[BlockLiquid.LEVEL] == 0
       is IFluidBlock -> block.canDrain(world, pos)
-      else -> false
+      else           -> false
     }
   }
 

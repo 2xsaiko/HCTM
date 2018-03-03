@@ -39,7 +39,7 @@ class RedstonePort : Horizontal(3) {
   private var outputLevel: Int = 0
   var top: Boolean = false; private set
 
-  val rsCap = BundledConductor(neighborSupport({ it.base == facing.opposite }), this::getOutput, this::setInput)
+  val rsCap = BundledConductor(neighborSupport({ it.direction == facing.opposite }), this::getOutput, this::setInput)
 
   val connectable = SlabConnectable(data, { top })
   val backConnectable = RedstonePortConnectable({ top }, rsCap)
@@ -47,7 +47,7 @@ class RedstonePort : Horizontal(3) {
   fun beforePlace(sidePlaced: EnumFacing, hitX: Float, hitY: Float, hitZ: Float) {
     top = when (sidePlaced) {
       EnumFacing.DOWN -> hitY >= 0.5f
-      else -> hitY > 0.5f
+      else            -> hitY > 0.5f
     }
   }
 
@@ -66,10 +66,10 @@ class RedstonePort : Horizontal(3) {
 
   override fun peek(addr: Byte): Byte {
     return when (addr.unsigned) {
-      0 -> inputLevel.toByte()
-      1 -> (inputLevel shr 8).toByte()
-      2 -> outputLevel.toByte()
-      3 -> (outputLevel shr 8).toByte()
+      0    -> inputLevel.toByte()
+      1    -> (inputLevel shr 8).toByte()
+      2    -> outputLevel.toByte()
+      3    -> (outputLevel shr 8).toByte()
       else -> 0
     }
   }
@@ -87,11 +87,11 @@ class RedstonePort : Horizontal(3) {
 
   override fun connectionForSide(f: EnumFacing?): IConnectable? {
     return when {
-      f == null -> super.connectionForSide(EnumFacing.DOWN)
+      f == null                                        -> super.connectionForSide(EnumFacing.DOWN)
       f == if (top) EnumFacing.UP else EnumFacing.DOWN -> super.connectionForSide(f)
-      f.axis == EnumFacing.Axis.Y -> null
-      f == facing.opposite -> backConnectable
-      else -> connectable
+      f.axis == EnumFacing.Axis.Y                      -> null
+      f == facing.opposite                             -> backConnectable
+      else                                             -> connectable
     }
   }
 

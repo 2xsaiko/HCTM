@@ -4,6 +4,7 @@ import therealfarfetchd.quacklib.common.api.INeighborSupport
 import therealfarfetchd.quacklib.common.api.extensions.*
 import therealfarfetchd.quacklib.common.api.util.ChangeListener
 import therealfarfetchd.quacklib.common.api.util.EnumFaceLocation
+import therealfarfetchd.quacklib.common.api.util.EnumFacingExtended
 import therealfarfetchd.quacklib.common.api.util.QNBTCompound
 import java.lang.Math.abs
 import kotlin.collections.component1
@@ -18,7 +19,7 @@ class PowerConductor(val ns: INeighborSupport<PowerConductor>, val conf: IConduc
   private var chargeBuf: Int = 0
   val chargeLevel: Int get() = java.lang.Integer.bitCount(chargeBuf) * 100 / 32
 
-  private var _currentTr: Map<EnumFaceLocation, Double> = emptyMap()
+  private var _currentTr: Map<EnumFacingExtended, Double> = emptyMap()
 
   private var currentTr: Map<PowerConductor, Double> = emptyMap()
     get() {
@@ -31,8 +32,8 @@ class PowerConductor(val ns: INeighborSupport<PowerConductor>, val conf: IConduc
     }
   private var transferCache: Set<PowerConductor> = emptySet()
 
-  private var conductorCache: Map<EnumFaceLocation, PowerConductor> = emptyMap()
-  private var conductorCacheR: Map<PowerConductor, EnumFaceLocation> = emptyMap()
+  private var conductorCache: Map<EnumFacingExtended, PowerConductor> = emptyMap()
+  private var conductorCacheR: Map<PowerConductor, EnumFacingExtended> = emptyMap()
 
   val cl = ChangeListener(this::voltage, this::current, this::chargeBuf, this::currentTr)
 
@@ -43,7 +44,7 @@ class PowerConductor(val ns: INeighborSupport<PowerConductor>, val conf: IConduc
 
   private fun computeConductorMap() {
     if (conductorCache.isNotEmpty()) return
-    conductorCache = EnumFaceLocation.Values
+    conductorCache = EnumFacingExtended.Values
       .mapWithCopy(ns::getNeighborAt)
       .filterSecondNotNull()
       .toMap()
@@ -79,7 +80,7 @@ class PowerConductor(val ns: INeighborSupport<PowerConductor>, val conf: IConduc
     return maxOf(0.0, minOf(z + 1, 1.0))
   }
 
-  private fun transferCurrent(l: EnumFaceLocation, condIn: PowerConductor?): Boolean = ensureOnce(condIn) { cond ->
+  private fun transferCurrent(l: EnumFacingExtended, condIn: PowerConductor?): Boolean = ensureOnce(condIn) { cond ->
     val vdiff = voltage - cond.voltage
     var c = (currentTr[cond] ?: 0.0)
     val r = conf.resistance + cond.conf.resistance
@@ -127,7 +128,7 @@ class PowerConductor(val ns: INeighborSupport<PowerConductor>, val conf: IConduc
 
     currentTr = emptyMap()
     nbt.nbt["t"].keys
-      .mapWithCopy { EnumFaceLocation.Values[it.toInt(16)] }
+      .mapWithCopy { EnumFacingExtended.Values[it.toInt(16)] }
       .mapFirst(nbt.double::get)
       .forEach { _currentTr += it.swap() }
   }

@@ -22,6 +22,10 @@ val quacklib_version: String by extra
 val mcmp_version: String by extra
 val jei_version: String by extra
 
+val min_quacklib_version: String by extra
+val min_forgelin_version: String by extra
+val min_mcmp_version: String by extra
+
 // val hctm_build: String = DateTimeFormatter.ofPattern("YYYYMMddHHmmss").format(LocalDateTime.now())
 
 var jarFile: FileTree by extra
@@ -114,9 +118,9 @@ tasks.withType<Jar> {
     expand(mapOf(
       "version" to project.version,
       "mcversion" to project.minecraft.version,
-      "quacklib_version" to quacklib_version,
-      "forgelin_version" to forgelin_version,
-      "mcmp_version" to mcmp_version
+      "quacklib_version" to min_quacklib_version,
+      "forgelin_version" to min_forgelin_version,
+      "mcmp_version" to min_mcmp_version
     ))
   }
 }

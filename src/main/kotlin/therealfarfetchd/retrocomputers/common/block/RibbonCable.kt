@@ -8,6 +8,7 @@ import therealfarfetchd.quacklib.common.api.extensions.makeStack
 import therealfarfetchd.quacklib.common.api.qblock.WrapperImplManager
 import therealfarfetchd.quacklib.common.api.util.BlockDef
 import therealfarfetchd.quacklib.common.api.wires.BlockWire
+import therealfarfetchd.quacklib.common.api.wires.getNeighbor
 import therealfarfetchd.retrocomputers.ModID
 import therealfarfetchd.retrocomputers.common.api.block.BusContainer
 import therealfarfetchd.retrocomputers.common.api.block.capability.IBusConnectable

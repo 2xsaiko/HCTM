@@ -26,7 +26,7 @@ import therealfarfetchd.quacklib.common.api.wires.EnumWireConnection
 class FluidPipe : BlockWireCentered<FluidPipeContainer>(0.5), ITickable {
   var joints: Set<EnumFacing> = emptySet()
 
-  override val data: FluidPipeContainer = FluidPipeContainer(neighborSupport { it.side == null })
+  override val data: FluidPipeContainer = FluidPipeContainer(neighborSupport { !it.isVertical })
 
   val worldCL = ChangeListener(data::pressure, data::fluid, data::amount)
   val clientCL = ChangeListener(data::fluid, data::amount)
@@ -44,7 +44,7 @@ class FluidPipe : BlockWireCentered<FluidPipeContainer>(0.5), ITickable {
     if (world.isClient) return false
     var changed = super.updateCableConnections()
 
-    val conns = connections.filter { it.value != EnumWireConnection.None }.map { it.key.base }
+    val conns = connections.filter { it.value != EnumWireConnection.None }.map { it.key.direction }
     val oldjoints = joints
     joints = emptySet()
     if (conns.map { it.axis }.toSet().size != 1) {

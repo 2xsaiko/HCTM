@@ -1,7 +1,7 @@
 package therealfarfetchd.rswires.common.util
 
 import therealfarfetchd.quacklib.common.api.extensions.mapWithCopy
-import therealfarfetchd.quacklib.common.api.util.EnumFaceLocation
+import therealfarfetchd.quacklib.common.api.util.EnumFacingExtended
 import therealfarfetchd.quacklib.common.api.util.Profiler
 import therealfarfetchd.rswires.common.api.block.IRedstoneConductor
 
@@ -59,7 +59,7 @@ object NetworkPropagator {
     fun mapNetwork(cond: K) {
       if (cond in network) return
       network += cond
-      EnumFaceLocation.Values
+      EnumFacingExtended.Values
         .mapNotNull(cond.first.ns::getNeighborAt)
         .filter { it.allowChannel(cond.first.wireType, cond.second) }
         .mapWithCopy { it.mapChannel(cond.first.wireType, cond.second) }

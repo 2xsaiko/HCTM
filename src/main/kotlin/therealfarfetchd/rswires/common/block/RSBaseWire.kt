@@ -5,7 +5,7 @@ import net.minecraft.util.ResourceLocation
 import therealfarfetchd.quacklib.common.api.extensions.mapWithCopy
 import therealfarfetchd.quacklib.common.api.neighborSupport
 import therealfarfetchd.quacklib.common.api.util.DataTarget
-import therealfarfetchd.quacklib.common.api.util.EnumFaceLocation
+import therealfarfetchd.quacklib.common.api.util.EnumFacingExtended
 import therealfarfetchd.quacklib.common.api.util.QNBTCompound
 import therealfarfetchd.quacklib.common.api.wires.BlockWire
 import therealfarfetchd.rswires.common.api.block.RedstoneConductor
@@ -32,7 +32,7 @@ abstract class RSBaseWire<T>(width: Double, height: Double) : BlockWire<Redstone
 
   override fun onBreakBlock() {
     for (ch in getValidChannels()) {
-      EnumFaceLocation.Values
+      EnumFacingExtended.Values
         .mapNotNull(data.ns::getNeighborAt)
         .filter { it.allowChannel(data.wireType, ch) }
         .mapWithCopy { it.mapChannel(data.wireType, ch) }

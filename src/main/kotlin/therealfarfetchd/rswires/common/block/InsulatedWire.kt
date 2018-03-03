@@ -40,9 +40,9 @@ class InsulatedWire : RSBaseWireSingleChannel(0.25, 0.1875) {
     super.onPlaced(placer, stack, sidePlaced, hitX, hitY, hitZ)
   }
 
-  override fun checkAdditional(cap: Any?, localCap: Any?): Boolean {
-    return if (cap is IRedstoneConductor && localCap is IRedstoneConductor) {
-      when (cap.wireType) {
+  override fun canConnectTo(t: ResourceLocation, c: Any?, nt: ResourceLocation, nc: Any?): Boolean {
+    return if (nc is IRedstoneConductor && c is IRedstoneConductor) {
+      when (nc.wireType) {
         is TypeRedAlloy,
         TypeInsulated(color),
         is TypeBundled -> true

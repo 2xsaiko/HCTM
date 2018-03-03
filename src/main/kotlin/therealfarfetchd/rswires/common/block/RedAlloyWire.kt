@@ -1,12 +1,14 @@
 package therealfarfetchd.rswires.common.block
 
 import net.minecraft.item.ItemStack
+import net.minecraft.util.EnumFacing
 import net.minecraft.util.ResourceLocation
 import therealfarfetchd.quacklib.client.api.model.wire.WireModel
 import therealfarfetchd.quacklib.common.api.extensions.get
 import therealfarfetchd.quacklib.common.api.extensions.makeStack
 import therealfarfetchd.quacklib.common.api.qblock.WrapperImplManager
 import therealfarfetchd.quacklib.common.api.util.BlockDef
+import therealfarfetchd.quacklib.common.api.util.EnumFaceLocation
 import therealfarfetchd.rswires.ModID
 import therealfarfetchd.rswires.common.api.block.IRedstoneConductor
 import therealfarfetchd.rswires.common.api.block.RedstoneWireType
@@ -17,9 +19,9 @@ import therealfarfetchd.rswires.common.api.block.TypeRedAlloy
 class RedAlloyWire : RSBaseWireSingleChannel(0.125, 0.125) {
   override fun filterChannel(otherType: RedstoneWireType, otherChannel: Any?) = true
 
-  override fun checkAdditional(cap: Any?, localCap: Any?): Boolean {
-    return if (cap is IRedstoneConductor && localCap is IRedstoneConductor) {
-      when (cap.wireType) {
+  override fun canConnectTo(t: ResourceLocation, c: Any?, nt: ResourceLocation, nc: Any?): Boolean {
+    return if (nc is IRedstoneConductor && c is IRedstoneConductor) {
+      when (nc.wireType) {
         is TypeRedAlloy,
         is TypeInsulated -> true
         else -> false

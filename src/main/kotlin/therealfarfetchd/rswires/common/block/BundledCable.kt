@@ -36,13 +36,13 @@ class BundledCable : RSBaseWire<EnumDyeColor>(0.375, 0.25) {
     super.onPlaced(placer, stack, sidePlaced, hitX, hitY, hitZ)
   }
 
-  override fun checkAdditional(cap: Any?, localCap: Any?): Boolean {
-    return if (cap is IRedstoneConductor && localCap is IRedstoneConductor) {
-      when (cap.wireType) {
+  override fun canConnectTo(t: ResourceLocation, c: Any?, nt: ResourceLocation, nc: Any?): Boolean {
+    return if (nc is IRedstoneConductor && c is IRedstoneConductor) {
+      when (nc.wireType) {
         is TypeInsulated                       -> true
         TypeBundled(color),
         TypeBundled(EnumBundledWireColor.None) -> true
-        else                                   -> cap.wireType is TypeBundled && color == EnumBundledWireColor.None
+        else                                   -> c.wireType is TypeBundled && color == EnumBundledWireColor.None
       }
     } else false
   }

@@ -33,9 +33,9 @@ class Pump : BlockPowered(), IQBlockRedstone {
   var facing: EnumFacing = EnumFacing.NORTH
     private set
 
-  val fluidIn = FluidPipeContainer(neighborSupport { it.base == facing.opposite && it.side == null })
+  val fluidIn = FluidPipeContainer(neighborSupport { it.part == null && it.direction == facing.opposite })
 
-  val fluidOut = FluidPipeContainer(neighborSupport { it.base == facing && it.side == null })
+  val fluidOut = FluidPipeContainer(neighborSupport { it.part == null && it.direction == facing })
 
   var rsPowered: Boolean = false
 

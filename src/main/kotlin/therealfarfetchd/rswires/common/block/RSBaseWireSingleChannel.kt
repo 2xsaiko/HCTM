@@ -11,15 +11,15 @@ import net.minecraft.block.properties.IProperty
 import net.minecraft.block.properties.PropertyBool
 import net.minecraft.block.state.IBlockState
 import net.minecraft.util.EnumFacing
-import net.minecraft.util.math.BlockPos
 import therealfarfetchd.quacklib.common.api.extensions.getQBlock
 import therealfarfetchd.quacklib.common.api.extensions.getStrongPower
 import therealfarfetchd.quacklib.common.api.qblock.IQBlockRedstone
 import therealfarfetchd.quacklib.common.api.qblock.QBContainerTile
 import therealfarfetchd.quacklib.common.api.util.DataTarget
-import therealfarfetchd.quacklib.common.api.util.EnumFaceLocation
+import therealfarfetchd.quacklib.common.api.util.EnumFacingExtended
 import therealfarfetchd.quacklib.common.api.util.QNBTCompound
 import therealfarfetchd.quacklib.common.api.wires.BlockWire
+import therealfarfetchd.quacklib.common.api.wires.EnumWireConnection
 import therealfarfetchd.rswires.common.api.block.RedstoneWireType
 import therealfarfetchd.rswires.common.block.RSBaseWireSingleChannel.UKey
 import java.util.function.Function
@@ -32,39 +32,46 @@ abstract class RSBaseWireSingleChannel(width: Double, height: Double) : RSBaseWi
     return super.applyProperties(state).withProperty(PropPowered, UKey in active)
   }
 
-  override fun connectsToOther(thisBlock: BlockPos, e: EnumFaceLocation): Boolean {
-    // TODO outbound collision check
-    val f = e.base
+  override fun forceConnectTo(e: EnumFacingExtended, wc: EnumWireConnection): Boolean {
+    if (wc != EnumWireConnection.External) return false
+    val f = e.direction
     val connectionPos = pos.offset(f)
     val state = world.getBlockState(connectionPos)
-    if (state.block.canConnectRedstone(state, world, connectionPos, f)) {
-      // we won't connect to wires because of redstone output
-      val isWire = (e.side?.let { world.getQBlock(connectionPos, EnumFaceSlot.fromFace(it)) } ?: world.getQBlock(connectionPos)) is BlockWire<*>
-      if (!isWire) {
-        val te = world.getTileEntity(connectionPos)
-        if (te is BlockMultipartContainer) {
-          // we don't want to include wires in the connections so we use a custom canConnectRedstone here
-          val rsCap = BlockMultipartContainer.getTile(world, connectionPos)
-            .map({ t ->
-              SlotUtil.viewContainer(t, Function { i: IPartInfo ->
-                if ((i.tile.tileEntity as? QBContainerTile)?.qb is BlockWire<*>) false
-                else i.part.canConnectRedstone((i as PartInfo).wrapAsNeeded(world), pos, i, f.opposite)
-              }, Function { l: MutableList<Boolean> -> l.stream().anyMatch { it } }, false, true, f.opposite)
-            }).orElse(false)
-          if (rsCap) return true
+    try {
+      scanning = true
+      if (state.block.canConnectRedstone(state, world, connectionPos, f)) {
+        // we won't connect to wires because of redstone output
+        val isWire = (e.part?.let { world.getQBlock(connectionPos, EnumFaceSlot.fromFace(it)) }
+                      ?: world.getQBlock(connectionPos)) is BlockWire<*>
+        if (!isWire) {
+          val te = world.getTileEntity(connectionPos)
+          if (te is BlockMultipartContainer) {
+            // we don't want to include wires in the connections so we use a custom canConnectRedstone here
+            val rsCap = BlockMultipartContainer.getTile(world, connectionPos)
+              .map({ t ->
+                SlotUtil.viewContainer(t, Function { i: IPartInfo ->
+                  if ((i.tile.tileEntity as? QBContainerTile)?.qb is BlockWire<*>) false
+                  else i.part.canConnectRedstone((i as PartInfo).wrapAsNeeded(world), pos, i, f.opposite)
+                }, Function { l: MutableList<Boolean> -> l.stream().anyMatch { it } }, false, true, f.opposite)
+              }).orElse(false)
+            if (rsCap) return true
+          }
+          return true
         }
-        return true
       }
+    } finally {
+      scanning = false
     }
     return false
   }
+
 
   override fun getOutput(side: EnumFacing, strong: Boolean) =
     if (data.isPropagating(UKey) && UKey !in rsUpdate) 0
     else when (side) {
       in validSides[facing]!! -> if (!strong) getSignalLevel() else 0
-      facing.opposite -> if (providePowerToGround || !strong) getSignalLevel() else 0
-      else -> 0
+      facing.opposite         -> if (providePowerToGround || !strong) getSignalLevel() else 0
+      else                    -> 0
     }
 
   private fun getInputStrength() =
@@ -80,7 +87,7 @@ abstract class RSBaseWireSingleChannel(width: Double, height: Double) : RSBaseWi
          when (te) {
            is TileMultipartContainer ->
              te.getStrongPower(it, { (it.tile as? QBContainerTile)?.qb !is BlockWire<*> })
-           else ->
+           else                      ->
              if (state.block.shouldCheckWeakPower(state, world, p, it)) state.getStrongPower(world, p, it)
              else state.getWeakPower(world, p, it)
          }
@@ -120,12 +127,14 @@ abstract class RSBaseWireSingleChannel(width: Double, height: Double) : RSBaseWi
   private fun getSignalLevel() = if (UKey in active) 15 else 0
   override fun getValidChannels() = setOf(UKey)
   override fun mapChannel(otherType: RedstoneWireType, otherChannel: Any?): UKey = UKey
-  override fun canConnect(side: EnumFacing): Boolean = side in validSides[facing]!!
+  override fun canConnect(side: EnumFacing): Boolean = !scanning && side in validSides[facing]!!
 
   override val properties: Set<IProperty<*>> = super.properties + PropPowered
 
   companion object {
     val PropPowered: PropertyBool = PropertyBool.create("powered")
+
+    var scanning = false // bad hack to prevent wires connecting to other wires in multiparts, even though they're not connected
   }
 
   object UKey
