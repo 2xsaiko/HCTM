@@ -1,8 +1,10 @@
 package therealfarfetchd.rswires.client.model
 
+import net.minecraft.block.Block
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.renderer.texture.TextureMap
 import net.minecraft.item.EnumDyeColor
+import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
 import net.minecraft.util.BlockRenderLayer
 import net.minecraft.util.EnumFacing
@@ -17,6 +19,7 @@ import therealfarfetchd.quacklib.common.api.extensions.RGBA
 import therealfarfetchd.quacklib.common.api.extensions.get
 import therealfarfetchd.quacklib.common.api.extensions.mapWithCopy
 import therealfarfetchd.rswires.ModID
+import therealfarfetchd.rswires.common.block.LampInv
 import therealfarfetchd.rswires.common.block.LampOn
 import therealfarfetchd.rswires.common.block.LampProperties
 
@@ -25,14 +28,18 @@ object ModelLamp : SimpleModel(), IIconRegister {
 
   override fun addShapes(state: IExtendedBlockState, model: ModelBuilder) {
     val renderHalo = MinecraftForgeClient.getRenderLayer() == BlockRenderLayer.TRANSLUCENT
-    addShapes(model, state.block.registryName == LampOn.registryName, state[LampProperties.PropColor], renderHalo)
+    addShapes(model, isOn(state.block), state[LampProperties.PropColor], renderHalo)
   }
 
   override fun addShapes(stack: ItemStack, model: ModelBuilder) {
-    val on = stack.item.registryName == LampOn.registryName
     val color = EnumDyeColor.byMetadata(stack.metadata)
-    addShapes(model, on, color, false)
+    addShapes(model, isOn(stack.item), color, false)
+    if (isOn(stack.item))
+      addShapes(model, isOn(stack.item), color, true)
   }
+
+  private fun isOn(block: Block) = block.registryName in setOf(LampOn.registryName, LampInv.registryName)
+  private fun isOn(item: Item) = item.registryName in setOf(LampOn.registryName, LampInv.registryName)
 
   private fun addShapes(model: ModelBuilder, on: Boolean, color: EnumDyeColor, renderHalo: Boolean) = model {
     if (!renderHalo)

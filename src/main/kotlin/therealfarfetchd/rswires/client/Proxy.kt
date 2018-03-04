@@ -15,5 +15,7 @@ class Proxy : Proxy() {
     registerModelBakery(BundledCable.Block, BundledCable.Item, BundledCable.Bakery)
     registerModelBakery(Lamp, Lamp.Item, ModelLamp)
     registerModelBakery(LampOn, null, ModelLamp)
+    registerModelBakery(LampInv, LampInv.Item, ModelLamp)
+    registerModelBakery(LampInvOn, null, ModelLamp)
   }
 }
