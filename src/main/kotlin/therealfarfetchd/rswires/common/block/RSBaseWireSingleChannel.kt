@@ -70,35 +70,37 @@ abstract class RSBaseWireSingleChannel(width: Double, height: Double) : RSBaseWi
   }
 
   override fun getOutput(side: EnumFacing, strong: Boolean) =
-    if (data.isPropagating(UKey) && UKey !in rsUpdate) 0
+    if ((data.isPropagating(UKey) && UKey !in rsUpdate) || scanning) 0
     else when (side) {
       in validSides[facing]!! -> if (!strong) getSignalLevel() else 0
       facing.opposite         -> if (providePowerToGround || !strong) getSignalLevel() else 0
       else                    -> 0
     }
 
-  private fun getInputStrength() =
-    (validSides[facing]!!
-       .filter {
-         world.getBlockState(pos.offset(it)).block !is BlockRedstoneWire &&
-         world.getQBlock(pos.offset(it)) !is BlockWire<*>
-       }
-       .map {
-         val p = pos.offset(it)
-         val state = world.getBlockState(p)
-         val te = world.getTileEntity(p)
-         when (te) {
-           is TileMultipartContainer ->
-             te.getStrongPower(it, { (it.tile as? QBContainerTile)?.qb !is BlockWire<*> })
-           else                      ->
-             if (state.block.shouldCheckWeakPower(state, world, p, it)) state.getStrongPower(world, p, it)
-             else state.getWeakPower(world, p, it)
-         }
-       }.max() ?: 0
-    ).let { out ->
+  private fun getInputStrength(): Int {
+    scanning = true
+    return (validSides[facing]!!
+              .filter {
+                world.getBlockState(pos.offset(it)).block !is BlockRedstoneWire &&
+                world.getQBlock(pos.offset(it)) !is BlockWire<*>
+              }
+              .map {
+                val p = pos.offset(it)
+                val state = world.getBlockState(p)
+                val te = world.getTileEntity(p)
+                when (te) {
+                  is TileMultipartContainer ->
+                    te.getStrongPower(it, { (it.tile as? QBContainerTile)?.qb !is BlockWire<*> })
+                  else                      ->
+                    if (state.block.shouldCheckWeakPower(state, world, p, it)) state.getStrongPower(world, p, it)
+                    else state.getWeakPower(world, p, it)
+                }
+              }.max() ?: 0
+           ).let { out ->
       if (!providePowerToGround) out
       else maxOf(out, world.getRedstonePower(pos.offset(facing), facing))
-    }
+    }.also { scanning = false }
+  }
 
   override fun getInput(channel: UKey): Boolean = getInputStrength() > 0
 

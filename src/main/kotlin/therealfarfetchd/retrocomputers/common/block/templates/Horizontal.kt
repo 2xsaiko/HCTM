@@ -19,6 +19,7 @@ abstract class Horizontal(busId: Byte) : BasePeripheral(busId) {
   override val properties: Set<IProperty<*>> = super.properties + PropFacing
 
   override fun onPlaced(placer: EntityLivingBase?, stack: ItemStack?, sidePlaced: EnumFacing, hitX: Float, hitY: Float, hitZ: Float) {
+    super.onPlaced(placer, stack, sidePlaced, hitX, hitY, hitZ)
     placer?.also { facing = it.adjustedHorizontalFacing.opposite }
   }
 

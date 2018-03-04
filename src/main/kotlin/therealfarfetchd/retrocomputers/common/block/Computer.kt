@@ -144,6 +144,7 @@ class Computer : Horizontal(0), ITickable {
   }
 
   override fun onBreakBlock() {
+    super.onBreakBlock()
     cpuItem.spawnAt(world, pos)
   }
 

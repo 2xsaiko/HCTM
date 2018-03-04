@@ -123,6 +123,7 @@ class DiskDrive : Horizontal(2), ITickable {
   }
 
   override fun onBreakBlock() {
+    super.onBreakBlock()
     disk.spawnAt(world, pos)
   }
 
