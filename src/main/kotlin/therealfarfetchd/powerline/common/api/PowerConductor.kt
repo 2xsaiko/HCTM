@@ -3,7 +3,6 @@ package therealfarfetchd.powerline.common.api
 import therealfarfetchd.quacklib.common.api.INeighborSupport
 import therealfarfetchd.quacklib.common.api.extensions.*
 import therealfarfetchd.quacklib.common.api.util.ChangeListener
-import therealfarfetchd.quacklib.common.api.util.EnumFaceLocation
 import therealfarfetchd.quacklib.common.api.util.EnumFacingExtended
 import therealfarfetchd.quacklib.common.api.util.QNBTCompound
 import java.lang.Math.abs

@@ -1,7 +1,6 @@
 package therealfarfetchd.retrocomputers.common.api.block
 
 import therealfarfetchd.quacklib.common.api.INeighborSupport
-import therealfarfetchd.quacklib.common.api.util.EnumFaceLocation
 import therealfarfetchd.quacklib.common.api.util.EnumFacingExtended
 import therealfarfetchd.quacklib.common.api.util.QNBTCompound
 

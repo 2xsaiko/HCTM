@@ -1,14 +1,12 @@
 package therealfarfetchd.rswires.common.block
 
 import net.minecraft.item.ItemStack
-import net.minecraft.util.EnumFacing
 import net.minecraft.util.ResourceLocation
 import therealfarfetchd.quacklib.client.api.model.wire.WireModel
 import therealfarfetchd.quacklib.common.api.extensions.get
 import therealfarfetchd.quacklib.common.api.extensions.makeStack
 import therealfarfetchd.quacklib.common.api.qblock.WrapperImplManager
 import therealfarfetchd.quacklib.common.api.util.BlockDef
-import therealfarfetchd.quacklib.common.api.util.EnumFaceLocation
 import therealfarfetchd.rswires.ModID
 import therealfarfetchd.rswires.common.api.block.IRedstoneConductor
 import therealfarfetchd.rswires.common.api.block.RedstoneWireType
@@ -24,7 +22,7 @@ class RedAlloyWire : RSBaseWireSingleChannel(0.125, 0.125) {
       when (nc.wireType) {
         is TypeRedAlloy,
         is TypeInsulated -> true
-        else -> false
+        else             -> false
       }
     } else false
   }

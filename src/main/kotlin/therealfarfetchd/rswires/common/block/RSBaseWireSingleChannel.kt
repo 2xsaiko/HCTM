@@ -6,11 +6,15 @@ import mcmultipart.api.slot.SlotUtil
 import mcmultipart.block.BlockMultipartContainer
 import mcmultipart.block.TileMultipartContainer
 import mcmultipart.multipart.PartInfo
+import net.minecraft.block.BlockPistonBase
 import net.minecraft.block.BlockRedstoneWire
 import net.minecraft.block.properties.IProperty
 import net.minecraft.block.properties.PropertyBool
 import net.minecraft.block.state.IBlockState
+import net.minecraft.init.Blocks
 import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.BlockPos
+import net.minecraft.world.World
 import therealfarfetchd.quacklib.common.api.extensions.getQBlock
 import therealfarfetchd.quacklib.common.api.extensions.getStrongPower
 import therealfarfetchd.quacklib.common.api.qblock.IQBlockRedstone
@@ -39,7 +43,7 @@ abstract class RSBaseWireSingleChannel(width: Double, height: Double) : RSBaseWi
     val state = world.getBlockState(connectionPos)
     try {
       scanning = true
-      if (state.block.canConnectRedstone(state, world, connectionPos, f)) {
+      if (state.block.canConnectRedstone(state, world, connectionPos, f) || canConnectRedstoneExtra(state, world, connectionPos, f)) {
         // we won't connect to wires because of redstone output
         val isWire = (e.part?.let { world.getQBlock(connectionPos, EnumFaceSlot.fromFace(it)) }
                       ?: world.getQBlock(connectionPos)) is BlockWire<*>
@@ -64,7 +68,6 @@ abstract class RSBaseWireSingleChannel(width: Double, height: Double) : RSBaseWi
     }
     return false
   }
-
 
   override fun getOutput(side: EnumFacing, strong: Boolean) =
     if (data.isPropagating(UKey) && UKey !in rsUpdate) 0
@@ -135,6 +138,13 @@ abstract class RSBaseWireSingleChannel(width: Double, height: Double) : RSBaseWi
     val PropPowered: PropertyBool = PropertyBool.create("powered")
 
     var scanning = false // bad hack to prevent wires connecting to other wires in multiparts, even though they're not connected
+
+    private fun canConnectRedstoneExtra(state: IBlockState, world: World, pos: BlockPos, f: EnumFacing): Boolean {
+      if (state.block in setOf(Blocks.PISTON, Blocks.STICKY_PISTON)) {
+        return BlockPistonBase.getFacing(state.block.getMetaFromState(state)) != f.opposite
+      }
+      return false
+    }
   }
 
   object UKey
