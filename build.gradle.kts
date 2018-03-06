@@ -3,7 +3,7 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 import groovy.json.internal.LazyMap
-import net.minecraftforge.gradle.user.UserBaseExtension
+import net.minecraftforge.gradle.user.patcherUser.forge.ForgeExtension
 import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.UUID
@@ -32,8 +32,8 @@ var jarFile: FileTree by extra
 var mcModInfo: Map<String, Any> by extra
 mcModInfo = JsonSlurper().parse(File("src/main/resources/mcmod.info")) as Map<String, Any>
 
-val Project.minecraft: UserBaseExtension
-  get() = extensions.getByName<UserBaseExtension>("minecraft")
+val Project.minecraft: ForgeExtension
+  get() = extensions.getByName<ForgeExtension>("minecraft")
 
 buildscript {
   val kotlin_version: String by extra
@@ -84,7 +84,7 @@ dependencies {
   deobfProvided("mezz.jei", "jei_$mc_version", jei_version, classifier = "api")
 }
 
-configure<UserBaseExtension> {
+configure<ForgeExtension> {
   version = "$mc_version-$forge_version"
   runDir = "run"
   mappings = mappings_version
