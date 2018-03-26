@@ -125,6 +125,12 @@ section 1_dict
     .set _F_TRUE,$FFFF
     .set _F_FALSE,$0000
 
+    ; misc pointers
+
+    .set memcpy_src,$40
+    .set memcpy_dest,$42
+
+
     .include forth/base.asm
 
     .include forth/stack.asm

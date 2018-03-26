@@ -67,7 +67,7 @@ memcpy_loop:
     beq memcpy_end
     dey
     lda $0300, y
-    sta ($0020), y
+    sta ($20), y
     bra memcpy_loop
 memcpy_end:
     rep #$20
@@ -119,7 +119,7 @@ print: ; print string at address $10 to terminal
     sta $0300 ; set screen row to cursor y position
     ldy #$00
 print_loop:
-    lda ($0010), y
+    lda ($10), y
     beq print_end
     sta $0310, y
     iny

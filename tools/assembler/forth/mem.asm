@@ -176,15 +176,12 @@ memcpy_loop:
     cpy #$0000
     beq memcpy_end
     dey
-    lda (memcpy_src), y
-    sta (memcpy_dest), y
+    lda ($40), y ; TODO: replace with memcpy_src
+    sta ($42), y ; TODO: replace with memcpy_dest
     bra memcpy_loop
 memcpy_end:
     rep #$20
 rts
-
-memcpy_src: db 0,0
-memcpy_dest: db 0,0
 
 dcode FILL,4,, ; ( byte target length -- )
         ply
@@ -202,7 +199,7 @@ dcode FILL,4,, ; ( byte target length -- )
         beq fill_end
         dey
         lda memcpy_src
-        sta (memcpy_dest), y
+        sta ($42), y ; TODO: replace with memcpy_dest
         bra fill_loop
     fill_end:
         rep #$20

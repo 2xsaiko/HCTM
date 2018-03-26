@@ -1,5 +1,6 @@
 package therealfarfetchd.retrocomputers.common.cpu
 
+import therealfarfetchd.quacklib.QuackLib
 import therealfarfetchd.quacklib.common.api.extensions.*
 import therealfarfetchd.quacklib.common.api.util.QNBTCompound
 import therealfarfetchd.retrocomputers.ModID
@@ -105,8 +106,11 @@ class Processor : IProcessor {
   }
 
   override fun next() {
+    if (QuackLib.debug) print("\n%04x: ".format(pc))
     val insn = pc1()
-    //    println("%02x @ %04x".format(insn, pc - 1))
+    if (pc - 1 in (setOf(/*0x240, 0x258, 0x266*/0x0223))) {
+      println("Breakpoint hit!")
+    }
     when (insn) {
       0x00 -> {
         // brk
@@ -116,7 +120,7 @@ class Processor : IProcessor {
       }
       0x01 -> {
         // ora (ind, x)
-        _i.ora(pc2IX())
+        _i.ora(pc1IX())
       }
       0x02 -> {
         // nxt
@@ -143,13 +147,26 @@ class Processor : IProcessor {
         // ora #
         _i.ora(pcM())
       }
+      0x0A -> {
+        // asl a
+        flags[C] = false
+        rA = _i.rol(rA)
+      }
       0x0B -> {
         // rhi
         pushr2(rI)
       }
+      0x0D -> {
+        // ora abs
+        _i.ora(peekM(pc2()))
+      }
       0x0F -> {
         // mul zp
         _i.mul(peekM(pc1()))
+      }
+      0x10 -> {
+        // bpl
+        _i.bra(pc1(), !flags[N])
       }
       0x18 -> {
         // clc
@@ -165,6 +182,8 @@ class Processor : IProcessor {
         val addr = pc2()
         push2(pc)
         pc = addr
+        if (QuackLib.debug)
+          print("(jsr → %04x)".format(pc))
       }
       0x22 -> {
         // ent
@@ -176,9 +195,17 @@ class Processor : IProcessor {
         // and r, S
         _i.and(peekM(pc1S()))
       }
+      0x24 -> {
+        // bit zp
+        _i.bit(peekM(pc1()))
+      }
       0x28 -> {
         // plp
         setFlags(pop1())
+      }
+      0x29 -> {
+        // and #
+        _i.and(pcM())
       }
       0x2A -> {
         // rol a
@@ -188,6 +215,14 @@ class Processor : IProcessor {
         // rli
         rI = popr2()
         sNXZ(rI)
+      }
+      0x2C -> {
+        // bit abs
+        _i.bit(peekM(pc2()))
+      }
+      0x2F -> {
+        // mul abs
+        _i.mul(peekM(pc2()))
       }
       0x30 -> {
         // bmi rel
@@ -239,9 +274,18 @@ class Processor : IProcessor {
         // jmp abs
         pc = pc2()
       }
+      0x4E -> {
+        // lsr abs
+        flags[C] = false
+        rA = _i.ror(peekM(pc2()))
+      }
       0x50 -> {
         // bvc rel
         _i.bra(pc1(), !flags[V])
+      }
+      0x54 -> {
+        // rei
+        pushr2(pc1I())
       }
       0x5A -> {
         // phy
@@ -259,6 +303,12 @@ class Processor : IProcessor {
       0x60 -> {
         // rts
         pc = pop2()
+        if (QuackLib.debug)
+          print("(rts → %04x)".format(pc))
+      }
+      0x61 -> {
+        // adc (ind, x)
+        _i.adc(pc1IX())
       }
       0x63 -> {
         // adc r, S
@@ -294,13 +344,25 @@ class Processor : IProcessor {
         // adc abs
         _i.adc(peekM(pc2()))
       }
+      0x6F -> {
+        // div abs
+        _i.div(peekM(pc2()))
+      }
       0x70 -> {
         // bvs rel
         _i.bra(pc1(), flags[V])
       }
+      0x73 -> {
+        // adc (r, S), y
+        _i.adc(pc1ISY())
+      }
       0x74 -> {
         // stz zp, x
         _i.stz(pc1X())
+      }
+      0x75 -> {
+        // adc zp, x
+        _i.adc(pc1X())
       }
       0x7A -> {
         // ply
@@ -314,7 +376,7 @@ class Processor : IProcessor {
       }
       0x7C -> {
         // jmp (ind, x)
-        pc = pc2IX()
+        pc = pc1IX()
       }
       0x7D -> {
         // adc abs, x
@@ -377,15 +439,15 @@ class Processor : IProcessor {
       }
       0x91 -> {
         // sta (ind), y
-        _i.sta(pc2IY())
+        _i.sta(pc1IY())
       }
       0x92 -> {
         // sta (ind)
-        _i.sta(pc2I())
+        _i.sta(pc1I())
       }
       0x93 -> {
         // sta (r, S), y
-        _i.sta(pc2ISY())
+        _i.sta(pc1ISY())
       }
       0x94 -> {
         // sty zp, x
@@ -458,6 +520,10 @@ class Processor : IProcessor {
         rX = rA
         sNXZ(rX)
       }
+      0xAC -> {
+        // ldy abs
+        _i.ldy(peekM(pc2()))
+      }
       0xAD -> {
         // lda abs
         _i.lda(peekM(pc2()))
@@ -472,11 +538,15 @@ class Processor : IProcessor {
       }
       0xB1 -> {
         // lda (ind), y
-        _i.lda(peekM(pc2IY()))
+        _i.lda(peekM(pc1IY()))
+      }
+      0xB2 -> {
+        // lda (ind)
+        _i.lda(peekM(pc1I()))
       }
       0xB3 -> {
         // lda (r, S), y
-        _i.lda(peekM(pc2ISY()))
+        _i.lda(peekM(pc1ISY()))
       }
       0xB9 -> {
         // lda abs, y
@@ -503,6 +573,14 @@ class Processor : IProcessor {
         // cmp r, S
         _i.cmp(rA, peekM(pc1S()))
       }
+      0xC4 -> {
+        // cpy zp
+        _i.cmpx(rY, peekX(pc1()))
+      }
+      0xC5 -> {
+        // cmp zp
+        _i.cmp(rA, peekM(pc1()))
+      }
       0xC6 -> {
         // dec zp
         _i.dec(pc1())
@@ -525,6 +603,10 @@ class Processor : IProcessor {
         // wai
         timeout = true
       }
+      0xCD -> {
+        // cmp abs
+        _i.cmp(rA, peekM(pc2()))
+      }
       0xCF -> {
         // pld
         rD = popM()
@@ -532,6 +614,10 @@ class Processor : IProcessor {
       0xD0 -> {
         // bne rel
         _i.bra(pc1(), !flags[Z])
+      }
+      0xD2 -> {
+        // cmp (ind)
+        _i.cmp(rA, peekM(pc1I()))
       }
       0xDA -> {
         // phx
@@ -569,6 +655,11 @@ class Processor : IProcessor {
       0xE6 -> {
         // inc zp
         _i.inc(pc1())
+      }
+      0xE8 -> {
+        // inx
+        rX += 1
+        sNXZ(rX)
       }
       0xEB -> {
         // xba
@@ -620,8 +711,8 @@ class Processor : IProcessor {
       }
       else -> {
         error = true
-        //        println("Invalid opcode: %02x at %04x%n".format(insn, pc - 1))
-        //        mem.halt()
+        println("Invalid opcode: %02x at %04x%n".format(insn, pc - 1))
+        mem.halt()
       }
     }
   }
@@ -630,7 +721,7 @@ class Processor : IProcessor {
 
   private fun pc1(): Int {
     pc += 1
-    return peek1(pc - 1)
+    return peek1(pc - 1).also { if (QuackLib.debug) print("%02x ".format(it)) }
   }
 
   private fun pc2(): Int = pc1() or (pc1() shl 8)
@@ -655,17 +746,17 @@ class Processor : IProcessor {
 
   private fun pcXX(): Int = uX(pcX() + rX)
 
-  private fun pc2I(): Int = peek2(pc2())
+  private fun pc1I(): Int = peek2(pc1())
 
-  private fun pc2IX(): Int = peek2(pc2() + rX)
+  private fun pc1IX(): Int = peek2(pc1() + rX)
 
-  private fun pc2IY(): Int = us(peek2(pc2()) + rY)
+  private fun pc1IY(): Int = us(peek2(pc1()) + rY)
 
-  private fun pc2SY(): Int = us(peek2(pc1S()) + rY)
+  private fun pc1SY(): Int = us(peek2(pc1S()) + rY)
 
-  private fun pc2RY(): Int = us(peek2(pc1R()) + rY)
+  private fun pc1RY(): Int = us(peek2(pc1R()) + rY)
 
-  private fun pc2ISY(): Int = us(peek2(pc1S()) + rY)
+  private fun pc1ISY(): Int = us(peek2(pc1S()) + rY)
 
   // Read from memory address
 
@@ -819,12 +910,12 @@ class Processor : IProcessor {
   }
 
   private fun sNZC(s: Int) {
-    flags[C] = sM(s) >= 0
+    flags[C] = s >= 0
     sNZ(s)
   }
 
   private fun sNXZC(s: Int) {
-    flags[C] = sX(s) >= 0
+    flags[C] = s >= 0
     sNXZ(s)
   }
 
@@ -946,6 +1037,10 @@ class Processor : IProcessor {
       }
     }
 
+    fun bit(data: Int) {
+      sNZ(rA and data)
+    }
+
     fun and(data: Int) {
       rA = rA and data
       sNZ(rA)
@@ -1023,6 +1118,7 @@ class Processor : IProcessor {
     fun rep(data: Int) = setFlags((packShort(*flags) and data.toShort().inv()).unsigned)
 
     fun mmu(data: Int) {
+      // println("mmu 0x${data.toString(16)}, rA = $rA (0x${rA.toString(16)})")
       when (ub(data)) {
         0x00 -> {
           mem.targetBus = rA.toByte()

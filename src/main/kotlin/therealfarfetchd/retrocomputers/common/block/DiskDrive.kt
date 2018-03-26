@@ -94,7 +94,7 @@ class DiskDrive : Horizontal(2), ITickable {
           }
           4 -> {
             // read from disk
-            if (sector >= 2048) result = -1
+            if (sector !in 0 until 2048) result = -1
             else {
               val s = f.sector[sector]
               if (s == null) result = -1
@@ -105,7 +105,7 @@ class DiskDrive : Horizontal(2), ITickable {
           }
           5 -> {
             // write to disk
-            if (sector >= 2048) result = -1
+            if (sector !in 0 until 2048) result = -1
             else {
               f.sector[sector] = buffer.toList()
             }

@@ -147,7 +147,7 @@ dcode EMIT,4,, ; ( char -- )
     sta $02
     stz $03
     pla ; get char
-    sta ($0002), y
+    sta ($02), y
     pla ; throw high bytes away
     txa
     inc a
