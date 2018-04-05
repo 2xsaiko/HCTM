@@ -1,0 +1,21 @@
+ 
+                  MEMORY ADDRESS               RUN                                 
+         [O O O O O O O OIO O O O O O O O]      O                                  
+                                                                                   
+         [O O O O O O O OIO O O O O O O O]                                         
+                                                                                   
+         [         TO BDE N V M X D I Z C] STATUS                                   
+         [1514131211109 8 7 6 5 4 3 2 1 0] ACC                                        
+         [                               ]  X   ()   1514131211109 8 7 6 5 4 3 2 1 0  
+         [                               ]  Y        V V V V V V V V V V V V V V v V TTY    
+         [                               ] BUS       V V V V V V V V V V V V V v V V Disk
+                                                                                     
+  POWER   1514131211109 8 7 6 5 4 3 2 1 0    ADDR       START        HALT SING     DEP
+                                             LOAD    RESET CONT           STEP        
+    V     V V V V V V V V V V V V V V V V     V        V    V         V    V        v 
+                                                                                  
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                   
+                                                                                                                                                                     
