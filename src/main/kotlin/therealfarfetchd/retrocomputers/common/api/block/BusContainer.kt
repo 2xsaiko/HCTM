@@ -23,8 +23,24 @@ open class BusContainer(val ns: INeighborSupport<BusContainer>) {
   open fun load(nbt: QNBTCompound) {}
 }
 
-open class BusDataContainer(val peek: (Byte) -> Byte, val poke: (Byte, Byte) -> Unit, ns: INeighborSupport<BusContainer>) : BusContainer(ns) {
+abstract class BusDataContainer(ns: INeighborSupport<BusContainer>) : BusContainer(ns) {
+  abstract fun peek(busId: Byte, addr: Byte): Byte?
+
+  abstract fun poke(busId: Byte, addr: Byte, v: Byte)
+
+  open fun canAccess(busId: Byte): Boolean = peek(busId, 0) != null
+}
+
+class SimpleBusDataContainer(val peek: (Byte) -> Byte, val poke: (Byte, Byte) -> Unit, ns: INeighborSupport<BusContainer>) : BusDataContainer(ns) {
   var busId: Byte = 0
+
+  override fun peek(busId: Byte, addr: Byte): Byte? {
+    return if (this.busId == busId) peek(addr) else null
+  }
+
+  override fun poke(busId: Byte, addr: Byte, v: Byte) {
+    if (this.busId == busId) poke(addr, v)
+  }
 
   override fun save(nbt: QNBTCompound) {
     super.save(nbt)

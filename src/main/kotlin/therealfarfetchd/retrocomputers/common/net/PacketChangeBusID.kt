@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext
 import therealfarfetchd.quacklib.common.api.block.capability.Capabilities
 import therealfarfetchd.quacklib.common.api.extensions.unsigned
-import therealfarfetchd.retrocomputers.common.api.block.BusDataContainer
+import therealfarfetchd.retrocomputers.common.api.block.SimpleBusDataContainer
 
 class PacketChangeBusID(var busID: Byte, var dim: Int, var pos: BlockPos, var side: EnumFacing?, var facing: EnumFacing?) : IMessage {
 
@@ -56,7 +56,7 @@ class PacketChangeBusID(var busID: Byte, var dim: Int, var pos: BlockPos, var si
           if (te.hasCapability(Capabilities.Connectable, side)) {
             val cap = te.getCapability(Capabilities.Connectable, side)!!
             val bo = cap.getEdge(facing)
-            if (bo is BusDataContainer) {
+            if (bo is SimpleBusDataContainer) {
               bo.busId = busID
               val blockState = world.getBlockState(pos)
               world.markAndNotifyBlock(pos, null, blockState, blockState, 3)

@@ -88,7 +88,7 @@ class Computer : Horizontal(0), ITickable {
     override fun bus(): BusDataContainer? {
       return if (!busFailed) {
         if (bus == null)
-          bus = data.resolveNetwork().mapNotNull { it as? BusDataContainer }.find { it.busId == targetBus }
+          bus = data.resolveNetwork().mapNotNull { it as? BusDataContainer }.find { it.canAccess(targetBus) }
         if (bus == null) busFailed = true
         bus
       } else null

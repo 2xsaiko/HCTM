@@ -7,7 +7,7 @@ import therealfarfetchd.quacklib.client.api.gui.AbstractGuiLogic
 import therealfarfetchd.quacklib.common.api.block.capability.Capabilities
 import therealfarfetchd.retrocomputers.RetroComputers
 import therealfarfetchd.retrocomputers.client.gui.elements.AddressBoard
-import therealfarfetchd.retrocomputers.common.api.block.BusDataContainer
+import therealfarfetchd.retrocomputers.common.api.block.SimpleBusDataContainer
 import therealfarfetchd.retrocomputers.common.net.PacketChangeBusID
 
 class BusAddressLogic : AbstractGuiLogic() {
@@ -32,7 +32,7 @@ class BusAddressLogic : AbstractGuiLogic() {
       if (te.hasCapability(Capabilities.Connectable, side)) {
         val cap = te.getCapability(Capabilities.Connectable, side)!!
         val bo = cap.getEdge(facing)
-        if (bo is BusDataContainer) {
+        if (bo is SimpleBusDataContainer) {
           address.value = bo.busId
           return
         }

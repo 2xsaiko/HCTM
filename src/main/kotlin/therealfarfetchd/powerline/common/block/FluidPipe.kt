@@ -10,7 +10,6 @@ import net.minecraftforge.common.property.IUnlistedProperty
 import therealfarfetchd.powerline.ModID
 import therealfarfetchd.powerline.common.api.block.FluidPipeContainer
 import therealfarfetchd.quacklib.common.api.block.capability.Capabilities
-import therealfarfetchd.quacklib.common.api.extensions.isClient
 import therealfarfetchd.quacklib.common.api.extensions.isServer
 import therealfarfetchd.quacklib.common.api.extensions.makeStack
 import therealfarfetchd.quacklib.common.api.neighborSupport
@@ -40,11 +39,11 @@ class FluidPipe : BlockWireCentered<FluidPipeContainer>(0.5), ITickable {
     }
   }
 
-  override fun updateCableConnections(): Boolean {
-    if (world.isClient) return false
-    var changed = super.updateCableConnections()
+  override fun connectionsChanged() {
+    super.connectionsChanged()
+    val changed = true // TODO: add hook that gets called after every updateCableConnections()
 
-    val conns = connections.filter { it.value != EnumWireConnection.None }.map { it.key.direction }
+    val conns = cr.connections.filter { it.value != EnumWireConnection.None }.map { it.key.direction }
     val oldjoints = joints
     joints = emptySet()
     if (conns.map { it.axis }.toSet().size != 1) {
@@ -70,9 +69,8 @@ class FluidPipe : BlockWireCentered<FluidPipeContainer>(0.5), ITickable {
         world.neighborChanged(pos, Block, pos)
       }
 
-      changed = true
+      // changed = true
     }
-    return changed
   }
 
   override fun getAdditionalData(side: EnumFacing, facing: EnumFacing?, key: String): Any? {

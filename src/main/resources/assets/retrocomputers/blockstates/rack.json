@@ -1,0 +1,20 @@
+{
+  "defaults": {
+    "model": "retrocomputers:mainframe.obj",
+    "textures": {
+      "#Material": "retrocomputers:blocks/mainframe"
+    },
+    "transform": "forge:default-block",
+    "custom": { "flip-v": true }
+  },
+  "forge_marker": 1,
+  "variants": {
+    "facing": {
+      "north": { "y": 90 },
+      "east":  { "y": 180 },
+      "south": { "y": 270 },
+      "west":  {}
+    },
+    "inventory": [{}]
+  }
+}

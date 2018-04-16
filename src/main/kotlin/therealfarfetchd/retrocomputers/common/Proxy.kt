@@ -1,5 +1,6 @@
 package therealfarfetchd.retrocomputers.common
 
+import net.minecraft.block.Block
 import net.minecraft.item.Item
 import net.minecraft.nbt.NBTBase
 import net.minecraft.util.EnumFacing
@@ -15,6 +16,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.fml.common.registry.GameRegistry
 import net.minecraftforge.fml.relauncher.Side
 import therealfarfetchd.quacklib.common.QGuiHandler
 import therealfarfetchd.quacklib.common.api.autoconf.DefaultFeatures
@@ -22,9 +24,12 @@ import therealfarfetchd.quacklib.common.api.autoconf.FeatureManager
 import therealfarfetchd.retrocomputers.ModID
 import therealfarfetchd.retrocomputers.RetroComputers
 import therealfarfetchd.retrocomputers.common.api.block.capability.IBusConnectable
-import therealfarfetchd.retrocomputers.common.net.PacketChangeBusID
-import therealfarfetchd.retrocomputers.common.net.PacketComputerAction
-import therealfarfetchd.retrocomputers.common.net.PacketTerminalAction
+import therealfarfetchd.retrocomputers.common.api.component.ComponentRegistry
+import therealfarfetchd.retrocomputers.common.block.Rack
+import therealfarfetchd.retrocomputers.common.block.RackExt
+import therealfarfetchd.retrocomputers.common.component.ComponentCPU
+import therealfarfetchd.retrocomputers.common.component.ComponentDummy
+import therealfarfetchd.retrocomputers.common.net.*
 
 /**
  * Created by marco on 25.06.17.
@@ -41,6 +46,9 @@ open class Proxy {
     RetroComputers.Net.registerMessage(PacketChangeBusID.Handler, PacketChangeBusID::class.java, 0, Side.SERVER)
     RetroComputers.Net.registerMessage(PacketComputerAction.Handler, PacketComputerAction::class.java, 1, Side.SERVER)
     RetroComputers.Net.registerMessage(PacketTerminalAction.Handler, PacketTerminalAction::class.java, 2, Side.SERVER)
+    RetroComputers.Net.registerMessage(PacketComponentUpdate.Handler, PacketComponentUpdate::class.java, 3, Side.CLIENT)
+    RetroComputers.Net.registerMessage(PacketComponentChange.Handler, PacketComponentChange::class.java, 4, Side.CLIENT)
+    RetroComputers.Net.registerMessage(PacketComponentClick.Handler, PacketComponentClick::class.java, 5, Side.SERVER)
 
     QGuiHandler.registerClientGui(ResourceLocation(ModID, "computer"))
     QGuiHandler.registerClientGui(ResourceLocation(ModID, "terminal"))
@@ -49,6 +57,12 @@ open class Proxy {
       FeatureManager.depend(MCMultipartCompat, BlueAlloy, RedAlloy, LumarOrange, SiliconWaferBlue,
         SiliconWaferRed, Brass, Motor, CopperWire)
     }
+
+    GameRegistry.registerTileEntity(Rack.Tile::class.java, Rack.Type.toString())
+    GameRegistry.registerTileEntity(RackExt.Tile::class.java, RackExt.Type.toString())
+
+    ComponentRegistry.register(ResourceLocation(ModID, "dummy"), ComponentDummy::class)
+    ComponentRegistry.register(ResourceLocation(ModID, "cpu"), ComponentCPU::class)
   }
 
   open fun init(e: FMLInitializationEvent) {
@@ -60,6 +74,13 @@ open class Proxy {
   @SubscribeEvent
   fun registerItems(e: RegistryEvent.Register<Item>) {
     e.registry.register(RetroComputers.disks)
+    e.registry.register(Rack.Item)
+  }
+
+  @SubscribeEvent
+  fun registerBlocks(e: RegistryEvent.Register<Block>) {
+    e.registry.register(Rack.Block)
+    e.registry.register(RackExt.Block)
   }
 
   @SubscribeEvent

@@ -3,70 +3,77 @@ package therealfarfetchd.retrocomputers.common.cpu
 import therealfarfetchd.quacklib.common.api.extensions.*
 import therealfarfetchd.quacklib.common.api.util.QNBTCompound
 import therealfarfetchd.retrocomputers.ModID
-import therealfarfetchd.retrocomputers.common.api.cpu.IMemoryProvider
-import therealfarfetchd.retrocomputers.common.api.cpu.IProcessor
+import therealfarfetchd.retrocomputers.common.component.ComponentCPU
 import kotlin.experimental.and
 import kotlin.experimental.inv
 import kotlin.experimental.or
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class Processor : IProcessor {
-  override lateinit var mem: IMemoryProvider
+class Processorv2(val component: ComponentCPU, val busctl: BusController) {
+  private val mem = ByteArray(65536)
+  private operator fun ByteArray.set(i: Short, b: Byte) = set(i.toInt() and 0xFFFF, b)
+  private operator fun ByteArray.get(i: Short) = get(i.toInt() and 0xFFFF)
 
   private var rB by _8bit()
   private var rI by _16bit()
   private var sp by _16bit()
   private var rp by _16bit()
-  private var pc by _16bit()
+  var pc by _16bit()
   private var resetAddr by _16bit()
   private var brkAddr by _16bit()
-  private val flags: BooleanArray = kotlin.BooleanArray(9)
+  val flags: BooleanArray = kotlin.BooleanArray(9)
 
   private var busOffset: Short = 0
-  private var busEnabled: Boolean = false
+  var busEnabled: Boolean = false
 
-  private var rA by _8or16bit { flags[M] }
+  var rA by _8or16bit { flags[M] }
   private var rD by _8or16bit { flags[M] }
-  private var rX by _8or16bit { flags[X] }
-  private var rY by _8or16bit { flags[X] }
+  var rX by _8or16bit { flags[X] }
+  var rY by _8or16bit { flags[X] }
 
-  override fun reset(hard: Boolean) {
-    if (hard) {
-      rA = 0
-      rB = 0
-      rX = 0
-      rY = 0
-      rI = 0
-      rD = 0
+  var isRunning = false
+  var timeout = false
+  var error = false
+  var wait = false
+  var stop = false
 
-      resetAddr = 0x0400
-      brkAddr = 0x2000
-      unpack(0.toShort()).copyTo(flags)
-      flags[E] = true
-      flags[M] = true
-      flags[X] = true
+  init {
+    val path = "assets/$ModID/bootldr.bin"
+    val istr = javaClass.classLoader.getResourceAsStream(path)
 
-      mem[0] = mem.diskAddr
-      mem[1] = mem.termAddr
-
-      val path = "assets/$ModID/bootldr.bin"
-      val istr = javaClass.classLoader.getResourceAsStream(path)
-
-      if (istr != null) {
-        val loader = ByteArray(0x100)
-        istr.read(loader)
-        for (i in loader.indices) mem[(i + 0x400).toShort()] = loader[i]
-        istr.close()
-      }
+    if (istr != null) {
+      val loader = ByteArray(0x100)
+      istr.read(loader)
+      for (i in loader.indices) mem[(i + 0x400).toShort()] = loader[i]
+      istr.close()
     }
-    sp = 0x01FF
-    rp = 0x02FF
+
+    resetAddr = 0x0400 // TODO move to memory
+    brkAddr = 0x2000
     pc = resetAddr
-    error = false
+
+    reset()
   }
 
-  override fun saveData(tag: QNBTCompound) {
+  fun reset() {
+    rA = 0
+    rB = 0
+    rX = 0
+    rY = 0
+    rI = 0
+    rD = 0
+
+    unpack(0.toShort()).copyTo(flags)
+    flags[E] = true
+    flags[M] = true
+    flags[X] = true
+
+    sp = 0x01FF
+    rp = 0x02FF
+  }
+
+  fun saveData(tag: QNBTCompound) {
     tag.ushort["a"] = rA
     tag.ubyte["b"] = rB
     tag.ushort["x"] = rX
@@ -82,10 +89,14 @@ class Processor : IProcessor {
     tag.bool["t"] = timeout
     tag.short["bo"] = busOffset
     tag.bool["be"] = busEnabled
+    tag.bool["run"] = isRunning
     tag.bool["e"] = error
+    tag.bool["stp"] = stop
+    tag.bool["wai"] = wait
+    tag.bytes["mem"] = mem
   }
 
-  override fun loadData(tag: QNBTCompound) {
+  fun loadData(tag: QNBTCompound) {
     rA = tag.ushort["a"]
     rB = tag.ubyte["b"]
     rX = tag.ushort["x"]
@@ -101,10 +112,16 @@ class Processor : IProcessor {
     timeout = tag.bool["t"]
     busOffset = tag.short["bo"]
     busEnabled = tag.bool["be"]
+    isRunning = tag.bool["run"]
     error = tag.bool["e"]
+    stop = tag.bool["stp"]
+    wait = tag.bool["wai"]
+    tag.bytes["mem"].copyTo(mem)
   }
 
-  override fun next() {
+  fun next() {
+    stop = false
+    wait = false
     val insn = pc1()
     //    println("%02x @ %04x".format(insn, pc - 1))
     when (insn) {
@@ -524,6 +541,7 @@ class Processor : IProcessor {
       0xCB -> {
         // wai
         timeout = true
+        wait = true
       }
       0xCF -> {
         // pld
@@ -539,7 +557,8 @@ class Processor : IProcessor {
       }
       0xDB -> {
         // stp
-        mem.halt()
+        isRunning = false
+        stop = true
       }
       0xDC -> {
         // tix
@@ -673,8 +692,8 @@ class Processor : IProcessor {
     val uaddr = addr and 0xFFFF
     val ubusOff = busOffset.unsigned
     return if (busEnabled && uaddr in ubusOff..ubusOff + 0x00FF) {
-      val bus = mem.bus()
-      val result = bus?.peek(mem.targetBus, (addr - ubusOff).toByte())
+      val bus = busctl.bus()
+      val result = bus?.peek(busctl.targetBus, (addr - ubusOff).toByte())
       if (result != null) result.unsigned
       else {
         timeout = true
@@ -683,7 +702,7 @@ class Processor : IProcessor {
     } else mem[addr.toShort()].unsigned
   }
 
-  private fun peek2(addr: Int): Int = peek1(addr) or (peek1(addr + 1) shl 8)
+  fun peek2(addr: Int): Int = peek1(addr) or (peek1(addr + 1) shl 8)
 
   private fun peekM(addr: Int): Int = if (flags[M]) peek1(addr) else peek2(addr)
 
@@ -691,17 +710,17 @@ class Processor : IProcessor {
 
   // Write to memory address
 
-  private fun poke1(addr: Int, b: Int) {
+  fun poke1(addr: Int, b: Int) {
     val uaddr = addr and 0xFFFF
     val ubusOff = busOffset.unsigned
     if (busEnabled && uaddr in ubusOff..ubusOff + 0x00FF) {
-      val bus = mem.bus()
-      if (bus == null || !bus.canAccess(mem.targetBus)) timeout = true
-      else bus.poke(mem.targetBus, (addr - ubusOff).toByte(), b.toByte())
+      val bus = busctl.bus()
+      if (bus == null || !bus.canAccess(busctl.targetBus)) timeout = true
+      else bus.poke(busctl.targetBus, (addr - ubusOff).toByte(), b.toByte())
     } else mem[addr.toShort()] = b.toByte()
   }
 
-  private fun poke2(addr: Int, s: Int) {
+  fun poke2(addr: Int, s: Int) {
     poke1(addr, s)
     poke1(addr + 1, s shr 8)
   }
@@ -783,6 +802,7 @@ class Processor : IProcessor {
   }
 
   private fun poprM(): Int {
+    mem
     if (flags[M]) return popr1()
     else return popr2()
   }
@@ -1027,10 +1047,10 @@ class Processor : IProcessor {
     fun mmu(data: Int) {
       when (ub(data)) {
         0x00 -> {
-          mem.targetBus = rA.toByte()
-          if (mem.isBusConnected && !mem.bus()!!.canAccess(mem.targetBus)) timeout = true
+          busctl.targetBus = rA.toByte()
+          if (busctl.isBusConnected && !busctl.bus()!!.canAccess(busctl.targetBus)) timeout = true
         }
-        0x80 -> rA = mem.targetBus.unsigned
+        0x80 -> rA = busctl.targetBus.unsigned
 
         0x01 -> busOffset = rA.toShort()
         0x81 -> rA = busOffset.unsigned
@@ -1038,8 +1058,8 @@ class Processor : IProcessor {
         0x02 -> busEnabled = true
         0x82 -> busEnabled = false
 
-        0x03 -> mem.allowWrite = true
-        0x04 -> mem.allowWrite = false
+        0x03 -> busctl.allowWrite = true
+        0x04 -> busctl.allowWrite = false
 
         0x05 -> brkAddr = rA
         0x85 -> rA = brkAddr
@@ -1069,40 +1089,32 @@ class Processor : IProcessor {
     unpack(f).copyTo(flags)
   }
 
-  override var timeout: Boolean = false
-
-  override var error: Boolean = false
-
-  override val insnBufferSize: Int = 0x10000
-
-  override val insnGain: Int = 0x400
-
-  fun _8bit(): ReadWriteProperty<Processor, Int> = object : ReadWriteProperty<Processor, Int> {
+  fun _8bit(): ReadWriteProperty<Processorv2, Int> = object : ReadWriteProperty<Processorv2, Int> {
     var value: Byte = 0
 
-    override fun getValue(thisRef: Processor, property: KProperty<*>): Int = value.unsigned
+    override fun getValue(thisRef: Processorv2, property: KProperty<*>): Int = value.unsigned
 
-    override fun setValue(thisRef: Processor, property: KProperty<*>, value: Int) {
+    override fun setValue(thisRef: Processorv2, property: KProperty<*>, value: Int) {
       this.value = value.toByte()
     }
   }
 
-  fun _16bit(): ReadWriteProperty<Processor, Int> = object : ReadWriteProperty<Processor, Int> {
+  fun _16bit(): ReadWriteProperty<Processorv2, Int> = object : ReadWriteProperty<Processorv2, Int> {
     var value: Short = 0
 
-    override fun getValue(thisRef: Processor, property: KProperty<*>): Int = value.unsigned
+    override fun getValue(thisRef: Processorv2, property: KProperty<*>): Int = value.unsigned
 
-    override fun setValue(thisRef: Processor, property: KProperty<*>, value: Int) {
+    override fun setValue(thisRef: Processorv2, property: KProperty<*>, value: Int) {
       this.value = value.toShort()
     }
   }
 
-  fun _8or16bit(op: () -> Boolean): ReadWriteProperty<Processor, Int> = object : ReadWriteProperty<Processor, Int> {
+  fun _8or16bit(op: () -> Boolean): ReadWriteProperty<Processorv2, Int> = object : ReadWriteProperty<Processorv2, Int> {
     var value: Short = 0
 
-    override fun getValue(thisRef: Processor, property: KProperty<*>): Int = value.unsigned and (if (op()) 0xFF else 0xFFFF)
+    override fun getValue(thisRef: Processorv2, property: KProperty<*>): Int = value.unsigned and (if (op()) 0xFF else 0xFFFF)
 
-    override fun setValue(thisRef: Processor, property: KProperty<*>, value: Int) {
+    override fun setValue(thisRef: Processorv2, property: KProperty<*>, value: Int) {
       this.value = value.toShort()
     }
   }

@@ -2,14 +2,21 @@ package therealfarfetchd.retrocomputers.client
 
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GlStateManager
+import net.minecraft.client.renderer.RenderGlobal.drawSelectionBoundingBox
 import net.minecraft.client.renderer.block.model.ModelResourceLocation
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.math.AxisAlignedBB
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.RayTraceResult
+import net.minecraftforge.client.event.DrawBlockHighlightEvent
 import net.minecraftforge.client.event.ModelRegistryEvent
 import net.minecraftforge.client.event.RenderWorldLastEvent
 import net.minecraftforge.client.model.ModelLoader
+import net.minecraftforge.client.model.obj.OBJLoader
+import net.minecraftforge.fml.client.registry.ClientRegistry
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.fml.common.gameevent.InputEvent
 import org.lwjgl.opengl.GL11
 import therealfarfetchd.quacklib.client.api.gui.GuiElementRegistry
 import therealfarfetchd.quacklib.client.api.gui.GuiLogicRegistry
@@ -18,27 +25,30 @@ import therealfarfetchd.quacklib.client.api.qbr.bindSpecialRenderer
 import therealfarfetchd.quacklib.client.registerModelBakery
 import therealfarfetchd.quacklib.common.api.autoconf.DefaultFeatures
 import therealfarfetchd.quacklib.common.api.autoconf.FeatureManager
+import therealfarfetchd.quacklib.common.api.util.math.Mat4
+import therealfarfetchd.quacklib.common.api.util.math.Vec3
+import therealfarfetchd.quacklib.common.api.util.math.times
 import therealfarfetchd.retrocomputers.ModID
 import therealfarfetchd.retrocomputers.RetroComputers
 import therealfarfetchd.retrocomputers.client.gui.BusAddressLogic
 import therealfarfetchd.retrocomputers.client.gui.ComputerLogic
+import therealfarfetchd.retrocomputers.client.gui.GuiComponentView
 import therealfarfetchd.retrocomputers.client.gui.TerminalLogic
 import therealfarfetchd.retrocomputers.client.gui.elements.*
+import therealfarfetchd.retrocomputers.client.keybind.Keybindings
 import therealfarfetchd.retrocomputers.client.model.ModelRedstonePort
 import therealfarfetchd.retrocomputers.client.model.ModelRedstonePortAnalog
+import therealfarfetchd.retrocomputers.client.render.block.RackRenderer
 import therealfarfetchd.retrocomputers.client.render.block.RetinalScannerRenderer
 import therealfarfetchd.retrocomputers.common.Proxy
-import therealfarfetchd.retrocomputers.common.block.RedstonePort
-import therealfarfetchd.retrocomputers.common.block.RedstonePortAnalog
-import therealfarfetchd.retrocomputers.common.block.RetinalScanner
-import therealfarfetchd.retrocomputers.common.block.RibbonCable
+import therealfarfetchd.retrocomputers.common.block.*
 import therealfarfetchd.retrocomputers.common.item.ItemDebug
+import therealfarfetchd.retrocomputers.common.util.getRackPos
 
 /**
  * Created by marco on 25.06.17.
  */
 class Proxy : Proxy() {
-
   val mc: Minecraft by lazy { Minecraft.getMinecraft() }
 
   override fun preInit(e: FMLPreInitializationEvent) {
@@ -59,6 +69,9 @@ class Proxy : Proxy() {
     }
 
     RetinalScanner::class.bindSpecialRenderer(RetinalScannerRenderer)
+    ClientRegistry.bindTileEntitySpecialRenderer(Rack.Tile::class.java, RackRenderer)
+
+    OBJLoader.INSTANCE.addDomain(ModID)
   }
 
   @SubscribeEvent
@@ -94,6 +107,70 @@ class Proxy : Proxy() {
         GlStateManager.disableBlend()
         GL11.glDisable(GL11.GL_LINE_SMOOTH)
       }
+    }
+  }
+
+  @SubscribeEvent
+  fun drawBlockOutline(e: DrawBlockHighlightEvent) {
+    val player = e.player
+    val world = player.world
+    val pos = e.target.blockPos
+    val rackPos = getRackPos(world, pos) ?: return
+    val te = world.getTileEntity(rackPos) as Rack.Tile
+
+    fun AxisAlignedBB.rotateY(facing: EnumFacing): AxisAlignedBB {
+      val transform = Mat4.Identity
+        .translate(0.5f, 0.5f, 0.5f)
+        .rotate(0f, 1f, 0f, facing.horizontalAngle)
+        .translate(-0.5f, -0.5f, -0.5f)
+
+      val v1 = transform * Vec3(minX, minY, minZ)
+      val v2 = transform * Vec3(maxX, maxY, maxZ)
+
+      return AxisAlignedBB(v1.x, v1.y, v1.z, v2.x, v2.y, v2.z)
+    }
+
+    val (slotIndex, bbIndex) = e.target.hitInfo as? Pair<*, *> ?: return
+    slotIndex as? Int ?: return
+    bbIndex as? Int ?: return
+
+    val bb = te.container.getComponent(slotIndex).getBoundingBoxes()[bbIndex]
+
+    GlStateManager.enableBlend()
+    GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO)
+    GlStateManager.glLineWidth(2.0f)
+    GlStateManager.disableTexture2D()
+    GlStateManager.depthMask(false)
+
+    if (world.worldBorder.contains(rackPos)) {
+      val x = player.lastTickPosX + (player.posX - player.lastTickPosX) * e.partialTicks
+      val y = player.lastTickPosY + (player.posY - player.lastTickPosY) * e.partialTicks
+      val z = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * e.partialTicks
+      drawSelectionBoundingBox(bb.offset(2 / 16.0, 1 / 16.0 + 7 / 16.0 * slotIndex, 0 / 16.0)
+        .rotateY(te.facing).grow(0.002).offset(-x, -y, -z).offset(rackPos),
+        0.0f, 0.0f, 0.0f, 0.4f)
+    }
+
+    GlStateManager.depthMask(true)
+    GlStateManager.enableTexture2D()
+    GlStateManager.disableBlend()
+
+    e.isCanceled = true
+  }
+
+  @SubscribeEvent
+  fun onKeyInput(e: InputEvent.KeyInputEvent) {
+    if (Keybindings.ComponentView.isPressed && mc.currentScreen == null) {
+      val target = mc.objectMouseOver
+      val (slotIndex, _) = target.hitInfo as? Pair<*, *> ?: return
+      slotIndex as? Int ?: return
+
+      val pos = target.blockPos
+      val rackPos = getRackPos(mc.world, pos) ?: return
+
+      mc.world.getTileEntity(rackPos) as? Rack.Tile ?: return
+
+      mc.displayGuiScreen(GuiComponentView(rackPos, slotIndex, target.sideHit))
     }
   }
 
@@ -179,11 +256,11 @@ class Proxy : Proxy() {
     //          when (cap) {
     //            is JoinedCablePort -> cap.unwrapped
     //            else -> setOf(cap)
-    //          }.forEach { cc ->
-    //            if (cc is RibbonCable.CableConn) {
+    //          }.forEach { data ->
+    //            if (data is RibbonCable.CableConn) {
     //              fun plane(x: Double, y: Double, width: Double, height: Double) {
     //                val vec = f.directionVec
-    //                val yOffset = (cc.base.axisDirection.offset + 1) / 2
+    //                val yOffset = (data.base.axisDirection.offset + 1) / 2
     //                var realx = 0.0
     //                var realy = 0.0
     //                var realz = 0.0
@@ -192,7 +269,7 @@ class Proxy : Proxy() {
     //                var reald = 0.0
     //
     //                @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-    //                when (cc.base.axis) {
+    //                when (data.base.axis) {
     //                  X -> {
     //                    realz = x
     //                    realy = y
@@ -218,7 +295,7 @@ class Proxy : Proxy() {
     //                rect((realx + vec.x).toFloat(), (realy + vec.y).toFloat(), (realz + vec.z).toFloat(), realw.toFloat(), realh.toFloat(), reald.toFloat())
     //              }
     //
-    //              val bbs = cc.elements.map { it.first.flip(f, cc.base) }
+    //              val bbs = data.elements.map { it.first.flip(f, data.base) }
     //              bbs.forEach { plane(it.x.toDouble(), it.y.toDouble(), it.width.toDouble(), it.height.toDouble()) }
     //            }
     //          }
@@ -226,5 +303,4 @@ class Proxy : Proxy() {
     //      }
     //    }
   }
-
 }

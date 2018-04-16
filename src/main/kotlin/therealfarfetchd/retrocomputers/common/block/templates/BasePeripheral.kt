@@ -8,16 +8,15 @@ import therealfarfetchd.quacklib.common.api.neighborSupport
 import therealfarfetchd.quacklib.common.api.qblock.QBlockConnectable
 import therealfarfetchd.quacklib.common.api.util.DataTarget
 import therealfarfetchd.quacklib.common.api.util.QNBTCompound
-import therealfarfetchd.retrocomputers.common.api.block.BusDataContainer
+import therealfarfetchd.retrocomputers.common.api.block.SimpleBusDataContainer
 import therealfarfetchd.retrocomputers.common.api.block.capability.SimpleBusConnectable
 
 /**
  * Created by marco on 14.07.17.
  */
 abstract class BasePeripheral(busId: Byte) : QBlockConnectable() {
-
   @Suppress("LeakingThis")
-  protected val data: BusDataContainer = BusDataContainer(this::peek, this::poke, neighborSupport())
+  protected val data = SimpleBusDataContainer(this::peek, this::poke, neighborSupport())
 
   private val standardConnectable = SimpleBusConnectable(data)
 
@@ -37,9 +36,6 @@ abstract class BasePeripheral(busId: Byte) : QBlockConnectable() {
   override fun loadData(nbt: QNBTCompound, target: DataTarget) {
     super.loadData(nbt, target)
     data.load(nbt.nbt["B"])
-
-    // backward compat
-    if ("BusID" in nbt) data.busId = nbt.byte["BusID"]
   }
 
   open fun connectionForSide(f: EnumFacing?): IConnectable? = standardConnectable.takeIf { f != null }
