@@ -42,6 +42,7 @@ import therealfarfetchd.retrocomputers.client.render.block.RackRenderer
 import therealfarfetchd.retrocomputers.client.render.block.RetinalScannerRenderer
 import therealfarfetchd.retrocomputers.common.Proxy
 import therealfarfetchd.retrocomputers.common.block.*
+import therealfarfetchd.retrocomputers.common.item.ItemCPU
 import therealfarfetchd.retrocomputers.common.item.ItemDebug
 import therealfarfetchd.retrocomputers.common.util.getRackPos
 
@@ -81,6 +82,7 @@ class Proxy : Proxy() {
     }
 
     ModelLoader.setCustomModelResourceLocation(Rack.Item, 0, ModelResourceLocation("retrocomputers:rack", "inventory"))
+    ModelLoader.setCustomModelResourceLocation(ItemCPU, 0, ModelResourceLocation("retrocomputers:cpu2", "inventory"))
 
     RetinalScannerRenderer.registerIconRegister()
 

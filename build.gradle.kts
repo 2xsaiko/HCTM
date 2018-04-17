@@ -88,6 +88,7 @@ configure<ForgeExtension> {
   version = "$mc_version-$forge_version"
   runDir = "run"
   mappings = mappings_version
+  isUseDepAts = true
 }
 
 tasks.withType<JavaCompile> {
