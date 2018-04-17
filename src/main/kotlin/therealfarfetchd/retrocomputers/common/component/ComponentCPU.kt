@@ -126,7 +126,7 @@ class ComponentCPU : Component, ComponentBusAware {
 
   private inner class Controls {
     fun toggleInputSwitch(s: Int) {
-      inputRegister = inputRegister xor (1 shl s).toShort()
+      inputRegister = inputRegister xor (65536 shr (s+1)).toShort()
       updateInput()
     }
 

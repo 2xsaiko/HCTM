@@ -64,7 +64,7 @@ fun loadOBJ(rl: ResourceLocation): OBJRoot? {
   if (objname != null) objects += (objname to Object(objgroups, currentFaces))
   else faces += currentFaces
 
-  return OBJRoot(materials, vertPos, vertTex, vertNormal, faces, objects)
+  return OBJRoot(materials, vertPos, vertTex, vertNormal, faces, objects).triangulate()
 }
 
 private fun parseVertex(s: String): Vertex {

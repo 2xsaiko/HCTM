@@ -64,7 +64,7 @@ class OBJGLRenderer(val obj: OBJRoot, val textureOverrides: Map<String, String> 
       else tm.bindTexture(rl)
       currentTexture = rl
     }
-    buf.begin(GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION_TEX_COLOR)
+    buf.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR)
     for (vertex in face.vertices) {
       val (x, y, z) = obj.vertPos[getRealIndex(obj.vertPos.size, vertex.xyz)]
       val (u, v) = if (vertex.tex != null) obj.vertTex[getRealIndex(obj.vertTex.size, vertex.tex)] else Vec3(0, 0, 0)

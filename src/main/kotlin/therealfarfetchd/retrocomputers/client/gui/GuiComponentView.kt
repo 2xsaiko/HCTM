@@ -83,7 +83,10 @@ class GuiComponentView(val pos: BlockPos, val component: Int, val side: EnumFaci
 
       enableAlpha()
       enableBlend()
-      GL11.glColor4f(0.7f, 0.7f, 0.7f, 0.25f)
+      GL11.glLineStipple(2, 0b0101010101010101)
+      GL11.glEnable(GL11.GL_LINE_STIPPLE)
+      GL11.glLineWidth(2.0f)
+      GL11.glColor4f(0.5f, 0.5f, 0.5f, 1f)
       GL11.glBegin(GL11.GL_LINE_STRIP)
       GL11.glVertex2f(minX, minY)
       GL11.glVertex2f(maxX, minY)
@@ -91,6 +94,7 @@ class GuiComponentView(val pos: BlockPos, val component: Int, val side: EnumFaci
       GL11.glVertex2f(minX, maxY)
       GL11.glVertex2f(minX, minY)
       GL11.glEnd()
+      GL11.glDisable(GL11.GL_LINE_STIPPLE)
     }
   }
 
@@ -106,8 +110,6 @@ class GuiComponentView(val pos: BlockPos, val component: Int, val side: EnumFaci
     val start = guiToWorld * Vec3(mouseX, mouseY, 0)
     val end = (start - guiToWorld * Vec3(mouseX, mouseY, 10)).normalize() + start
     val rtr = viewEntity.world.rayTraceBlocks(start.toVec3d(), end.toVec3d()) ?: return
-    mc.objectMouseOver = rtr
-    println(rtr.hitInfo)
 
     val rackPos = getRackPos(viewEntity.world, rtr.blockPos) ?: return
     val te = viewEntity.world.getTileEntity(rackPos) as? Rack.Tile ?: return

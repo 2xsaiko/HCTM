@@ -80,6 +80,8 @@ class Proxy : Proxy() {
       ModelLoader.setCustomModelResourceLocation(RetroComputers.disks, it, ModelResourceLocation("retrocomputers:system_disk", "inventory"))
     }
 
+    ModelLoader.setCustomModelResourceLocation(Rack.Item, 0, ModelResourceLocation("retrocomputers:rack", "inventory"))
+
     RetinalScannerRenderer.registerIconRegister()
 
     registerModelBakery(RedstonePortAnalog.Block, RedstonePortAnalog.Item, ModelRedstonePortAnalog)

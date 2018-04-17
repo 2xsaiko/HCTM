@@ -71,7 +71,7 @@ object RenderCPU : ComponentRender<ComponentCPU> {
   private fun getFlippedState(component: ComponentCPU, i: Int): Boolean {
     return when (i) {
       0             -> component.powerOn
-      in 1 until 17 -> component.inputRegister.toInt() and (1 shl (i - 1)) != 0
+      in 1 until 17 -> component.inputRegister.toInt() and (65536 shr i) != 0
       17            -> component.btnAddrLoad > 0
       18            -> component.btnClear > 0
       19            -> component.btnContinue > 0
@@ -90,7 +90,7 @@ object RenderCPU : ComponentRender<ComponentCPU> {
         // prev[i] + (s[i] - prev[i]) * partialTicks
         (prev[i] + s[i]) / 2
       }
-      drawLight(x + 29 * i, y, 0.65f * r)
+      drawLight(x + 29 * (15 - i), y, 0.65f * r)
     }
   }
 
