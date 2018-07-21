@@ -40,39 +40,31 @@ class FluidPipe : BlockWireCentered<FluidPipeContainer>(0.5), ITickable {
     }
   }
 
-  override fun updateCableConnections(): Boolean {
-    if (world.isClient) return false
-    var changed = super.updateCableConnections()
+  override fun connectionsChanged() {
+    super.connectionsChanged()
 
-    val conns = connections.filter { it.value != EnumWireConnection.None }.map { it.key.direction }
+    if (world.isClient) return
+
+    val conns = cr.connections.filter { it.value != EnumWireConnection.None }.map { it.key.direction }
     val oldjoints = joints
     joints = emptySet()
     if (conns.map { it.axis }.toSet().size != 1) {
       joints = conns.toSet()
     } else {
-      if (!changed) for (c in conns) {
+      for (c in conns) {
         val otherConn = world.getTileEntity(pos.offset(c))?.getCapability(Capabilities.Connectable, c.opposite)
         if (otherConn?.getAdditionalData(null, "joints") as? Boolean == true) joints += c
       }
     }
 
-    if (joints != oldjoints || changed) {
-      dataChanged()
-      clientDataChanged()
-
+    if (joints != oldjoints) {
       val changedJoints = (oldjoints - joints) + (joints - oldjoints)
 
       for (j in changedJoints) {
         world.neighborChanged(pos.offset(j), FluidPipe.Block, pos)
       }
-
-      if (changed) {
-        world.neighborChanged(pos, Block, pos)
-      }
-
-      changed = true
+      world.neighborChanged(pos, Block, pos)
     }
-    return changed
   }
 
   override fun getAdditionalData(side: EnumFacing, facing: EnumFacing?, key: String): Any? {
