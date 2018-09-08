@@ -161,7 +161,12 @@ class Computer : Horizontal(0), ITickable {
           cpu.timeout = false
           ibuf = minOf(cpu.insnBufferSize, ibuf + cpu.insnGain)
           while (ibuf > 0 && !cpu.timeout && running) {
-            cpu.next()
+            try {
+              cpu.next()
+            } catch (e: Exception) {
+              e.printStackTrace()
+              cpu.timeout = true
+            }
             ibuf--
           }
         }

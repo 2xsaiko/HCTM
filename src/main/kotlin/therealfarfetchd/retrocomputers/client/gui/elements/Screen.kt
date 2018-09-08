@@ -76,7 +76,7 @@ class Screen : GuiElement() {
     val tessellator = Tessellator.getInstance()
     val vertexbuffer = tessellator.buffer
 
-    val fb = if (crt) setupFramebuffer() else null
+    val fb = if (supportsShader && crt) setupFramebuffer() else null
 
     GlStateManager.enableTexture2D()
     val cs = charset
@@ -164,6 +164,8 @@ class Screen : GuiElement() {
   }
 
   companion object {
+    var supportsShader = true
+
     val tilesetData by lazy {
       val i = TextureUtil.glGenTextures()
       TextureUtil.allocateTexture(i, 8, 2048)
@@ -181,15 +183,24 @@ class Screen : GuiElement() {
     private fun linkShaders(vert: Int, frag: Int): Int {
       RetroComputers.Logger.info("Linking shaders...")
       val prog = GL20.glCreateProgram()
-      if (prog == 0) error("Your system does not support shaders. RIP")
+      if (prog == 0) {
+        supportsShader = false
+        return 0
+      }
       GL20.glAttachShader(prog, vert)
       GL20.glAttachShader(prog, frag)
       GL20.glLinkProgram(prog)
       logp(prog).lines().forEach(RetroComputers.Logger::info)
-      if (GL20.glGetProgrami(prog, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) error("Error linking shader")
+      if (GL20.glGetProgrami(prog, GL20.GL_LINK_STATUS) == GL11.GL_FALSE) {
+        supportsShader = false
+        return 0
+      }
       GL20.glValidateProgram(prog)
       logp(prog).lines().forEach(RetroComputers.Logger::info)
-      if (GL20.glGetProgrami(prog, GL20.GL_VALIDATE_STATUS) == GL11.GL_FALSE) error("Error validating shader")
+      if (GL20.glGetProgrami(prog, GL20.GL_VALIDATE_STATUS) == GL11.GL_FALSE) {
+        supportsShader = false
+        return 0
+      }
       return prog
     }
 
@@ -205,12 +216,16 @@ class Screen : GuiElement() {
         else -> "unknown($stype)"
       }
       } shader...")
-      if (shader == 0) error("Your system does not support shaders. RIP")
+      if (shader == 0) {
+        supportsShader = false
+        return 0
+      }
       GL20.glShaderSource(shader, source)
       GL20.glCompileShader(shader)
       if (GL20.glGetShaderi(shader, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
         RetroComputers.Logger.info(log(shader))
-        error("Error compiling shader")
+        supportsShader = false
+        return 0
       }
       return shader
     }
