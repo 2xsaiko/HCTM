@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "therealfarfetchd.retrocomputers.client.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinClientPlayerInteractionManager"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

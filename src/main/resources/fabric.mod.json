@@ -1,0 +1,17 @@
+{
+  "id": "retrocomputers",
+  "name": "RetroComputers",
+  "version": "1.0.0",
+  "side": "universal",
+  "dependencies": {
+    "net.fabricmc.language.kotlin": {
+      "version": ">=1.3.10-8"
+    }
+  },
+  "initializer": "therealfarfetchd.retrocomputers.RetroComputers",
+  "languageAdapter": "net.fabricmc.language.kotlin.KotlinLanguageAdapter",
+  "mixins": {
+    "client": "retrocomputers-mixins-client.json",
+    "common": "retrocomputers-mixins-common.json"
+  }
+}
