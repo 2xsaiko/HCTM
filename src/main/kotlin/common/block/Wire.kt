@@ -11,6 +11,7 @@ import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemUsageContext
 import net.minecraft.item.block.BlockItem
 import net.minecraft.server.network.ServerPlayerEntity
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundCategory
 import net.minecraft.state.StateFactory.Builder
 import net.minecraft.state.property.Properties
@@ -32,6 +33,9 @@ import net.minecraft.world.IWorld
 import net.minecraft.world.ViewableWorld
 import net.minecraft.world.World
 import therealfarfetchd.retrocomputers.common.block.ext.BlockCustomBreak
+import therealfarfetchd.retrocomputers.common.block.wire.BlockPartProvider
+import therealfarfetchd.retrocomputers.common.block.wire.PartExt
+import therealfarfetchd.retrocomputers.common.block.wire.getWireNetworkState
 import therealfarfetchd.retrocomputers.common.init.Blocks
 import therealfarfetchd.retrocomputers.common.init.Items
 import net.minecraft.block.Blocks as MCBlocks
@@ -100,6 +104,15 @@ class WireBlock : Block(Block.Settings.of(Material.STONE).noCollision().strength
     return result
   }
 
+  override fun method_9517(state: BlockState, world: IWorld, pos: BlockPos, flags: Int) {
+    if (!world.isClient && world is ServerWorld)
+      world.getWireNetworkState().onBlockChanged(pos, state)
+  }
+
+  override fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt<out Any?>> {
+    return WireUtils.getOccupiedSides(state).map(::WirePartExt).toSet()
+  }
+
   private fun getStateForSide(vararg side: Direction): BlockState =
     if (side.isEmpty()) MCBlocks.AIR.defaultState else
       side.fold(defaultState) { state, s -> state.with(WireProperties.PlacedWires.getValue(s), true) }
@@ -110,7 +123,12 @@ class WireBlock : Block(Block.Settings.of(Material.STONE).noCollision().strength
 
 }
 
-class WireItem : BlockItem(Blocks.Wire, Item.Settings()) {
+data class WirePartExt(val side: Direction) : PartExt<Direction> {
+  override val data: Direction
+    get() = side
+}
+
+class WireItem : BlockItem(Blocks.Wire, Settings()) {
 
   override fun place(ctx: ItemPlacementContext): ActionResult {
     val state = this.getBlockState(ctx) ?: return ActionResult.PASS
