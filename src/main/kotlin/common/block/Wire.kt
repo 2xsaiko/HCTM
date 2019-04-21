@@ -10,6 +10,8 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemUsageContext
 import net.minecraft.item.block.BlockItem
+import net.minecraft.nbt.ByteTag
+import net.minecraft.nbt.Tag
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundCategory
@@ -115,6 +117,12 @@ class WireBlock : Block(Block.Settings.of(Material.STONE).noCollision().strength
     return WireUtils.getOccupiedSides(state).map(::WirePartExt).toSet()
   }
 
+  override fun createExtFromTag(tag: Tag): PartExt<out Any?>? {
+    return (tag as? ByteTag)
+      ?.takeIf { it.int in 0 until 6 }
+      ?.let { WirePartExt(Direction.byId(it.int)) }
+  }
+
   private fun getStateForSide(vararg side: Direction): BlockState =
     if (side.isEmpty()) MCBlocks.AIR.defaultState else
       side.fold(defaultState) { state, s -> state.with(WireProperties.PlacedWires.getValue(s), true) }
@@ -133,6 +141,10 @@ data class WirePartExt(val side: Direction) : PartExt<Direction> {
     // For now, planar connections only because of simplicity
     return Direction.values().filter { it.axis != side.axis }
       .mapNotNull { d -> nv.getNodes(pos.offset(d)).firstOrNull { it.data.ext is WirePartExt && it.data.ext.side == side } }.toSet()
+  }
+
+  override fun toTag(): Tag {
+    return ByteTag(side.id.toByte())
   }
 }
 
