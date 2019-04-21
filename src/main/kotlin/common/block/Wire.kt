@@ -7,7 +7,6 @@ import net.minecraft.block.Material
 import net.minecraft.block.WallMountedBlock
 import net.minecraft.entity.VerticalEntityPosition
 import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.Item
 import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemUsageContext
 import net.minecraft.item.block.BlockItem
@@ -37,7 +36,7 @@ import therealfarfetchd.retrocomputers.common.init.Blocks
 import therealfarfetchd.retrocomputers.common.init.Items
 import net.minecraft.block.Blocks as MCBlocks
 
-class WireBlock : Block(Block.Settings.of(Material.STONE).noCollision().strength(0.25f, 0.25f)), BlockCustomBreak {
+class WireBlock : Block(Block.Settings.of(Material.STONE).noCollision().strength(0.25f, 0.25f)), BlockCustomBreak, BlockPartProvider {
 
   val boxHeight = 1 / 16f
 
@@ -102,7 +101,7 @@ class WireBlock : Block(Block.Settings.of(Material.STONE).noCollision().strength
   }
 
   private fun getStateForSide(vararg side: Direction): BlockState =
-    if (side.isEmpty()) MCBlocks.field_10124.defaultState else
+    if (side.isEmpty()) MCBlocks.AIR.defaultState else
       side.fold(defaultState) { state, s -> state.with(WireProperties.PlacedWires.getValue(s), true) }
 
   override fun getStateForNeighborUpdate(state: BlockState, side: Direction, state1: BlockState, world: IWorld, pos: BlockPos, pos1: BlockPos): BlockState {
@@ -114,11 +113,11 @@ class WireBlock : Block(Block.Settings.of(Material.STONE).noCollision().strength
 class WireItem : BlockItem(Blocks.Wire, Item.Settings()) {
 
   override fun place(ctx: ItemPlacementContext): ActionResult {
-    val state = this.getBlockState(ctx) ?: return ActionResult.field_5814
+    val state = this.getBlockState(ctx) ?: return ActionResult.PASS
 
-    if (!doPlace(ctx, state)) return ActionResult.field_5814
+    if (!doPlace(ctx, state)) return ActionResult.PASS
 
-    return ActionResult.field_5812
+    return ActionResult.SUCCESS
   }
 
   private fun tryFit(state: BlockState, new: BlockState): BlockState? {
@@ -160,7 +159,7 @@ class WireItem : BlockItem(Blocks.Wire, Item.Settings()) {
     }
 
     val sg = placedState.soundGroup
-    world.playSound(player, pos, this.method_19260(placedState), SoundCategory.field_15245, (sg.getVolume() + 1.0f) / 2.0f, sg.getPitch() * 0.8f)
+    world.playSound(player, pos, this.method_19260(placedState), SoundCategory.BLOCKS, (sg.getVolume() + 1.0f) / 2.0f, sg.getPitch() * 0.8f)
     stack.subtractAmount(1)
     return true
   }
@@ -169,12 +168,12 @@ class WireItem : BlockItem(Blocks.Wire, Item.Settings()) {
 
 object WireProperties {
   val PlacedWires = mapOf(
-    Direction.UP to Properties.UP_BOOL,
-    Direction.DOWN to Properties.DOWN_BOOL,
-    Direction.NORTH to Properties.NORTH_BOOL,
-    Direction.SOUTH to Properties.SOUTH_BOOL,
-    Direction.EAST to Properties.EAST_BOOL,
-    Direction.WEST to Properties.WEST_BOOL
+    UP to Properties.UP_BOOL,
+    DOWN to Properties.DOWN_BOOL,
+    NORTH to Properties.NORTH_BOOL,
+    SOUTH to Properties.SOUTH_BOOL,
+    EAST to Properties.EAST_BOOL,
+    WEST to Properties.WEST_BOOL
   )
 }
 

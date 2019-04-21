@@ -1,7 +1,7 @@
 package therealfarfetchd.retrocomputers.common.block
 
 import net.minecraft.block.Block
-import net.minecraft.block.BlockRenderType.field_11458
+import net.minecraft.block.BlockRenderType.MODEL
 import net.minecraft.block.BlockState
 import net.minecraft.block.BlockWithEntity
 import net.minecraft.block.HorizontalFacingBlock
@@ -25,7 +25,7 @@ abstract class BaseBlock : BlockWithEntity(Block.Settings.of(Material.METAL)) {
     return this.defaultState.with(Direction, ctx.playerHorizontalFacing.opposite)
   }
 
-  override fun getRenderType(p0: BlockState?) = field_11458
+  override fun getRenderType(p0: BlockState?) = MODEL
 
   override fun rotate(state: BlockState, rotation: Rotation): BlockState =
     state.with(Direction, rotation.rotate(state.get<Direction>(Direction) as Direction))
