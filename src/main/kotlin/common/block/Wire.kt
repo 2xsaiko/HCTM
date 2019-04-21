@@ -34,6 +34,8 @@ import net.minecraft.world.ViewableWorld
 import net.minecraft.world.World
 import therealfarfetchd.retrocomputers.common.block.ext.BlockCustomBreak
 import therealfarfetchd.retrocomputers.common.block.wire.BlockPartProvider
+import therealfarfetchd.retrocomputers.common.block.wire.IdNode
+import therealfarfetchd.retrocomputers.common.block.wire.NodeView
 import therealfarfetchd.retrocomputers.common.block.wire.PartExt
 import therealfarfetchd.retrocomputers.common.block.wire.getWireNetworkState
 import therealfarfetchd.retrocomputers.common.init.Blocks
@@ -126,6 +128,12 @@ class WireBlock : Block(Block.Settings.of(Material.STONE).noCollision().strength
 data class WirePartExt(val side: Direction) : PartExt<Direction> {
   override val data: Direction
     get() = side
+
+  override fun tryConnect(self: IdNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<IdNode> {
+    // For now, planar connections only because of simplicity
+    return Direction.values().filter { it.axis != side.axis }
+      .mapNotNull { d -> nv.getNodes(pos.offset(d)).firstOrNull { it.node.data.ext is WirePartExt && it.node.data.ext.side == side } }.toSet()
+  }
 }
 
 class WireItem : BlockItem(Blocks.Wire, Settings()) {

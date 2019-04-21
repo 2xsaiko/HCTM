@@ -53,6 +53,14 @@ class Graph<N, L> {
 
   fun join(other: Graph<N, L>) {
     this.nodes += other.nodes
+    other.nodes = emptySet()
+  }
+
+  fun link(node1: Node<N, L>, node2: Node<N, L>, data: L): Link<N, L> {
+    val link = Link(node1, node2, data)
+    node1.onLink(link)
+    node2.onLink(link)
+    return link
   }
 
   operator fun contains(node: Node<N, L>) = node in nodes
@@ -66,6 +74,10 @@ data class Node<N, L>(val data: N) {
 
   fun onRemoved(node: Node<N, L>) {
     connections = connections.filter { node !in it }.toSet()
+  }
+
+  fun onLink(link: Link<N, L>) {
+    connections += link
   }
 }
 
