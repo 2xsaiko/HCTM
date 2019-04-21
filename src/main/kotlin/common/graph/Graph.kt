@@ -46,6 +46,7 @@ class Graph<N, L> {
       if (toBeChecked.isNotEmpty()) {
         val net = Graph<N, L>()
         moveBulkUnchecked(net, connected)
+        result += net
       }
     }
     return result

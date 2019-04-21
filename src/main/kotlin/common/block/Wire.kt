@@ -34,7 +34,7 @@ import net.minecraft.world.ViewableWorld
 import net.minecraft.world.World
 import therealfarfetchd.retrocomputers.common.block.ext.BlockCustomBreak
 import therealfarfetchd.retrocomputers.common.block.wire.BlockPartProvider
-import therealfarfetchd.retrocomputers.common.block.wire.IdNode
+import therealfarfetchd.retrocomputers.common.block.wire.NetNode
 import therealfarfetchd.retrocomputers.common.block.wire.NodeView
 import therealfarfetchd.retrocomputers.common.block.wire.PartExt
 import therealfarfetchd.retrocomputers.common.block.wire.getWireNetworkState
@@ -129,10 +129,10 @@ data class WirePartExt(val side: Direction) : PartExt<Direction> {
   override val data: Direction
     get() = side
 
-  override fun tryConnect(self: IdNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<IdNode> {
+  override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
     // For now, planar connections only because of simplicity
     return Direction.values().filter { it.axis != side.axis }
-      .mapNotNull { d -> nv.getNodes(pos.offset(d)).firstOrNull { it.node.data.ext is WirePartExt && it.node.data.ext.side == side } }.toSet()
+      .mapNotNull { d -> nv.getNodes(pos.offset(d)).firstOrNull { it.data.ext is WirePartExt && it.data.ext.side == side } }.toSet()
   }
 }
 

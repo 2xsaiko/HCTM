@@ -12,12 +12,13 @@ import therealfarfetchd.retrocomputers.common.graph.Graph
 import therealfarfetchd.retrocomputers.common.graph.Node
 import java.util.*
 
-private typealias NetNode = Node<NetworkPart<out PartExt<out Any?>>, Nothing?>
-private typealias NetGraph = Graph<NetworkPart<out PartExt<out Any?>>, Nothing?>
+typealias NetNode = Node<NetworkPart<out PartExt<out Any?>>, Nothing?>
+typealias NetGraph = Graph<NetworkPart<out PartExt<out Any?>>, Nothing?>
 
 class WireNetworkState(private val world: ServerWorld) : PersistentState(getNameForDimension(world.getDimension())) {
   private val networks = mutableMapOf<UUID, Network>()
   @JvmSynthetic internal val networksInPos = HashMultimap.create<BlockPos, Network>()
+  @JvmSynthetic internal val nodesToNetworks = mutableMapOf<NetNode, UUID>()
 
   fun onBlockChanged(pos: BlockPos, state: BlockState) {
     val actualState = world.getBlockState(pos)
@@ -34,38 +35,38 @@ class WireNetworkState(private val world: ServerWorld) : PersistentState(getName
       }
     }
 
-    for (node in new) {
+    for (ext in new) {
       val net = createNetwork()
-      val node = net.createNode(pos, node)
-      updateNodeConnections(IdNode(net.id, node))
+      val node = net.createNode(pos, ext)
+      updateNodeConnections(node)
     }
   }
 
-  fun getNodesAt(pos: BlockPos): Set<IdNode> {
-    return networksInPos.values().flatMap { net -> net.getNodesAt(pos).map { IdNode(net.id, it) } }.toSet()
+  fun getNodesAt(pos: BlockPos): Set<NetNode> {
+    return networksInPos.values().flatMap { net -> net.getNodesAt(pos).map { it } }.toSet()
   }
 
-  fun updateNodeConnections(node: IdNode) {
-    val nv = NodeView(world)
-    val ids = node.node.data.ext.tryConnect(node, world, node.node.data.pos, nv)
-    val oldConnections = node.node.connections.map { it.other(node.node) }
-    val potentialNewConnections = ids.filter { it.net != node.net || it.node !in oldConnections }
-    var newConnections = potentialNewConnections.filter { node in it.node.data.ext.tryConnect(it, world, it.node.data.pos, nv) }
+  fun updateNodeConnections(node: NetNode) {
+    val nodeNetId = getNetIdForNode(node)
 
-    while(newConnections.isNotEmpty())
+    val nv = NodeView(world)
+    val ids = node.data.ext.tryConnect(node, world, node.data.pos, nv)
+    val oldConnections = node.connections.map { it.other(node) }
+    val potentialNewConnections = ids.filter { getNetIdForNode(it) != nodeNetId || it !in oldConnections }
+    val newConnections = potentialNewConnections.filter { node in it.data.ext.tryConnect(it, world, it.data.pos, nv) }
+
     for (other in newConnections) {
-      val net = networks.getValue(node.net)
-      if (other.net != node.net) {
-        val otherNet = networks.getValue(other.net)
+      val net = networks.getValue(nodeNetId)
+      if (getNetIdForNode(other) != nodeNetId) {
+        val otherNet = networks.getValue(getNetIdForNode(other))
         net.merge(otherNet)
-        newConnections = newConnections.map { if (it.net == otherNet.id) it.copy(net = net.id) else it }
-        break
       }
 
-      net.link(node.node, other.node)
-      newConnections -= other
+      net.link(node, other)
     }
   }
+
+  fun getNetIdForNode(node: NetNode) = nodesToNetworks.getValue(node)
 
   fun createNetwork(): Network {
     val net = Network(this, UUID.randomUUID())
@@ -82,7 +83,29 @@ class WireNetworkState(private val world: ServerWorld) : PersistentState(getName
       if (v.id == id) networksInPos.remove(k, v)
     }
 
+    nodesToNetworks -= nodesToNetworks.filter { it.value == id }.keys
+
     println("Network $id destroyed")
+  }
+
+  fun rebuildRefs(vararg networks: UUID) {
+    val toRebuild = networks.takeIf { it.isNotEmpty() }?.map { Pair(it, this.networks[it]) } ?: this.networks.entries.map { Pair(it.key, it.value) }
+
+    for ((id, net) in toRebuild) {
+      for ((pos, net) in networksInPos.entries().toSet()) {
+        if (net.id == id) networksInPos.remove(pos, net)
+      }
+
+      nodesToNetworks -= nodesToNetworks.filterValues { it == id }.keys
+
+      if (net != null) {
+        net.rebuildRefs()
+        net.getNodes()
+          .onEach { nodesToNetworks[it] = net.id }
+          .map { it.data.pos }.toSet()
+          .forEach { networksInPos.put(it, net) }
+      }
+    }
   }
 
   override fun toTag(tag: CompoundTag): CompoundTag {
@@ -90,7 +113,7 @@ class WireNetworkState(private val world: ServerWorld) : PersistentState(getName
   }
 
   override fun fromTag(tag: CompoundTag) {
-
+    rebuildRefs()
   }
 
   companion object {
@@ -110,19 +133,19 @@ class Network(val controller: WireNetworkState, val id: UUID) {
     val node = graph.add(NetworkPart(pos, ext))
     nodesInPos.put(pos, node)
     controller.networksInPos.put(pos, this)
+    controller.nodesToNetworks[node] = this.id
     println("Created node $node")
     return node
   }
 
   fun destroyNode(node: NetNode) {
-    // TODO split network if necessary
-    nodesInPos.remove(node.data.pos, node)
     graph.remove(node)
     println("Destroyed node $node")
 
-    if (graph.nodes.isEmpty()) {
-      controller.destroyNetwork(id)
-    }
+    split().forEach { controller.rebuildRefs(it.id) }
+
+    if (graph.nodes.isEmpty()) controller.destroyNetwork(id)
+    controller.rebuildRefs(id)
   }
 
   fun link(node1: NetNode, node2: NetNode) {
@@ -136,12 +159,33 @@ class Network(val controller: WireNetworkState, val id: UUID) {
       for (key in controller.networksInPos.keySet()) {
         controller.networksInPos.replaceValues(key, controller.networksInPos.get(key).map { if (it == other) this else it }.toSet())
       }
+      controller.nodesToNetworks += graph.nodes.associate { it to this.id }
       controller.destroyNetwork(other.id)
     }
   }
 
+  fun getNodes() = graph.nodes
+
   fun split(): Set<Network> {
-    return setOf(this) // TODO
+    val newGraphs = graph.split()
+
+    val networks = newGraphs.map {
+      val net = controller.createNetwork()
+      net.graph.join(it)
+      net
+    }
+
+    networks.forEach { controller.rebuildRefs(it.id) }
+    controller.rebuildRefs(id)
+
+    return networks.toSet()
+  }
+
+  fun rebuildRefs() {
+    nodesInPos.clear()
+    for (node in graph.nodes) {
+      nodesInPos.put(node.data.pos, node)
+    }
   }
 
   fun destroy() {
@@ -177,7 +221,7 @@ interface PartExt<D> {
    * Return the nodes that this node wants to connect to.
    * Will only actually connect if other node also wants to connect to this
    */
-  fun tryConnect(self: IdNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<IdNode>
+  fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode>
 
   override fun hashCode(): Int
 
@@ -187,13 +231,8 @@ interface PartExt<D> {
 class NodeView(world: ServerWorld) {
   private val wns = world.getWireNetworkState()
 
-  fun getNodes(pos: BlockPos): Set<IdNode> = wns.getNodesAt(pos)
+  fun getNodes(pos: BlockPos): Set<NetNode> = wns.getNodesAt(pos)
 }
-
-/**
- * A node with a network ID attached, because that isn't saved in the node itself for simplicity reasons.
- */
-data class IdNode(val net: UUID, val node: NetNode)
 
 fun ServerWorld.getWireNetworkState(): WireNetworkState {
   val dimension = getDimension()
