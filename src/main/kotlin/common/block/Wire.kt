@@ -139,9 +139,20 @@ data class WirePartExt(val side: Direction) : PartExt<Direction> {
     get() = side
 
   override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
-    // For now, planar connections only because of simplicity
     return Direction.values().filter { it.axis != side.axis }
-      .mapNotNull { d -> nv.getNodes(pos.offset(d)).firstOrNull { it.data.ext is WirePartExt && it.data.ext.side == side } }.toSet()
+      .mapNotNull { d ->
+        // same block
+        nv.getNodes(pos).firstOrNull { it.data.ext is WirePartExt && it.data.ext.side == d }?.also { return@mapNotNull it }
+
+        // planar
+        nv.getNodes(pos.offset(d)).firstOrNull { it.data.ext is WirePartExt && it.data.ext.side == side }?.also { return@mapNotNull it }
+
+        // TODO: check if connection is blocked
+        // around corner
+        nv.getNodes(pos.offset(d).offset(side)).firstOrNull { it.data.ext is WirePartExt && it.data.ext.side == d.opposite }?.also { return@mapNotNull it }
+
+        null
+      }.toSet()
   }
 
   override fun toTag(): Tag {
