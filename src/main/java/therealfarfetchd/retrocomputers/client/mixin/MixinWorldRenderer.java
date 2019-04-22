@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import therealfarfetchd.retrocomputers.common.block.ext.BlockAdvancedShape;
 
@@ -31,7 +32,8 @@ public abstract class MixinWorldRenderer {
     @Inject(
         method = "drawHighlightedBlockOutline(Lnet/minecraft/client/render/Camera;Lnet/minecraft/util/hit/HitResult;I)V",
         at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;enableBlend()V"),
-        cancellable = true
+        cancellable = true,
+        locals = LocalCapture.CAPTURE_FAILHARD
     )
     private void drawHighlightedBlockOutline(Camera camera_1, HitResult hitResult_1, int int_1, CallbackInfo ci, BlockPos blockPos_1, BlockState blockState_1) {
         if (!(blockState_1.getBlock() instanceof BlockAdvancedShape)) return;

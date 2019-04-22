@@ -9,9 +9,6 @@ import net.minecraft.world.World
 import net.minecraft.world.dimension.DimensionType
 import therealfarfetchd.retrocomputers.common.block.wire.WireNetworkController
 import therealfarfetchd.retrocomputers.common.init.Packets
-import java.awt.Color
-import java.util.*
-import kotlin.streams.asSequence
 
 object ClientNetworkState {
 
@@ -33,16 +30,10 @@ object ClientNetworkState {
     caches += dt to Entry(WireNetworkController.fromTag(tag))
   }
 
-  fun getNetworkColor(id: UUID): Color {
-    val rnd = Random(id.leastSignificantBits xor id.mostSignificantBits)
-    val (r, g, b) = rnd.doubles().asSequence().take(3).toList()
-    return Color(r.toFloat(), g.toFloat(), b.toFloat())
-  }
-
 }
 
 private data class Entry(val controller: WireNetworkController, val created: Long = utime()) {
-  fun isExpired() = utime() - created > 1000
+  fun isExpired() = utime() - created > 1
 }
 
 private fun utime() = System.currentTimeMillis() / 1000

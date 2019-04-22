@@ -15,15 +15,16 @@ import net.minecraft.world.PersistentState
 import net.minecraft.world.World
 import net.minecraft.world.dimension.Dimension
 import therealfarfetchd.retrocomputers.common.graph.Graph
+import therealfarfetchd.retrocomputers.common.graph.Link
 import therealfarfetchd.retrocomputers.common.graph.Node
 import java.util.*
 
 typealias NetNode = Node<NetworkPart<out PartExt<out Any?>>, Nothing?>
 typealias NetGraph = Graph<NetworkPart<out PartExt<out Any?>>, Nothing?>
+typealias NetLink = Link<NetworkPart<out PartExt<out Any?>>, Nothing?>
 
 class WireNetworkState(private val world: ServerWorld) : PersistentState(getNameForDimension(world.getDimension())) {
-  var controller = WireNetworkController()
-    private set
+  var controller = WireNetworkController(::markDirty)
 
   override fun toTag(tag: CompoundTag): CompoundTag {
     return tag.copyFrom(controller.toTag(world))
@@ -31,15 +32,15 @@ class WireNetworkState(private val world: ServerWorld) : PersistentState(getName
 
   override fun fromTag(tag: CompoundTag) {
     controller = WireNetworkController.fromTag(tag)
+    controller.changeListener = ::markDirty
   }
 
   companion object {
     fun getNameForDimension(dimension: Dimension) = "wirenet${dimension.type.suffix}"
   }
-
 }
 
-class WireNetworkController {
+class WireNetworkController(var changeListener: () -> Unit = {}) {
   private val networks = mutableMapOf<UUID, Network>()
   @JvmSynthetic internal val networksInPos = HashMultimap.create<BlockPos, Network>()
   @JvmSynthetic internal val nodesToNetworks = mutableMapOf<NetNode, UUID>()
@@ -74,8 +75,10 @@ class WireNetworkController {
     return world.getBlockState(node.data.pos).block
   }
 
+  fun getNetworks() = networks.values.toSet()
+
   fun updateNodeConnections(world: ServerWorld, node: NetNode) {
-    onChanged()
+    changeListener()
     val nodeNetId = getNetIdForNode(node)
 
     val nv = NodeView(world)
@@ -98,15 +101,14 @@ class WireNetworkController {
   fun getNetIdForNode(node: NetNode) = nodesToNetworks.getValue(node)
 
   fun createNetwork(): Network {
-    onChanged()
+    changeListener()
     val net = Network(this, UUID.randomUUID())
     networks += net.id to net
-    println("Network ${net.id} created")
     return net
   }
 
   fun destroyNetwork(id: UUID) {
-    onChanged()
+    changeListener()
     networks -= id
 
     for ((k, v) in networksInPos.entries().toSet()) {
@@ -115,11 +117,10 @@ class WireNetworkController {
 
     nodesToNetworks -= nodesToNetworks.filter { it.value == id }.keys
 
-    println("Network $id destroyed")
   }
 
   fun rebuildRefs(vararg networks: UUID) {
-    onChanged()
+    changeListener()
     val toRebuild = networks.takeIf { it.isNotEmpty() }?.map { Pair(it, this.networks[it]) } ?: this.networks.entries.map { Pair(it.key, it.value) }
 
     for ((id, net) in toRebuild) {
@@ -138,8 +139,6 @@ class WireNetworkController {
       }
     }
   }
-
-  fun onChanged() {}
 
   fun cleanup() {
     for (net in networks.values.toSet()) {
@@ -182,19 +181,17 @@ class Network(val controller: WireNetworkController, val id: UUID) {
   fun getNodesAt(pos: BlockPos) = nodesInPos[pos].toSet()
 
   fun createNode(pos: BlockPos, ext: PartExt<out Any?>): NetNode {
-    controller.onChanged()
+    controller.changeListener()
     val node = graph.add(NetworkPart(pos, ext))
     nodesInPos.put(pos, node)
     controller.networksInPos.put(pos, this)
     controller.nodesToNetworks[node] = this.id
-    println("Created node $node")
     return node
   }
 
   fun destroyNode(node: NetNode) {
-    controller.onChanged()
+    controller.changeListener()
     graph.remove(node)
-    println("Destroyed node $node")
 
     split().forEach { controller.rebuildRefs(it.id) }
 
@@ -207,7 +204,7 @@ class Network(val controller: WireNetworkController, val id: UUID) {
   }
 
   fun merge(other: Network) {
-    controller.onChanged()
+    controller.changeListener()
     if (other.id != id) {
       graph.join(other.graph)
       nodesInPos.putAll(other.nodesInPos)
@@ -222,23 +219,28 @@ class Network(val controller: WireNetworkController, val id: UUID) {
   fun getNodes() = graph.nodes
 
   fun split(): Set<Network> {
-    controller.onChanged()
     val newGraphs = graph.split()
 
-    val networks = newGraphs.map {
-      val net = controller.createNetwork()
-      net.graph.join(it)
-      net
+    if (newGraphs.isNotEmpty()) {
+      controller.changeListener()
+
+      val networks = newGraphs.map {
+        val net = controller.createNetwork()
+        net.graph.join(it)
+        net
+      }
+
+      networks.forEach { controller.rebuildRefs(it.id) }
+      controller.rebuildRefs(id)
+
+      return networks.toSet()
     }
 
-    networks.forEach { controller.rebuildRefs(it.id) }
-    controller.rebuildRefs(id)
-
-    return networks.toSet()
+    return emptySet()
   }
 
   fun rebuildRefs() {
-    controller.onChanged()
+    controller.changeListener()
     nodesInPos.clear()
     for (node in graph.nodes) {
       nodesInPos.put(node.data.pos, node)

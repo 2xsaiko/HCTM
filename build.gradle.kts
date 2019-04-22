@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   kotlin("jvm") version "1.3.10"
-  id("fabric-loom") version "0.2.0-SNAPSHOT"
+  id("fabric-loom") version "0.2.2-SNAPSHOT"
 }
 
 base {
@@ -46,4 +46,5 @@ dependencies {
 //  modCompile("grondag", "indigo", "0.1.386-alpha")
 
   //  modCompile("net.shadowfacts.simplemultipart", "SimpleMultipart", "0.1.2")
+  compile("org.lwjgl", "lwjgl-jemalloc", "3.2.1")
 }
