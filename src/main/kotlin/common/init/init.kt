@@ -1,12 +1,14 @@
 package therealfarfetchd.retrocomputers.common.init
 
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry
+import net.fabricmc.fabric.api.network.ServerSidePacketRegistry
 import net.minecraft.block.Block
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
+import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
 import net.minecraft.item.Item.Settings
 import net.minecraft.item.ItemGroup
-import net.minecraft.item.block.BlockItem
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import therealfarfetchd.retrocomputers.ModID
@@ -18,6 +20,8 @@ import therealfarfetchd.retrocomputers.common.block.TerminalBlock
 import therealfarfetchd.retrocomputers.common.block.TerminalEntity
 import therealfarfetchd.retrocomputers.common.block.WireBlock
 import therealfarfetchd.retrocomputers.common.block.WireItem
+import therealfarfetchd.retrocomputers.common.packet.client.onDebugNetUpdateResponse
+import therealfarfetchd.retrocomputers.common.packet.server.onDebugNetUpdateRequest
 
 object BlockEntityTypes {
 
@@ -61,6 +65,23 @@ object Items {
 
   private fun <T : Item> create(item: T, name: String): T {
     return Registry.register(Registry.ITEM, Identifier(ModID, name), item)
+  }
+
+}
+
+object Packets {
+
+  object Client {
+    val DebugNetResponse = Identifier(ModID, "debug_net_recv")
+  }
+
+  object Server {
+    val DebugNetRequest = Identifier(ModID, "debug_net_req")
+  }
+
+  init {
+    ClientSidePacketRegistry.INSTANCE.register(Client.DebugNetResponse, ::onDebugNetUpdateResponse)
+    ServerSidePacketRegistry.INSTANCE.register(Server.DebugNetRequest, ::onDebugNetUpdateRequest)
   }
 
 }

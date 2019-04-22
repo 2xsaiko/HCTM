@@ -22,11 +22,29 @@ typealias NetNode = Node<NetworkPart<out PartExt<out Any?>>, Nothing?>
 typealias NetGraph = Graph<NetworkPart<out PartExt<out Any?>>, Nothing?>
 
 class WireNetworkState(private val world: ServerWorld) : PersistentState(getNameForDimension(world.getDimension())) {
+  var controller = WireNetworkController()
+    private set
+
+  override fun toTag(tag: CompoundTag): CompoundTag {
+    return tag.copyFrom(controller.toTag(world))
+  }
+
+  override fun fromTag(tag: CompoundTag) {
+    controller = WireNetworkController.fromTag(tag)
+  }
+
+  companion object {
+    fun getNameForDimension(dimension: Dimension) = "wirenet${dimension.type.suffix}"
+  }
+
+}
+
+class WireNetworkController {
   private val networks = mutableMapOf<UUID, Network>()
   @JvmSynthetic internal val networksInPos = HashMultimap.create<BlockPos, Network>()
   @JvmSynthetic internal val nodesToNetworks = mutableMapOf<NetNode, UUID>()
 
-  fun onBlockChanged(pos: BlockPos, state: BlockState) {
+  fun onBlockChanged(world: ServerWorld, pos: BlockPos, state: BlockState) {
     val actualState = world.getBlockState(pos)
     val worldExts = (actualState.block as? BlockPartProvider)?.getPartsInBlock(world, pos, actualState).orEmpty()
 
@@ -44,7 +62,7 @@ class WireNetworkState(private val world: ServerWorld) : PersistentState(getName
     for (ext in new) {
       val net = createNetwork()
       val node = net.createNode(pos, ext)
-      updateNodeConnections(node)
+      updateNodeConnections(world, node)
     }
   }
 
@@ -52,12 +70,12 @@ class WireNetworkState(private val world: ServerWorld) : PersistentState(getName
     return networksInPos.values().flatMap { net -> net.getNodesAt(pos).map { it } }.toSet()
   }
 
-  fun getBlockType(node: NetNode): Block {
+  fun getBlockType(world: World, node: NetNode): Block {
     return world.getBlockState(node.data.pos).block
   }
 
-  fun updateNodeConnections(node: NetNode) {
-    markDirty()
+  fun updateNodeConnections(world: ServerWorld, node: NetNode) {
+    onChanged()
     val nodeNetId = getNetIdForNode(node)
 
     val nv = NodeView(world)
@@ -80,7 +98,7 @@ class WireNetworkState(private val world: ServerWorld) : PersistentState(getName
   fun getNetIdForNode(node: NetNode) = nodesToNetworks.getValue(node)
 
   fun createNetwork(): Network {
-    markDirty()
+    onChanged()
     val net = Network(this, UUID.randomUUID())
     networks += net.id to net
     println("Network ${net.id} created")
@@ -88,7 +106,7 @@ class WireNetworkState(private val world: ServerWorld) : PersistentState(getName
   }
 
   fun destroyNetwork(id: UUID) {
-    markDirty()
+    onChanged()
     networks -= id
 
     for ((k, v) in networksInPos.entries().toSet()) {
@@ -101,7 +119,7 @@ class WireNetworkState(private val world: ServerWorld) : PersistentState(getName
   }
 
   fun rebuildRefs(vararg networks: UUID) {
-    markDirty()
+    onChanged()
     val toRebuild = networks.takeIf { it.isNotEmpty() }?.map { Pair(it, this.networks[it]) } ?: this.networks.entries.map { Pair(it.key, it.value) }
 
     for ((id, net) in toRebuild) {
@@ -121,6 +139,8 @@ class WireNetworkState(private val world: ServerWorld) : PersistentState(getName
     }
   }
 
+  fun onChanged() {}
+
   fun cleanup() {
     for (net in networks.values.toSet()) {
       if (net.getNodes().isEmpty()) {
@@ -129,32 +149,32 @@ class WireNetworkState(private val world: ServerWorld) : PersistentState(getName
     }
   }
 
-  override fun toTag(tag: CompoundTag): CompoundTag {
+  fun toTag(world: World): CompoundTag {
+    val tag = CompoundTag()
     val list = ListTag()
-    networks.values.map { it.toTag(CompoundTag()) }.forEach { list.add(it) }
+    networks.values.map { it.toTag(world, CompoundTag()) }.forEach { list.add(it) }
     tag.put("networks", list)
     return tag
   }
 
-  override fun fromTag(tag: CompoundTag) {
-    networks.clear()
-
-    val sNetworks = tag.getList("networks", NbtType.COMPOUND)
-    for (sNetwork in sNetworks.map { it as CompoundTag }) {
-      val net = Network.fromTag(this, sNetwork) ?: continue
-      networks += net.id to net
-    }
-    rebuildRefs()
-    cleanup()
-  }
-
   companion object {
-    fun getNameForDimension(dimension: Dimension) = "wirenet${dimension.type.suffix}"
+    fun fromTag(tag: CompoundTag): WireNetworkController {
+      val controller = WireNetworkController()
+
+      val sNetworks = tag.getList("networks", NbtType.COMPOUND)
+      for (sNetwork in sNetworks.map { it as CompoundTag }) {
+        val net = Network.fromTag(controller, sNetwork) ?: continue
+        controller.networks += net.id to net
+      }
+      controller.rebuildRefs()
+      controller.cleanup()
+      return controller
+    }
   }
 
 }
 
-class Network(val controller: WireNetworkState, val id: UUID) {
+class Network(val controller: WireNetworkController, val id: UUID) {
   private val graph = NetGraph()
 
   private val nodesInPos = HashMultimap.create<BlockPos, NetNode>()
@@ -162,7 +182,7 @@ class Network(val controller: WireNetworkState, val id: UUID) {
   fun getNodesAt(pos: BlockPos) = nodesInPos[pos].toSet()
 
   fun createNode(pos: BlockPos, ext: PartExt<out Any?>): NetNode {
-    controller.markDirty()
+    controller.onChanged()
     val node = graph.add(NetworkPart(pos, ext))
     nodesInPos.put(pos, node)
     controller.networksInPos.put(pos, this)
@@ -172,7 +192,7 @@ class Network(val controller: WireNetworkState, val id: UUID) {
   }
 
   fun destroyNode(node: NetNode) {
-    controller.markDirty()
+    controller.onChanged()
     graph.remove(node)
     println("Destroyed node $node")
 
@@ -187,7 +207,7 @@ class Network(val controller: WireNetworkState, val id: UUID) {
   }
 
   fun merge(other: Network) {
-    controller.markDirty()
+    controller.onChanged()
     if (other.id != id) {
       graph.join(other.graph)
       nodesInPos.putAll(other.nodesInPos)
@@ -202,7 +222,7 @@ class Network(val controller: WireNetworkState, val id: UUID) {
   fun getNodes() = graph.nodes
 
   fun split(): Set<Network> {
-    controller.markDirty()
+    controller.onChanged()
     val newGraphs = graph.split()
 
     val networks = newGraphs.map {
@@ -218,20 +238,20 @@ class Network(val controller: WireNetworkState, val id: UUID) {
   }
 
   fun rebuildRefs() {
-    controller.markDirty()
+    controller.onChanged()
     nodesInPos.clear()
     for (node in graph.nodes) {
       nodesInPos.put(node.data.pos, node)
     }
   }
 
-  fun toTag(tag: CompoundTag): CompoundTag {
+  fun toTag(world: World, tag: CompoundTag): CompoundTag {
     val serializedNodes = mutableListOf<CompoundTag>()
     val serializedLinks = mutableListOf<CompoundTag>()
     val nodes = graph.nodes.toList()
     val n1 = nodes.withIndex().associate { it.value to it.index }
     for (node in nodes) {
-      serializedNodes += node.data.toTag(controller.getBlockType(node), CompoundTag())
+      serializedNodes += node.data.toTag(controller.getBlockType(world, node), CompoundTag())
     }
     for (link in nodes.flatMap { it.connections }.distinct()) {
       val sLink = CompoundTag()
@@ -247,7 +267,7 @@ class Network(val controller: WireNetworkState, val id: UUID) {
   }
 
   companion object {
-    fun fromTag(controller: WireNetworkState, tag: CompoundTag): Network? {
+    fun fromTag(controller: WireNetworkController, tag: CompoundTag): Network? {
       val id = tag.getUuid("id")
       val network = Network(controller, id)
       val sNodes = tag.getList("nodes", NbtType.COMPOUND)
@@ -336,7 +356,7 @@ interface PartExt<D> {
 class NodeView(world: ServerWorld) {
   private val wns = world.getWireNetworkState()
 
-  fun getNodes(pos: BlockPos): Set<NetNode> = wns.getNodesAt(pos)
+  fun getNodes(pos: BlockPos): Set<NetNode> = wns.controller.getNodesAt(pos)
 }
 
 fun ServerWorld.getWireNetworkState(): WireNetworkState {

@@ -7,9 +7,10 @@ import net.minecraft.block.Material
 import net.minecraft.block.WallMountedBlock
 import net.minecraft.entity.VerticalEntityPosition
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.item.BlockItem
+import net.minecraft.item.Item
 import net.minecraft.item.ItemPlacementContext
 import net.minecraft.item.ItemUsageContext
-import net.minecraft.item.block.BlockItem
 import net.minecraft.nbt.ByteTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.network.ServerPlayerEntity
@@ -64,7 +65,7 @@ class WireBlock : Block(Block.Settings.of(Material.STONE).noCollision().strength
   }
 
   override fun canPlaceAt(state: BlockState, world: ViewableWorld, pos: BlockPos): Boolean {
-    return WireUtils.getOccupiedSides(state).all { side -> WallMountedBlock.method_20046(world, pos, side) }
+    return WireUtils.getOccupiedSides(state).all { side -> WallMountedBlock.canPlaceAt(world, pos, side) }
   }
 
   private fun getShape(state: BlockState): VoxelShape {
@@ -110,7 +111,7 @@ class WireBlock : Block(Block.Settings.of(Material.STONE).noCollision().strength
 
   override fun method_9517(state: BlockState, world: IWorld, pos: BlockPos, flags: Int) {
     if (!world.isClient && world is ServerWorld)
-      world.getWireNetworkState().onBlockChanged(pos, state)
+      world.getWireNetworkState().controller.onBlockChanged(world, pos, state)
   }
 
   override fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt<out Any?>> {
@@ -148,7 +149,7 @@ data class WirePartExt(val side: Direction) : PartExt<Direction> {
   }
 }
 
-class WireItem : BlockItem(Blocks.Wire, Settings()) {
+class WireItem : BlockItem(Blocks.Wire, Item.Settings()) {
 
   override fun place(ctx: ItemPlacementContext): ActionResult {
     val state = this.getBlockState(ctx) ?: return ActionResult.PASS

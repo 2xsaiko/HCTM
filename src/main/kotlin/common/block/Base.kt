@@ -38,7 +38,7 @@ abstract class BaseBlock : BlockWithEntity(Block.Settings.of(Material.METAL)) {
   }
 
   companion object {
-    val Direction = HorizontalFacingBlock.field_11177
+    val Direction = HorizontalFacingBlock.FACING
   }
 
 }
