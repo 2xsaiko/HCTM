@@ -115,11 +115,11 @@ class WireBlock : Block(Block.Settings.of(Material.STONE).noCollision().strength
       world.getWireNetworkState().controller.onBlockChanged(world, pos, state)
   }
 
-  override fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt<out Any?>> {
+  override fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt> {
     return WireUtils.getOccupiedSides(state).map(::WirePartExt).toSet()
   }
 
-  override fun createExtFromTag(tag: Tag): PartExt<out Any?>? {
+  override fun createExtFromTag(tag: Tag): PartExt? {
     return (tag as? ByteTag)
       ?.takeIf { it.int in 0 until 6 }
       ?.let { WirePartExt(Direction.byId(it.int)) }
@@ -135,10 +135,7 @@ class WireBlock : Block(Block.Settings.of(Material.STONE).noCollision().strength
 
 }
 
-data class WirePartExt(val side: Direction) : PartExt<Direction> {
-  override val data: Direction
-    get() = side
-
+data class WirePartExt(val side: Direction) : PartExt {
   override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
     return ConnectionHandlers.Wire.tryConnect(self, world, pos, nv)
   }

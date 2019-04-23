@@ -20,6 +20,8 @@ import therealfarfetchd.retrocomputers.common.block.TerminalBlock
 import therealfarfetchd.retrocomputers.common.block.TerminalEntity
 import therealfarfetchd.retrocomputers.common.block.WireBlock
 import therealfarfetchd.retrocomputers.common.block.WireItem
+import therealfarfetchd.retrocomputers.common.item.ImageDiskItem
+import therealfarfetchd.retrocomputers.common.item.UserDiskItem
 import therealfarfetchd.retrocomputers.common.packet.client.onDebugNetUpdateResponse
 import therealfarfetchd.retrocomputers.common.packet.server.onDebugNetUpdateRequest
 
@@ -29,7 +31,7 @@ object BlockEntityTypes {
   val Terminal = create(::TerminalEntity, "terminal")
   val DiskDrive = create(::DiskDriveEntity, "disk_drive")
 
-//  val Wire = create(::WireEntity, "wire")
+  //  val Wire = create(::WireEntity, "wire")
 
   private fun <T : BlockEntity> create(builder: () -> T, name: String): BlockEntityType<T> {
     return Registry.register(Registry.BLOCK_ENTITY, Identifier(ModID, name), BlockEntityType.Builder.create(builder).build(null))
@@ -59,12 +61,24 @@ object Items {
 
   val Wire = create(WireItem(), "wire")
 
+  val SysDisks = listOf(
+    "forth",
+    "extforth",
+    "minforth"
+  ).map(::createDisk)
+
+  val UserDisk = create(UserDiskItem(), "user_disk")
+
   private fun <T : Block> create(block: T, name: String): BlockItem {
     return create(BlockItem(block, Settings().itemGroup(ItemGroup.REDSTONE)), name)
   }
 
   private fun <T : Item> create(item: T, name: String): T {
     return Registry.register(Registry.ITEM, Identifier(ModID, name), item)
+  }
+
+  private fun createDisk(path: String): ImageDiskItem {
+    return create(ImageDiskItem(Identifier(ModID, path)), "disk_$path")
   }
 
 }

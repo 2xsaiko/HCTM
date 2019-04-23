@@ -1,13 +1,6 @@
 package therealfarfetchd.retrocomputers.common.block
 
-import net.minecraft.block.BlockState
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.util.Hand
-import net.minecraft.util.hit.BlockHitResult
-import net.minecraft.util.math.BlockPos
 import net.minecraft.world.BlockView
-import net.minecraft.world.World
-import therealfarfetchd.retrocomputers.common.block.wire.accessIoNet
 import therealfarfetchd.retrocomputers.common.init.BlockEntityTypes
 
 class ComputerBlock : BaseBlock() {

@@ -9,7 +9,7 @@ import kotlin.experimental.or
  * Returns a wrapper for device IO.
  * Only valid for the current tick!
  */
-fun accessIoNet(world: World, pos: BlockPos, ext: PartExt<out Any?>): IoNetwork? {
+fun accessIoNet(world: World, pos: BlockPos, ext: PartExt): IoNetwork? {
   if (world.isClient || world !is ServerWorld) return null
 
   val wns = world.getWireNetworkState()

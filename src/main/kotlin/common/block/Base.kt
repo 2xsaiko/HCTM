@@ -55,11 +55,11 @@ abstract class BaseBlock : BlockWithEntity(Block.Settings.of(Material.METAL)), B
       world.getWireNetworkState().controller.onBlockChanged(world, pos, state)
   }
 
-  override fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt<out Any?>> {
+  override fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt> {
     return setOf(MachinePartExt)
   }
 
-  override fun createExtFromTag(tag: Tag): PartExt<out Any?>? {
+  override fun createExtFromTag(tag: Tag): PartExt? {
     return MachinePartExt
   }
 
@@ -69,10 +69,7 @@ abstract class BaseBlock : BlockWithEntity(Block.Settings.of(Material.METAL)), B
 
 }
 
-object MachinePartExt : PartExt<Nothing?>, PartIoProvider {
-
-  override val data: Nothing?
-    get() = null
+object MachinePartExt : PartExt, PartIoProvider {
 
   override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
     return ConnectionHandlers.StandardMachine.tryConnect(self, world, pos, nv)

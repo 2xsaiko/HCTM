@@ -19,9 +19,9 @@ import therealfarfetchd.retrocomputers.common.graph.Link
 import therealfarfetchd.retrocomputers.common.graph.Node
 import java.util.*
 
-typealias NetNode = Node<NetworkPart<out PartExt<out Any?>>, Nothing?>
-typealias NetGraph = Graph<NetworkPart<out PartExt<out Any?>>, Nothing?>
-typealias NetLink = Link<NetworkPart<out PartExt<out Any?>>, Nothing?>
+typealias NetNode = Node<NetworkPart<out PartExt>, Nothing?>
+typealias NetGraph = Graph<NetworkPart<out PartExt>, Nothing?>
+typealias NetLink = Link<NetworkPart<out PartExt>, Nothing?>
 
 typealias TNetNode<T> = Node<NetworkPart<T>, Nothing>
 
@@ -184,7 +184,7 @@ class Network(val controller: WireNetworkController, val id: UUID) {
 
   fun getNodesAt(pos: BlockPos) = nodesInPos[pos].toSet()
 
-  fun createNode(pos: BlockPos, ext: PartExt<out Any?>): NetNode {
+  fun createNode(pos: BlockPos, ext: PartExt): NetNode {
     controller.changeListener()
     val node = graph.add(NetworkPart(pos, ext))
     nodesInPos.put(pos, node)
@@ -307,7 +307,7 @@ class Network(val controller: WireNetworkController, val id: UUID) {
 
 }
 
-data class NetworkPart<T : PartExt<out Any?>>(var pos: BlockPos, val ext: T) {
+data class NetworkPart<T : PartExt>(var pos: BlockPos, val ext: T) {
   fun toTag(block: Block, tag: CompoundTag): CompoundTag {
     tag.putInt("x", pos.x)
     tag.putInt("y", pos.y)
@@ -318,7 +318,7 @@ data class NetworkPart<T : PartExt<out Any?>>(var pos: BlockPos, val ext: T) {
   }
 
   companion object {
-    fun fromTag(tag: CompoundTag): NetworkPart<PartExt<out Any?>>? {
+    fun fromTag(tag: CompoundTag): NetworkPart<PartExt>? {
       val block = Registry.BLOCK[Identifier(tag.getString("block"))]
       val extTag = tag.getTag("ext")
       if (block is BlockPartProvider && extTag != null) {
@@ -331,21 +331,17 @@ data class NetworkPart<T : PartExt<out Any?>>(var pos: BlockPos, val ext: T) {
 }
 
 interface BlockPartProvider {
-  fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt<out Any?>>
+  fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt>
 
-  fun createExtFromTag(tag: Tag): PartExt<out Any?>?
+  fun createExtFromTag(tag: Tag): PartExt?
 }
 
 /**
  * This must be immutable and have equals/hashCode implemented correctly.
+ * You **can** store data here, but again, it must be immutable, and hashed correctly.
+ * Kotlin's data class with only `val`s used should do all this automatically, so use that.
  */
-interface PartExt<D> {
-  /**
-   * Implementation-specific data for this node.
-   * Does this even need to be accessed by common code and therefore exist?
-   */
-  val data: D
-
+interface PartExt {
   /**
    * Return the nodes that this node wants to connect to.
    * Will only actually connect if other node also wants to connect to this
