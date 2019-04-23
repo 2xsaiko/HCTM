@@ -23,6 +23,8 @@ typealias NetNode = Node<NetworkPart<out PartExt<out Any?>>, Nothing?>
 typealias NetGraph = Graph<NetworkPart<out PartExt<out Any?>>, Nothing?>
 typealias NetLink = Link<NetworkPart<out PartExt<out Any?>>, Nothing?>
 
+typealias TNetNode<T> = Node<NetworkPart<T>, Nothing>
+
 class WireNetworkState(private val world: ServerWorld) : PersistentState(getNameForDimension(world.getDimension())) {
   var controller = WireNetworkController(::markDirty)
 

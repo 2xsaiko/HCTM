@@ -37,6 +37,7 @@ import net.minecraft.world.ViewableWorld
 import net.minecraft.world.World
 import therealfarfetchd.retrocomputers.common.block.ext.BlockCustomBreak
 import therealfarfetchd.retrocomputers.common.block.wire.BlockPartProvider
+import therealfarfetchd.retrocomputers.common.block.wire.ConnectionHandlers
 import therealfarfetchd.retrocomputers.common.block.wire.NetNode
 import therealfarfetchd.retrocomputers.common.block.wire.NodeView
 import therealfarfetchd.retrocomputers.common.block.wire.PartExt
@@ -139,20 +140,7 @@ data class WirePartExt(val side: Direction) : PartExt<Direction> {
     get() = side
 
   override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
-    return Direction.values().filter { it.axis != side.axis }
-      .mapNotNull { d ->
-        // same block
-        nv.getNodes(pos).firstOrNull { it.data.ext is WirePartExt && it.data.ext.side == d }?.also { return@mapNotNull it }
-
-        // planar
-        nv.getNodes(pos.offset(d)).firstOrNull { it.data.ext is WirePartExt && it.data.ext.side == side }?.also { return@mapNotNull it }
-
-        // TODO: check if connection is blocked
-        // around corner
-        nv.getNodes(pos.offset(d).offset(side)).firstOrNull { it.data.ext is WirePartExt && it.data.ext.side == d.opposite }?.also { return@mapNotNull it }
-
-        null
-      }.toSet()
+    return ConnectionHandlers.Wire.tryConnect(self, world, pos, nv)
   }
 
   override fun toTag(): Tag {
