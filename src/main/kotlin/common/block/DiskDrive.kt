@@ -11,4 +11,14 @@ class DiskDriveBlock : BaseBlock() {
 
 class DiskDriveEntity : BaseBlockEntity(BlockEntityTypes.DiskDrive) {
 
+  override var busId: Byte = 1
+
+  override fun readData(at: Byte): Byte {
+    return 0
+  }
+
+  override fun storeData(at: Byte, data: Byte) {
+
+  }
+
 }

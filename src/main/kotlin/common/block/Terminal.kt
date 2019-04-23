@@ -11,4 +11,14 @@ class TerminalBlock : BaseBlock() {
 
 class TerminalEntity : BaseBlockEntity(BlockEntityTypes.Terminal) {
 
+  override var busId: Byte = 2
+
+  override fun readData(at: Byte): Byte {
+    return 0
+  }
+
+  override fun storeData(at: Byte, data: Byte) {
+
+  }
+
 }

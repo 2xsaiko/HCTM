@@ -102,6 +102,8 @@ class WireNetworkController(var changeListener: () -> Unit = {}) {
 
   fun getNetIdForNode(node: NetNode) = nodesToNetworks.getValue(node)
 
+  fun getNetwork(id: UUID): Network? = networks[id]
+
   fun createNetwork(): Network {
     changeListener()
     val net = Network(this, UUID.randomUUID())

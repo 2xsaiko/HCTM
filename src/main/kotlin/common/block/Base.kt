@@ -25,6 +25,7 @@ import therealfarfetchd.retrocomputers.common.block.wire.ConnectionHandlers
 import therealfarfetchd.retrocomputers.common.block.wire.NetNode
 import therealfarfetchd.retrocomputers.common.block.wire.NodeView
 import therealfarfetchd.retrocomputers.common.block.wire.PartExt
+import therealfarfetchd.retrocomputers.common.block.wire.PartIoProvider
 import therealfarfetchd.retrocomputers.common.block.wire.getWireNetworkState
 
 abstract class BaseBlock : BlockWithEntity(Block.Settings.of(Material.METAL)), BlockPartProvider {
@@ -68,7 +69,7 @@ abstract class BaseBlock : BlockWithEntity(Block.Settings.of(Material.METAL)), B
 
 }
 
-object MachinePartExt : PartExt<Nothing?> {
+object MachinePartExt : PartExt<Nothing?>, PartIoProvider {
 
   override val data: Nothing?
     get() = null
@@ -79,9 +80,49 @@ object MachinePartExt : PartExt<Nothing?> {
 
   override fun toTag(): Tag = ByteTag(0)
 
+  private fun getBlockEnt(world: World, pos: BlockPos): BaseBlockEntity? {
+    return world.getBlockEntity(pos) as? BaseBlockEntity
+  }
+
+  override fun isBusId(world: World, pos: BlockPos, busId: Byte): Boolean {
+    return getBlockEnt(world, pos)?.busId == busId
+  }
+
+  override fun read(world: World, pos: BlockPos, at: Byte): Byte {
+    return getBlockEnt(world, pos)?.readData(at) ?: 0
+  }
+
+  override fun store(world: World, pos: BlockPos, at: Byte, data: Byte) {
+    getBlockEnt(world, pos)?.storeData(at, data)
+  }
+
+  override fun cached(world: World, pos: BlockPos): Cached? =
+    getBlockEnt(world, pos)?.let(::Cached)
+
   override fun hashCode(): Int = super.hashCode()
 
   override fun equals(other: Any?): Boolean = super.equals(other)
+
+  class Cached(val ent: BaseBlockEntity) : PartIoProvider.Cached {
+
+    override fun read(at: Byte): Byte {
+      return ent.readData(at)
+    }
+
+    override fun store(at: Byte, data: Byte) {
+      ent.storeData(at, data)
+    }
+
+  }
+
 }
 
-abstract class BaseBlockEntity(type: BlockEntityType<*>) : BlockEntity(type)
+abstract class BaseBlockEntity(type: BlockEntityType<*>) : BlockEntity(type) {
+
+  abstract var busId: Byte
+
+  abstract fun readData(at: Byte): Byte
+
+  abstract fun storeData(at: Byte, data: Byte)
+
+}
