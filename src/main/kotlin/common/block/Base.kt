@@ -10,6 +10,7 @@ import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.item.ItemPlacementContext
 import net.minecraft.nbt.ByteTag
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.state.StateFactory.Builder
@@ -121,5 +122,15 @@ abstract class BaseBlockEntity(type: BlockEntityType<*>) : BlockEntity(type) {
   abstract fun readData(at: Byte): Byte
 
   abstract fun storeData(at: Byte, data: Byte)
+
+  override fun toTag(tag: CompoundTag): CompoundTag {
+    tag.putByte("bus_id", busId)
+    return super.toTag(tag)
+  }
+
+  override fun fromTag(tag: CompoundTag) {
+    super.fromTag(tag)
+    busId = tag.getByte("bus_id")
+  }
 
 }

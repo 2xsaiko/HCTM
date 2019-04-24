@@ -64,7 +64,11 @@ object Items {
   val SysDisks = listOf(
     "forth",
     "extforth",
-    "minforth"
+    "minforth",
+    "decompiler",
+    "radio",
+    "retinal",
+    "sortron"
   ).map(::createDisk)
 
   val UserDisk = create(UserDiskItem(), "user_disk")
