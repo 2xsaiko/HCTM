@@ -194,7 +194,7 @@ class WireItem : BlockItem(Blocks.Wire, Item.Settings()) {
     }
 
     val sg = placedState.soundGroup
-    world.playSound(player, pos, this.method_19260(placedState), SoundCategory.BLOCKS, (sg.getVolume() + 1.0f) / 2.0f, sg.getPitch() * 0.8f)
+    world.playSound(player, pos, this.getPlaceSound(placedState), SoundCategory.BLOCKS, (sg.getVolume() + 1.0f) / 2.0f, sg.getPitch() * 0.8f)
     stack.subtractAmount(1)
     return true
   }

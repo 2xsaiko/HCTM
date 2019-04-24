@@ -13,8 +13,8 @@ import net.minecraft.nbt.ByteTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.state.StateFactory.Builder
-import net.minecraft.util.Mirror
-import net.minecraft.util.Rotation
+import net.minecraft.util.BlockMirror
+import net.minecraft.util.BlockRotation
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Direction.NORTH
@@ -40,10 +40,10 @@ abstract class BaseBlock : BlockWithEntity(Block.Settings.of(Material.METAL)), B
 
   override fun getRenderType(p0: BlockState?) = MODEL
 
-  override fun rotate(state: BlockState, rotation: Rotation): BlockState =
+  override fun rotate(state: BlockState, rotation: BlockRotation): BlockState =
     state.with(Direction, rotation.rotate(state.get<Direction>(Direction) as Direction))
 
-  override fun mirror(state: BlockState, mirror: Mirror): BlockState =
+  override fun mirror(state: BlockState, mirror: BlockMirror): BlockState =
     state.rotate(mirror.getRotation(state.get<Direction>(Direction) as Direction))
 
   override fun appendProperties(b: Builder<Block, BlockState>) {
