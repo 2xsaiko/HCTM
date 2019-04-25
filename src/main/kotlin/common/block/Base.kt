@@ -1,5 +1,6 @@
 package therealfarfetchd.retrocomputers.common.block
 
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable
 import net.minecraft.block.Block
 import net.minecraft.block.BlockRenderType.MODEL
 import net.minecraft.block.BlockState
@@ -115,13 +116,22 @@ object MachinePartExt : PartExt, PartIoProvider {
 
 }
 
-abstract class BaseBlockEntity(type: BlockEntityType<*>) : BlockEntity(type) {
+abstract class BaseBlockEntity(type: BlockEntityType<*>) : BlockEntity(type), BlockEntityClientSerializable {
 
   abstract var busId: Byte
 
   abstract fun readData(at: Byte): Byte
 
   abstract fun storeData(at: Byte, data: Byte)
+
+  override fun toClientTag(tag: CompoundTag): CompoundTag {
+    tag.putByte("bus_id", busId)
+    return tag
+  }
+
+  override fun fromClientTag(tag: CompoundTag) {
+    busId = tag.getByte("bus_id")
+  }
 
   override fun toTag(tag: CompoundTag): CompoundTag {
     tag.putByte("bus_id", busId)

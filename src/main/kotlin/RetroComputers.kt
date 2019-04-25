@@ -7,6 +7,7 @@ import therealfarfetchd.retrocomputers.common.init.BlockEntityTypes
 import therealfarfetchd.retrocomputers.common.init.Blocks
 import therealfarfetchd.retrocomputers.common.init.Items
 import therealfarfetchd.retrocomputers.common.init.Packets
+import therealfarfetchd.retrocomputers.common.init.Resources
 import therealfarfetchd.retrocomputers.common.util.ext.makeStack
 
 const val ModID = "retrocomputers"
@@ -18,6 +19,7 @@ object RetroComputers : ModInitializer {
     Blocks
     Items
     Packets
+    Resources
 
     FabricItemGroupBuilder.create(Identifier(ModID, "all"))
       .icon { Items.Computer.makeStack() }

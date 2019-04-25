@@ -1,7 +1,7 @@
 package therealfarfetchd.retrocomputers.common.cpu
 
 import net.minecraft.nbt.CompoundTag
-import therealfarfetchd.retrocomputers.RetroComputers
+import therealfarfetchd.retrocomputers.common.init.Resources
 import therealfarfetchd.retrocomputers.common.util.packByte
 import therealfarfetchd.retrocomputers.common.util.packShort
 import therealfarfetchd.retrocomputers.common.util.unpack
@@ -37,14 +37,8 @@ class Processor(val host: ProcessorHost) {
   var stop = false
 
   init {
-    val istr = RetroComputers::class.java.classLoader.getResourceAsStream("assets/retrocomputers/bootldr.bin")
-
-    if (istr != null) {
-      val loader = ByteArray(0x100)
-      istr.read(loader)
-      for (i in loader.indices) host.memStore((i + 0x400).toShort(), loader[i])
-      istr.close()
-    }
+    val loader = Resources.bootloader()
+    for (i in 0 until 0x100) host.memStore((i + 0x400).toShort(), loader[i])
 
     resetAddr = 0x0400
     brkAddr = 0x2000
@@ -119,7 +113,7 @@ class Processor(val host: ProcessorHost) {
     stop = false
     wait = false
     val insn = pc1()
-    println("%02x @ %04x".format(insn, pc - 1))
+    // println("%02x @ %04x".format(insn, pc - 1))
     when (insn) {
       0x00 -> {
         // brk
