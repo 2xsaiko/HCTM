@@ -27,7 +27,7 @@ object ClientNetworkState {
   }
 
   fun update(dt: DimensionType, tag: CompoundTag) {
-    caches += dt to Entry(WireNetworkController.fromTag(tag))
+    caches[dt] = Entry(WireNetworkController.fromTag(tag))
   }
 
 }

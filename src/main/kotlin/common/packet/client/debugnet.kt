@@ -11,5 +11,8 @@ fun onDebugNetUpdateResponse(context: PacketContext, buffer: PacketByteBuf) {
   val type = DimensionType.byId(dim)!!
 
   val tag = buffer.readCompoundTag()!!
-  ClientNetworkState.update(type, tag)
+
+  context.taskQueue.execute {
+    ClientNetworkState.update(type, tag)
+  }
 }
