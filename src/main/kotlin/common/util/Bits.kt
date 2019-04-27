@@ -1,3 +1,8 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 package therealfarfetchd.retrocomputers.common.util
 
 import kotlin.experimental.and
