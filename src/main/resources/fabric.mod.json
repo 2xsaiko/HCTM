@@ -8,7 +8,10 @@
       "version": ">=1.3.10-8"
     }
   },
-  "initializer": "therealfarfetchd.retrocomputers.RetroComputers",
+  "initializers": [
+    "therealfarfetchd.retrocomputers.RetroComputers",
+    "therealfarfetchd.retrocomputers.client.RetroComputersClient"
+  ],
   "languageAdapter": "net.fabricmc.language.kotlin.KotlinLanguageAdapter",
   "mixins": {
     "client": "retrocomputers-mixins-client.json",

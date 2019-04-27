@@ -36,7 +36,7 @@ repositories {
 dependencies {
   minecraft("com.mojang:minecraft:1.14")
   mappings("net.fabricmc:yarn:1.14+build.1")
-  modCompile("net.fabricmc:fabric-loader:0.4.2+build.132")
+  modCompile("net.fabricmc:fabric-loader:0.4.4+build.136")
 
   // Fabric API. This is technically optional, but you probably want it anyway.
   modCompile("net.fabricmc:fabric:0.2.7+build.127")
