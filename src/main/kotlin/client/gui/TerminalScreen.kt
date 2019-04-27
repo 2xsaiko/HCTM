@@ -16,6 +16,7 @@ import org.lwjgl.opengl.GL11.GL_FLOAT
 import org.lwjgl.opengl.GL11.GL_TRIANGLES
 import org.lwjgl.opengl.GL13
 import org.lwjgl.opengl.GL15
+import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL30
 import therealfarfetchd.retrocomputers.client.init.Shaders
 import therealfarfetchd.retrocomputers.common.block.TerminalEntity
@@ -29,7 +30,7 @@ private val vao = GL30.glGenVertexArrays()
 private val screenTex = createTexture()
 private val charsetTex = createTexture()
 
-class TerminalScreen(val te: TerminalEntity) : Screen(TranslatableTextComponent("retrocomputers.block.terminal")) {
+class TerminalScreen(val te: TerminalEntity) : Screen(TranslatableTextComponent("block.retrocomputers.terminal")) {
 
   private var uCharset = 0
   private var uScreen = 0
@@ -51,8 +52,8 @@ class TerminalScreen(val te: TerminalEntity) : Screen(TranslatableTextComponent(
     GL30.glBindVertexArray(vao)
     GLX.glBindBuffer(GLX.GL_ARRAY_BUFFER, vbo)
 
-    GL30.glEnableVertexAttribArray(aXyz)
-    GL30.glEnableVertexAttribArray(aUv)
+    GL20.glEnableVertexAttribArray(aXyz)
+    GL20.glEnableVertexAttribArray(aUv)
 
     GlStateManager.activeTexture(GL13.GL_TEXTURE0)
     GlStateManager.enableTexture()
@@ -76,15 +77,14 @@ class TerminalScreen(val te: TerminalEntity) : Screen(TranslatableTextComponent(
     GLX.glUniform1i(uCharset, 2)
 
     buf.clear()
-    // buf.put(ByteArray(8 * 256) { if(it%2==0) 0b01010101 else 0b10101010.toByte() })
     buf.put(te.charset)
     buf.rewind()
     GlStateManager.texImage2D(GL11.GL_TEXTURE_2D, 0, GL30.GL_R16I, 8, 256, 0, GL30.GL_RED_INTEGER, GL11.GL_UNSIGNED_BYTE, buf.asIntBuffer())
 
     GL11.glDrawArrays(GL_TRIANGLES, 0, 6)
 
-    GL30.glDisableVertexAttribArray(aXyz)
-    GL30.glDisableVertexAttribArray(aUv)
+    GL20.glDisableVertexAttribArray(aXyz)
+    GL20.glDisableVertexAttribArray(aUv)
 
     GLX.glBindBuffer(GLX.GL_ARRAY_BUFFER, 0)
     GL30.glBindVertexArray(0)
@@ -160,8 +160,8 @@ class TerminalScreen(val te: TerminalEntity) : Screen(TranslatableTextComponent(
     aXyz = GLX.glGetAttribLocation(sh, "xyz")
     aUv = GLX.glGetAttribLocation(sh, "uv")
 
-    GL30.glVertexAttribPointer(aXyz, 3, GL_FLOAT, false, 20, 0)
-    GL30.glVertexAttribPointer(aUv, 2, GL_FLOAT, false, 20, 12)
+    GL20.glVertexAttribPointer(aXyz, 3, GL_FLOAT, false, 20, 0)
+    GL20.glVertexAttribPointer(aUv, 2, GL_FLOAT, false, 20, 12)
 
     buf.clear()
 
