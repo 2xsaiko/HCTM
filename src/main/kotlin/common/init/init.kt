@@ -24,6 +24,7 @@ import therealfarfetchd.retrocomputers.common.item.ImageDiskItem
 import therealfarfetchd.retrocomputers.common.item.UserDiskItem
 import therealfarfetchd.retrocomputers.common.packet.client.onDebugNetUpdateResponse
 import therealfarfetchd.retrocomputers.common.packet.server.onDebugNetUpdateRequest
+import therealfarfetchd.retrocomputers.common.packet.server.onKeyTypedTerminal
 
 object BlockEntityTypes {
 
@@ -95,11 +96,13 @@ object Packets {
 
   object Server {
     val DebugNetRequest = Identifier(ModID, "debug_net_req")
+    val TerminalKeyTyped = Identifier(ModID, "terminal_key")
   }
 
   init {
     ClientSidePacketRegistry.INSTANCE.register(Client.DebugNetResponse, ::onDebugNetUpdateResponse)
     ServerSidePacketRegistry.INSTANCE.register(Server.DebugNetRequest, ::onDebugNetUpdateRequest)
+    ServerSidePacketRegistry.INSTANCE.register(Server.TerminalKeyTyped, ::onKeyTypedTerminal)
   }
 
 }

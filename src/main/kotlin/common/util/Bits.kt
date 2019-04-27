@@ -49,7 +49,7 @@ private val Boolean.bitmaskI: Int
 
 private fun BooleanArray.firstN(i: Int): BooleanArray {
   val arr = BooleanArray(i)
-  this.copyInto(arr)
+  this.copyInto(arr, endIndex = minOf(size, i))
   return arr
 }
 

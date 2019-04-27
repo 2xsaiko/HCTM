@@ -73,6 +73,14 @@ class TerminalEntity : BaseBlockEntity(BlockEntityTypes.Terminal), Tickable {
     command = if (error) -1 else 0
   }
 
+  fun pushKey(byte: Byte): Boolean {
+    return if ((kbp + 1) % 16 != kbs) {
+      kb[kbp] = byte
+      kbp = (kbp + 1) % 16
+      true
+    } else false
+  }
+
   private fun getIndices(x1: Int, y1: Int, w: Int, h: Int): Sequence<Int> = sequence {
     for (i in 0 until h) for (j in 0 until w) {
       val x = j + x1

@@ -3,10 +3,14 @@ package therealfarfetchd.retrocomputers.client.gui
 import com.mojang.blaze3d.platform.GLX
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.platform.TextureUtil
+import io.netty.buffer.Unpooled
+import net.fabricmc.fabric.api.network.ClientSidePacketRegistry
 import net.minecraft.client.gui.Screen
 import net.minecraft.text.TranslatableTextComponent
+import net.minecraft.util.PacketByteBuf
 import net.minecraft.util.math.Vec3d
 import org.lwjgl.BufferUtils
+import org.lwjgl.glfw.GLFW
 import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.GL_FLOAT
 import org.lwjgl.opengl.GL11.GL_TRIANGLES
@@ -15,6 +19,7 @@ import org.lwjgl.opengl.GL15
 import org.lwjgl.opengl.GL30
 import therealfarfetchd.retrocomputers.client.init.Shaders
 import therealfarfetchd.retrocomputers.common.block.TerminalEntity
+import therealfarfetchd.retrocomputers.common.init.Packets
 import kotlin.experimental.xor
 
 private val buf = BufferUtils.createByteBuffer(16384)
@@ -89,6 +94,46 @@ class TerminalScreen(val te: TerminalEntity) : Screen(TranslatableTextComponent(
     GlStateManager.disableTexture()
     GlStateManager.activeTexture(GL13.GL_TEXTURE0)
     GlStateManager.bindTexture(0)
+  }
+
+  override fun keyPressed(key: Int, scancode: Int, modifiers: Int): Boolean {
+    if (super.keyPressed(key, scancode, modifiers)) return true
+
+    val result: Byte? = when (key) {
+      GLFW.GLFW_KEY_BACKSPACE -> 0x08
+      GLFW.GLFW_KEY_ENTER -> 0x0D
+      GLFW.GLFW_KEY_HOME -> 0x80
+      GLFW.GLFW_KEY_END -> 0x81
+      GLFW.GLFW_KEY_UP -> 0x82
+      GLFW.GLFW_KEY_DOWN -> 0x83
+      GLFW.GLFW_KEY_LEFT -> 0x84
+      GLFW.GLFW_KEY_RIGHT -> 0x85
+      else -> null
+    }?.toByte()
+
+    if (result != null) pushKey(result)
+
+    return result != null
+  }
+
+  override fun charTyped(c: Char, modifiers: Int): Boolean {
+    if (super.charTyped(c, modifiers)) return true
+
+    val result: Byte? = when (c) {
+      in '\u0001'..'\u007F' -> c
+      else -> null
+    }?.toByte()
+
+    if (result != null) pushKey(result)
+
+    return result != null
+  }
+
+  private fun pushKey(c: Byte) {
+    val buffer = PacketByteBuf(Unpooled.buffer())
+    buffer.writeBlockPos(te.pos)
+    buffer.writeByte(c.toInt())
+    ClientSidePacketRegistry.INSTANCE.sendToServer(Packets.Server.TerminalKeyTyped, buffer)
   }
 
   override fun init() {
