@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "hctm-base",
+  "version": "1.0.0",
+  "name": "HCTM Base",
+  "description": "Common library for HCTM",
+  "authors": ["the_real_farfetchd"],
+  "contact": {
+    "homepage": "https://github.com/therealfarfetchd/HCTM",
+    "sources": "https://github.com/therealfarfetchd/HCTM"
+  },
+  "license": "MIT",
+  "icon": "assets/hctm-base/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [{ "value": "therealfarfetchd.hctm.HCTM", "adapter": "kotlin" }]
+  },
+  "mixins": ["hctm.mixins.json"],
+  "requires": {
+    "fabricloader": ">=0.4.0",
+    "fabric": "*",
+    "fabric-language-kotlin": ">=1.3.30"
+  }
+}

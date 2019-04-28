@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "rswires",
+  "version": "1.0.0",
+  "name": "RSWires",
+  "description": "Improved redstone, or something.",
+  "authors": ["the_real_farfetchd"],
+  "contact": {
+    "homepage": "https://github.com/therealfarfetchd/HCTM",
+    "sources": "https://github.com/therealfarfetchd/HCTM"
+  },
+  "license": "MIT",
+  "icon": "assets/rswires/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [{ "value": "therealfarfetchd.hctm.HCTM", "adapter": "kotlin" }]
+  },
+  "requires": {
+    "fabricloader": ">=0.4.0",
+    "fabric": "*",
+    "fabric-language-kotlin": ">=1.3.30",
+    "hctm-base": ">=1.0.0"
+  }
+}

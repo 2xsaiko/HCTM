@@ -8,4 +8,8 @@ pluginManagement {
   }
 }
 
-rootProject.name = "retrocomputers"
+rootProject.name = "HCTM"
+
+include("hctm-base")
+include("retrocomputers")
+include("rswires")

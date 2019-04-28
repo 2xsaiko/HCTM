@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "therealfarfetchd.hctm.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinServerPlayerInteractionManager"
+  ],
+  "client": [
+    "MixinClientPlayerInteractionManager",
+    "MixinGameRenderer",
+    "MixinWorldRenderer"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

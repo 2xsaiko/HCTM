@@ -1,49 +1,76 @@
 import org.gradle.api.JavaVersion.VERSION_1_8
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val minecraft_version: String by extra
+val mappings_version: String by extra
+val loader_version: String by extra
+val mod_name: String by extra
+val mod_version: String by extra
+val fabric_api_version: String by extra
+val fabric_kotlin_version: String by extra
+val kotlin_version: String by extra
+val frex_version: String by extra
+val canvas_version: String by extra
+
 plugins {
-  kotlin("jvm") version "1.3.10"
+  kotlin("jvm") version "1.3.30"
   id("fabric-loom") version "0.2.2-SNAPSHOT"
 }
 
-base {
-  archivesBaseName = "retrocomputers"
-}
+allprojects {
+  apply(plugin = "org.jetbrains.kotlin.jvm")
+  apply(plugin = "fabric-loom")
 
-group = "therealfarfetchd.retrocomputers"
-version = "1.0.0"
+  group = "therealfarfetchd.hctm"
 
-java {
-  sourceCompatibility = VERSION_1_8
-  targetCompatibility = VERSION_1_8
-}
+  version = "1.0.0"
 
-tasks.withType<KotlinCompile> {
-  kotlinOptions.jvmTarget = "1.8"
-  kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
-}
-
-minecraft {
-}
-
-repositories {
-  maven(url = "https://maven.shadowfacts.net")
-  maven(url = "https://grondag-repo.appspot.com") {
-    credentials { username = "guest"; password = "" }
+  java {
+    sourceCompatibility = VERSION_1_8
+    targetCompatibility = VERSION_1_8
   }
+
+  tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.ExperimentalUnsignedTypes"
+  }
+
+  // task<Jar>("sourcesJar") {
+  //   dependsOn("classes")
+  //   classifier = "sources"
+  //   from(sourceSets["main"].allSource)
+  // }
+
+  minecraft {
+  }
+
+  repositories {
+    maven(url = "https://maven.shadowfacts.net")
+    // maven(url = "https://minecraft.curseforge.com/api/maven")
+    // maven(url = "https://grondag-repo.appspot.com") {
+    //   credentials { username = "guest"; password = "" }
+    // }
+  }
+
+  dependencies {
+    minecraft("com.mojang", "minecraft", minecraft_version)
+    mappings("net.fabricmc", "yarn", mappings_version)
+    modCompile("net.fabricmc", "fabric-loader", loader_version)
+
+    // Fabric API. This is technically optional, but you probably want it anyway.
+    modCompile("net.fabricmc", "fabric", fabric_api_version)
+    compile("net.fabricmc", "fabric-language-kotlin", fabric_kotlin_version)
+    compileOnly(kotlin("stdlib", kotlin_version))
+    compileOnly(kotlin("stdlib-jdk8", kotlin_version))
+
+    // modCompile("grondag", "frex", frex_version)
+    // modCompile("grondag", "canvas", canvas_version)
+  }
+
 }
 
 dependencies {
-  minecraft("com.mojang:minecraft:1.14")
-  mappings("net.fabricmc:yarn:1.14+build.1")
-  modCompile("net.fabricmc:fabric-loader:0.4.4+build.136")
-
-  // Fabric API. This is technically optional, but you probably want it anyway.
-  modCompile("net.fabricmc:fabric:0.2.7+build.127")
-  compile("net.fabricmc:fabric-language-kotlin:1.3.30+build.2")
-  compileOnly(kotlin("stdlib", "1.3.30"))
-  compileOnly(kotlin("stdlib-jdk8", "1.3.30"))
-
-  // modCompile("grondag", "frex", "0.1.112-alpha")
-  // modCompile("grondag", "indigo", "0.1.386-alpha")
+  subprojects.forEach {
+    compile(project(path = ":${it.name}"))
+  }
 }
