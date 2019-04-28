@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
 import net.minecraft.item.Items
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.state.StateFactory.Builder
 import net.minecraft.state.property.BooleanProperty
 import net.minecraft.util.Hand
@@ -69,7 +70,7 @@ class DiskDriveEntity : BaseBlockEntity(BlockEntityTypes.DiskDrive), Tickable {
   private var command: Byte = 0
 
   override fun tick() {
-    val world = getWorld() ?: return
+    val world = getWorld() as? ServerWorld ?: return
     if (world.isClient) return
 
     var error = false
@@ -103,8 +104,8 @@ class DiskDriveEntity : BaseBlockEntity(BlockEntityTypes.DiskDrive), Tickable {
         }
         4 -> {
           disk!!
-          val data = disk.sector(sector)
-          if (sector >= 2048 || data == null) {
+          val data = disk.sector(stack, world, sector)
+          if (sector >= 2048 || data == null || data.isEmpty()) {
             error = true
           } else data.use {
             it.data.copyInto(buffer)
@@ -112,7 +113,7 @@ class DiskDriveEntity : BaseBlockEntity(BlockEntityTypes.DiskDrive), Tickable {
         }
         5 -> {
           disk!!
-          val data = disk.sector(sector)
+          val data = disk.sector(stack, world, sector)
           if (sector >= 2048 || data == null) {
             error = true
           } else data.use {

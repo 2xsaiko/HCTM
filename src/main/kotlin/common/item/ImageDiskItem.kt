@@ -2,6 +2,7 @@ package therealfarfetchd.retrocomputers.common.item
 
 import net.minecraft.item.Item
 import net.minecraft.item.ItemStack
+import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.Identifier
 import therealfarfetchd.retrocomputers.common.init.Resources
 import therealfarfetchd.retrocomputers.common.item.ext.ItemDisk
@@ -12,7 +13,7 @@ class ImageDiskItem(val image: Identifier) : Item(Item.Settings().stackSize(1)),
 
   override fun setLabel(stack: ItemStack, str: String) {}
 
-  override fun sector(index: Int): Sector? {
+  override fun sector(stack: ItemStack, world: ServerWorld, index: Int): Sector? {
     val disk = Resources.disk(image)
     if (disk.size < (index + 1) * 128) return null
     val sector = disk.copyOfRange(index * 128, (index + 1) * 128)
@@ -21,6 +22,8 @@ class ImageDiskItem(val image: Identifier) : Item(Item.Settings().stackSize(1)),
 
   class Sector(override val data: ByteArray) : ItemDisk.Sector {
     override fun close() {}
+
+    override fun isEmpty() = false
   }
 
 }

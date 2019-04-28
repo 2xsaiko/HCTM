@@ -1,6 +1,7 @@
 package therealfarfetchd.retrocomputers.common.item.ext
 
 import net.minecraft.item.ItemStack
+import net.minecraft.server.world.ServerWorld
 
 interface ItemDisk {
 
@@ -8,10 +9,12 @@ interface ItemDisk {
 
   fun setLabel(stack: ItemStack, str: String)
 
-  fun sector(index: Int): Sector?
+  fun sector(stack: ItemStack, world: ServerWorld, index: Int): Sector?
 
   interface Sector : AutoCloseable {
     val data: ByteArray
+
+    fun isEmpty(): Boolean
   }
 
 }
