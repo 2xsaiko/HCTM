@@ -46,10 +46,10 @@ allprojects {
 
   repositories {
     maven(url = "https://maven.shadowfacts.net")
-    // maven(url = "https://minecraft.curseforge.com/api/maven")
-    // maven(url = "https://grondag-repo.appspot.com") {
-    //   credentials { username = "guest"; password = "" }
-    // }
+    maven(url = "https://minecraft.curseforge.com/api/maven")
+    maven(url = "https://grondag-repo.appspot.com") {
+      credentials { username = "guest"; password = "" }
+    }
   }
 
   dependencies {
@@ -63,8 +63,9 @@ allprojects {
     compileOnly(kotlin("stdlib", kotlin_version))
     compileOnly(kotlin("stdlib-jdk8", kotlin_version))
 
-    // modCompile("grondag", "frex", frex_version)
-    // modCompile("grondag", "canvas", canvas_version)
+    modCompile("grondag", "frex", frex_version)
+    modCompile("grondag", "canvas", canvas_version)
+    runtime("org.joml", "joml", "1.9.14") // fix your deps grondag
   }
 
 }
