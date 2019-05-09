@@ -19,6 +19,7 @@ import java.util.*
 import kotlin.streams.asSequence
 
 fun draw(delta: Float) {
+  return
   val mc = MinecraftClient.getInstance()
   val cam = mc.gameRenderer.camera
   // val camEnt = mc.cameraEntity ?: mc.player

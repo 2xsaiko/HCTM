@@ -1,0 +1,13 @@
+pluginManagement {
+    repositories {
+        jcenter()
+        maven { url 'http://maven.fabricmc.net/' }
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'HCTM'
+
+include 'hctm-base'
+include 'retrocomputers'
+include 'rswires'

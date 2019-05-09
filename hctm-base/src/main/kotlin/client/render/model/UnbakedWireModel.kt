@@ -15,6 +15,7 @@ import net.minecraft.util.math.Direction.Axis.X
 import net.minecraft.util.math.Direction.Axis.Y
 import net.minecraft.util.math.Direction.Axis.Z
 import net.minecraft.util.math.Direction.AxisDirection.NEGATIVE
+import net.minecraft.util.math.Direction.AxisDirection.POSITIVE
 import net.minecraft.util.math.Vec2f
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Crossing
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Standalone
@@ -145,14 +146,6 @@ class UnbakedWireModel(
   }
 
   private fun generateExt(t: Sprite, side: Direction, edge: Direction, variant: ExtVariant): Mesh {
-    val origin = when (variant) {
-      External -> Vec2f(armLength, 0f)
-      Internal -> Vec2f(armLength, cableHeight)
-      Corner -> Vec2f(armLength, 0f)
-      Unconnected -> Vec2f(armLength, armLength)
-      Terminal -> Vec2f(armLength, 0.25f)
-    }
-
     val baseLength = when (variant) {
       External -> armLength
       Internal -> armInnerLength
@@ -160,6 +153,8 @@ class UnbakedWireModel(
       Unconnected -> 0f
       Terminal -> armLength - 0.25f
     }
+
+    val origin = Vec2f(armLength, armLength - baseLength)
 
     val useTop =
       (edge.direction == NEGATIVE) xor
@@ -190,11 +185,6 @@ class UnbakedWireModel(
       Terminal -> center8Bottom1Uv
     }
 
-    val uvFront = when (useTop) {
-      true -> cableFrontUv
-      false -> cableBackUv
-    }
-
     val needsSides = baseLength > 0f
 
     // this is related to front quad, not the special front (for corner/internal)
@@ -203,76 +193,205 @@ class UnbakedWireModel(
       Internal, Corner -> false
     }
 
+    if (needsSides) {
+      val quadRotMap = mapOf(
+        Direction.DOWN to mapOf(
+          Direction.NORTH to 2,
+          Direction.SOUTH to 0,
+          Direction.WEST to 3,
+          Direction.EAST to 1
+        ),
+        Direction.UP to mapOf(
+          Direction.NORTH to 0,
+          Direction.SOUTH to 2,
+          Direction.WEST to 3,
+          Direction.EAST to 1
+        ),
+        Direction.NORTH to mapOf(
+          Direction.DOWN to 0,
+          Direction.UP to 2,
+          Direction.WEST to 1,
+          Direction.EAST to 3
+        ),
+        Direction.SOUTH to mapOf(
+          Direction.DOWN to 0,
+          Direction.UP to 2,
+          Direction.WEST to 3,
+          Direction.EAST to 1
+        ),
+        Direction.WEST to mapOf(
+          Direction.DOWN to 0,
+          Direction.UP to 2,
+          Direction.NORTH to 1,
+          Direction.SOUTH to 3
+        ),
+        Direction.EAST to mapOf(
+          Direction.DOWN to 0,
+          Direction.UP to 2,
+          Direction.NORTH to 3,
+          Direction.SOUTH to 1
+        )
+      )
+
+      val quadRot = quadRotMap.getValue(side).getValue(edge)
+
+      var flags = 0
+      if (side in setOf(Direction.SOUTH, Direction.WEST) && edge.axis == Y) flags = combine(flags, MutableQuadView.BAKE_FLIP_U)
+      if (side == Direction.UP && edge.axis == X) flags = combine(flags, MutableQuadView.BAKE_FLIP_U)
+      if (quadRot and 1 != 0) flags = combine(flags, MutableQuadView.BAKE_ROTATE_270)
+
+      builder.emitter.prepare()
+        .squareRotY(side.opposite, origin.x, origin.y, origin.x + cableWidth, origin.y + baseLength, 1 - cableHeight, quadRot)
+        .uv(0, uvTop, cableWidth, baseLength, MutableQuadView.BAKE_NORMALIZED or flags)
+        .spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED or flags)
+        .emit()
+      builder.emitter.prepare()
+        .squareRotY(side, origin.x, origin.y, origin.x + cableWidth, origin.y + baseLength, 0f, quadRot)
+        .uv(0, uvBottom, cableWidth, baseLength, MutableQuadView.BAKE_NORMALIZED or flags)
+        .spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED or flags)
+        .emit()
+
+      appendSide(t, side, edge)
+    }
+
+    if (needsFront) {
+      appendFront(t, side, edge, origin.y, useTop)
+    }
+
+    return builder.build()
+  }
+
+  private fun appendSide(t: Sprite, side: Direction, edge: Direction) {
+    val (a, b) = Direction.values().filter { it.axis != side.axis && it.axis != edge.axis }
+
+    val flags = 0
+
+    val origin = when (edge.direction) {
+      POSITIVE -> Vec2f(1f - armLength, 0f)
+      NEGATIVE -> Vec2f(0f, 0f)
+    }
+
+    val key = 0
+    val list = listOf(arm1Side1Uv, arm1Side2Uv, arm2Side1Uv, arm2Side2Uv)
+    val side1 = list[key]
+    val side2 = list[key xor 1]
+
     val quadRotMap = mapOf(
       Direction.DOWN to mapOf(
-        Direction.NORTH to 2,
+        Direction.NORTH to 0,
         Direction.SOUTH to 0,
-        Direction.WEST to 3,
-        Direction.EAST to 1
+        Direction.WEST to 0,
+        Direction.EAST to 0
       ),
       Direction.UP to mapOf(
-        Direction.NORTH to 0,
+        Direction.NORTH to 2,
         Direction.SOUTH to 2,
-        Direction.WEST to 3,
-        Direction.EAST to 1
+        Direction.WEST to 2,
+        Direction.EAST to 2
       ),
       Direction.NORTH to mapOf(
         Direction.DOWN to 0,
         Direction.UP to 2,
+        Direction.WEST to 3,
+        Direction.EAST to 1
+      ),
+      Direction.SOUTH to mapOf(
+        Direction.DOWN to 2,
+        Direction.UP to 0,
         Direction.WEST to 1,
         Direction.EAST to 3
       ),
-      Direction.SOUTH to mapOf(
+      Direction.WEST to mapOf(
+        Direction.DOWN to 3,
+        Direction.UP to 3,
+        Direction.NORTH to 3,
+        Direction.SOUTH to 1
+      ),
+      Direction.EAST to mapOf(
+        Direction.DOWN to 1,
+        Direction.UP to 1,
+        Direction.NORTH to 1,
+        Direction.SOUTH to 3
+      )
+    )
+
+    if (edge != Direction.WEST || side != Direction.SOUTH) return
+
+    val quadRot = 0 //quadRotMap.getValue(side).getValue(edge)
+
+    builder.emitter.prepare()
+      .squareRotY(a, origin.x, origin.y, origin.x + armLength, origin.y + cableHeight, armLength, quadRot)
+      .uv(0, side1, cableHeight, armLength, MutableQuadView.BAKE_NORMALIZED or flags)
+      .spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED or flags)
+      .emit()
+    builder.emitter.prepare()
+      .squareRotY(b, origin.x, origin.y, origin.x + armLength, origin.y + cableHeight, armLength, quadRot)
+      .uv(0, side2, cableHeight, armLength, MutableQuadView.BAKE_NORMALIZED or flags)
+      .spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED or flags)
+      .emit()
+  }
+
+  private fun appendFront(t: Sprite, side: Direction, edge: Direction, depth: Float, useTop: Boolean) {
+    val uvFront = when (useTop) {
+      true -> cableFrontUv
+      false -> cableBackUv
+    }
+
+    val quadRotMap = mapOf(
+      Direction.DOWN to mapOf(
+        Direction.NORTH to 0,
+        Direction.SOUTH to 0,
+        Direction.WEST to 0,
+        Direction.EAST to 0
+      ),
+      Direction.UP to mapOf(
+        Direction.NORTH to 2,
+        Direction.SOUTH to 2,
+        Direction.WEST to 2,
+        Direction.EAST to 2
+      ),
+      Direction.NORTH to mapOf(
         Direction.DOWN to 0,
         Direction.UP to 2,
         Direction.WEST to 3,
         Direction.EAST to 1
       ),
-      Direction.WEST to mapOf(
-        Direction.DOWN to 0,
-        Direction.UP to 2,
-        Direction.NORTH to 1,
-        Direction.SOUTH to 3
+      Direction.SOUTH to mapOf(
+        Direction.DOWN to 2,
+        Direction.UP to 0,
+        Direction.WEST to 1,
+        Direction.EAST to 3
       ),
-      Direction.EAST to mapOf(
-        Direction.DOWN to 0,
-        Direction.UP to 2,
+      Direction.WEST to mapOf(
+        Direction.DOWN to 3,
+        Direction.UP to 3,
         Direction.NORTH to 3,
         Direction.SOUTH to 1
+      ),
+      Direction.EAST to mapOf(
+        Direction.DOWN to 1,
+        Direction.UP to 1,
+        Direction.NORTH to 1,
+        Direction.SOUTH to 3
       )
     )
 
     val quadRot = quadRotMap.getValue(side).getValue(edge)
 
-    if (needsSides) {
-      var flags = 0
+    var flags = 0
+    if (flags and 1 == 0) flags = combine(flags, MutableQuadView.BAKE_ROTATE_90)
+    if (side.axis == X) flags = combine(flags, MutableQuadView.BAKE_ROTATE_90)
+    if (side.axis == Z && edge.axis == X) flags = combine(flags, MutableQuadView.BAKE_ROTATE_90)
+    if (side.axis == Y && edge in setOf(Direction.EAST, Direction.NORTH)) flags = combine(flags, MutableQuadView.BAKE_FLIP_V)
+    if (side.axis != Y) flags = combine(flags, MutableQuadView.BAKE_FLIP_V)
+    if (edge == Direction.DOWN) flags = combine(flags, MutableQuadView.BAKE_FLIP_V)
+    if (edge == Direction.UP && side.axis == Z) flags = combine(flags, MutableQuadView.BAKE_FLIP_V)
 
-      if (side in setOf(Direction.SOUTH, Direction.WEST) && edge.axis == Y) flags = combine(flags, MutableQuadView.BAKE_FLIP_U)
-      if (side == Direction.UP && edge.axis == X) flags = combine(flags, MutableQuadView.BAKE_FLIP_U)
-      if (quadRot % 2 != 0) flags = combine(flags, MutableQuadView.BAKE_ROTATE_270)
-      //    if (side != Direction.DOWN && edge.axis == X) flags = combine(flags, MutableQuadView.BAKE_FLIP_V)
-
-      builder.emitter.prepare()
-        .squareRotYRel(side.opposite, origin.x, origin.y, origin.x + cableWidth, origin.y + baseLength, 1 - cableHeight, quadRot)
-        .uv(0, uvTop, cableWidth, baseLength, MutableQuadView.BAKE_NORMALIZED or flags)
-        .spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED or flags)
-        .emit()
-      builder.emitter.prepare()
-        .squareRotYRel(side, origin.x, origin.y, origin.x + cableWidth, origin.y + baseLength, 0f, quadRot)
-        .uv(0, uvBottom, cableWidth, baseLength, MutableQuadView.BAKE_NORMALIZED or flags)
-        .spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED or flags)
-        .emit()
-    }
-
-    if (needsFront) {
-      builder.emitter.prepare()
-        .square(Direction.SOUTH, armLength, 0f, 1 - armLength, cableHeight, armLength - baseLength)
-        .uv(0, uvFront, cableHeight, cableWidth, MutableQuadView.BAKE_NORMALIZED or MutableQuadView.BAKE_ROTATE_90)
-        .spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED or MutableQuadView.BAKE_ROTATE_90)
-        .emit()
-    }
-
-    return builder.build()
+    builder.emitter.prepare()
+      .squareRotY(edge, armLength, 0f, 1 - armLength, cableHeight, depth, quadRot)
+      .uv(0, uvFront, cableHeight, cableWidth, MutableQuadView.BAKE_NORMALIZED or flags)
+      .spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED or flags)
+      .emit()
   }
 
   private fun rotate(uv1: Vec2f, uv2: Vec2f, flags: Int): Pair<Vec2f, Vec2f> {
@@ -334,9 +453,20 @@ class UnbakedWireModel(
       .sprite(3, spriteIndex, uv2.x, uv1.y)
   }
 
-  private fun QuadEmitter.squareRotYRel(nominalFace: Direction, left: Float, bottom: Float, right: Float, top: Float, depth: Float, rotate: Int): QuadEmitter {
+  private fun QuadEmitter.squareRotY(nominalFace: Direction, left: Float, bottom: Float, right: Float, top: Float, depth: Float, rotate: Int): QuadEmitter {
     val (xy1, xy2) = rotate(Vec2f(left, top), Vec2f(right, bottom), rotate and 3 or MutableQuadView.BAKE_NORMALIZED)
     return this.square(nominalFace, xy1.x, xy2.y, xy2.x, xy1.y, depth)
+  }
+
+  private fun QuadEmitter.squareSpecial(nominalFace: Direction, rYFirst: Int, left: Float, bottom: Float, right: Float, top: Float, depth: Float): QuadEmitter {
+    val face = nominalFace.rotate(rYFirst, Y)
+    return this.square(face, left, bottom, right, top, depth)
+  }
+
+  private tailrec fun Direction.rotate(n: Int, axis: Direction.Axis): Direction {
+    val n = n and 3
+    if (n == 0) return this
+    return rotateClockwise(axis).rotate(n - 1, axis)
   }
 
   override fun getTextureDependencies(getModel: Function<Identifier, UnbakedModel>, errors: MutableSet<String>): Collection<Identifier> {
