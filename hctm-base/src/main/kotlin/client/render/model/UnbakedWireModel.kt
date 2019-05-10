@@ -196,8 +196,8 @@ class UnbakedWireModel(
 
     // this is related to front quad, not the special front (for corner/internal)
     val needsFront = when (variant) {
-      External, Unconnected, UnconnectedCrossing, Terminal -> true
-      Internal, Corner -> false
+      External, Terminal -> true
+      Internal, Unconnected, UnconnectedCrossing, Corner -> false
     }
 
     if (needsSides) {
@@ -267,15 +267,48 @@ class UnbakedWireModel(
 
     if (needsFront) {
       appendFront(t, side, edge, origin.y, useTop)
+    } else {
+      appendSpecial(t, side, edge, variant, useTop)
     }
 
     return builder.build()
   }
 
+  private fun appendSpecial(t: Sprite, side: Direction, edge: Direction, variant: ExtVariant, useTop: Boolean) {
+    when (variant) {
+      Internal -> Unit
+      Corner -> Unit
+      Unconnected -> appendUnconnected(t, side, edge, false)
+      UnconnectedCrossing -> appendUnconnected(t, side, edge, true)
+    }
+  }
+
+  private fun appendUnconnected(t: Sprite, side: Direction, edge: Direction, crossing: Boolean) {
+    val quadRot = getQuadRotForFront(side, edge)
+
+    var flags = MutableQuadView.BAKE_ROTATE_90
+    if (side.axis != Y && edge.axis != Y) flags = combine(flags, MutableQuadView.BAKE_ROTATE_90)
+    if (side.axis == X && edge.axis == Y) flags = combine(flags, MutableQuadView.BAKE_ROTATE_90)
+
+    var key = 0
+    if (edge.direction == POSITIVE) key = key xor 1
+    if (edge.axis == Y) key = key xor 1
+
+    val front = listOf(centerSide1Uv, centerSide2Uv)[key]
+
+    builder.emitter.prepare()
+      .squareRotY(edge, armLength, 0f, 1 - armLength, cableHeight, armLength, quadRot)
+      .uv(0, front, cableHeight, cableWidth, MutableQuadView.BAKE_NORMALIZED or flags)
+      .spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED or flags)
+      .emit()
+  }
+
   private fun appendSide(t: Sprite, side: Direction, edge: Direction) {
     val (a, b) = Direction.values().filter { it.axis != side.axis && it.axis != edge.axis }
 
-    val flags = 0
+    var flags = MutableQuadView.BAKE_ROTATE_90
+    if (side.axis != Y && edge.axis == Y) flags = combine(flags, MutableQuadView.BAKE_ROTATE_90)
+    if (side.axis == X && edge.axis == Z) flags = combine(flags, MutableQuadView.BAKE_ROTATE_90)
 
     val origin = when (edge.direction) {
       POSITIVE -> Vec2f(1f - armLength, 0f)
@@ -353,50 +386,7 @@ class UnbakedWireModel(
       false -> cableBackUv
     }
 
-    val quadRot = when (side) {
-      DOWN -> when (edge) {
-        NORTH -> 0
-        SOUTH -> 0
-        WEST -> 0
-        EAST -> 0
-        else -> error("unreachable")
-      }
-      UP -> when (edge) {
-        NORTH -> 2
-        SOUTH -> 2
-        WEST -> 2
-        EAST -> 2
-        else -> error("unreachable")
-      }
-      NORTH -> when (edge) {
-        DOWN -> 0
-        UP -> 2
-        WEST -> 3
-        EAST -> 1
-        else -> error("unreachable")
-      }
-      SOUTH -> when (edge) {
-        DOWN -> 2
-        UP -> 0
-        WEST -> 1
-        EAST -> 3
-        else -> error("unreachable")
-      }
-      WEST -> when (edge) {
-        DOWN -> 3
-        UP -> 3
-        NORTH -> 3
-        SOUTH -> 1
-        else -> error("unreachable")
-      }
-      EAST -> when (edge) {
-        DOWN -> 1
-        UP -> 1
-        NORTH -> 1
-        SOUTH -> 3
-        else -> error("unreachable")
-      }
-    }
+    val quadRot = getQuadRotForFront(side, edge)
 
     var flags = 0
     if (flags and 1 == 0) flags = combine(flags, MutableQuadView.BAKE_ROTATE_90)
@@ -412,6 +402,51 @@ class UnbakedWireModel(
       .uv(0, uvFront, cableHeight, cableWidth, MutableQuadView.BAKE_NORMALIZED or flags)
       .spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED or flags)
       .emit()
+  }
+
+  private fun getQuadRotForFront(side: Direction, edge: Direction): Int = when (side) {
+    DOWN -> when (edge) {
+      NORTH -> 0
+      SOUTH -> 0
+      WEST -> 0
+      EAST -> 0
+      else -> error("unreachable")
+    }
+    UP -> when (edge) {
+      NORTH -> 2
+      SOUTH -> 2
+      WEST -> 2
+      EAST -> 2
+      else -> error("unreachable")
+    }
+    NORTH -> when (edge) {
+      DOWN -> 0
+      UP -> 2
+      WEST -> 3
+      EAST -> 1
+      else -> error("unreachable")
+    }
+    SOUTH -> when (edge) {
+      DOWN -> 2
+      UP -> 0
+      WEST -> 1
+      EAST -> 3
+      else -> error("unreachable")
+    }
+    WEST -> when (edge) {
+      DOWN -> 3
+      UP -> 3
+      NORTH -> 3
+      SOUTH -> 1
+      else -> error("unreachable")
+    }
+    EAST -> when (edge) {
+      DOWN -> 1
+      UP -> 1
+      NORTH -> 1
+      SOUTH -> 3
+      else -> error("unreachable")
+    }
   }
 
   private fun rotate(uv1: Vec2f, uv2: Vec2f, flags: Int): Pair<Vec2f, Vec2f> {

@@ -1,4 +1,5 @@
 import net.fabricmc.loom.task.RemapJar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static org.gradle.api.JavaVersion.VERSION_1_8
 
@@ -15,7 +16,7 @@ allprojects {
         targetCompatibility = VERSION_1_8
     }
 
-    compileKotlin {
+    tasks.withType(KotlinCompile) {
         kotlinOptions.jvmTarget = '1.8'
         kotlinOptions.freeCompilerArgs += '-Xuse-experimental=kotlin.ExperimentalUnsignedTypes'
     }
