@@ -16,6 +16,12 @@ import net.minecraft.util.math.Direction.Axis.Y
 import net.minecraft.util.math.Direction.Axis.Z
 import net.minecraft.util.math.Direction.AxisDirection.NEGATIVE
 import net.minecraft.util.math.Direction.AxisDirection.POSITIVE
+import net.minecraft.util.math.Direction.DOWN
+import net.minecraft.util.math.Direction.EAST
+import net.minecraft.util.math.Direction.NORTH
+import net.minecraft.util.math.Direction.SOUTH
+import net.minecraft.util.math.Direction.UP
+import net.minecraft.util.math.Direction.WEST
 import net.minecraft.util.math.Vec2f
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Crossing
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Standalone
@@ -26,6 +32,7 @@ import therealfarfetchd.hctm.client.render.model.ExtVariant.External
 import therealfarfetchd.hctm.client.render.model.ExtVariant.Internal
 import therealfarfetchd.hctm.client.render.model.ExtVariant.Terminal
 import therealfarfetchd.hctm.client.render.model.ExtVariant.Unconnected
+import therealfarfetchd.hctm.client.render.model.ExtVariant.UnconnectedCrossing
 import java.util.function.Function
 
 class UnbakedWireModel(
@@ -96,20 +103,16 @@ class UnbakedWireModel(
   }
 
   private fun generateSide(t: Sprite, side: Direction): WireModelPart {
-    val center = generateCenter(t, side, Straight2)
-
-    val exts = mutableMapOf<Pair<Direction, ConnectionType>, Mesh>()
+    val cvs = CenterVariant.values().associate { it to generateCenter(t, side, it) }
+    val exts = mutableMapOf<Pair<Direction, ExtVariant>, Mesh>()
 
     for (ext in Direction.values().filter { it.axis != side.axis }) {
-      val external = generateExt(t, side, ext, External)
-
-      exts[Pair(ext, ConnectionType.EXTERNAL)] = external
-      exts[Pair(ext, ConnectionType.INTERNAL)] = external
-
-      exts[Pair(ext, ConnectionType.CORNER)] = builder.build()
+      for (v in ExtVariant.values()) {
+        exts[Pair(ext, v)] = generateExt(t, side, ext, v)
+      }
     }
 
-    return WireModelPart(center, exts)
+    return WireModelPart(cvs, exts)
   }
 
   private fun generateCenter(t: Sprite, side: Direction, variant: CenterVariant): Mesh {
@@ -127,8 +130,8 @@ class UnbakedWireModel(
     }
 
     val flags = when (variant) {
-      Crossing, Straight1, Standalone -> combine(MutableQuadView.BAKE_ROTATE_90, if (side == Direction.UP) MutableQuadView.BAKE_FLIP_U else 0)
-      Straight2 -> if (side in setOf(Direction.SOUTH, Direction.WEST)) MutableQuadView.BAKE_FLIP_U else 0
+      Crossing, Straight1, Standalone -> combine(MutableQuadView.BAKE_ROTATE_90, if (side == UP) MutableQuadView.BAKE_FLIP_U else 0)
+      Straight2 -> if (side in setOf(SOUTH, WEST)) MutableQuadView.BAKE_FLIP_U else 0
     }
 
     builder.emitter.prepare()
@@ -151,6 +154,7 @@ class UnbakedWireModel(
       Internal -> armInnerLength
       Corner -> armLength
       Unconnected -> 0f
+      UnconnectedCrossing -> 0f
       Terminal -> armLength - 0.25f
     }
 
@@ -158,10 +162,10 @@ class UnbakedWireModel(
 
     val useTop =
       (edge.direction == NEGATIVE) xor
-        (side != Direction.DOWN) xor
-        (side == Direction.DOWN && edge.axis == X) xor
-        (side == Direction.WEST && edge.axis == Z) xor
-        (side == Direction.SOUTH && edge.axis == X)
+        (side != DOWN) xor
+        (side == DOWN && edge.axis == X) xor
+        (side == WEST && edge.axis == Z) xor
+        (side == SOUTH && edge.axis == X)
 
     val uvTop = when (Pair(variant, useTop)) {
       Pair(External, true) -> arm1TopUv
@@ -172,6 +176,8 @@ class UnbakedWireModel(
       Pair(Corner, false) -> arm2TopUv
       Pair(Unconnected, true) -> centerTopUv // unused
       Pair(Unconnected, false) -> arm2TopUv // unused
+      Pair(UnconnectedCrossing, true) -> centerTopUv // unused
+      Pair(UnconnectedCrossing, false) -> arm2TopUv // unused
       Pair(Terminal, true) -> center8Top1Uv
       Pair(Terminal, false) -> center8Top2Uv
       else -> error("unreachable")
@@ -182,6 +188,7 @@ class UnbakedWireModel(
       Internal -> innerBottom1Uv
       Corner -> arm1BottomUv
       Unconnected -> centerTopUv // unused
+      UnconnectedCrossing -> centerTopUv // unused
       Terminal -> center8Bottom1Uv
     }
 
@@ -189,55 +196,59 @@ class UnbakedWireModel(
 
     // this is related to front quad, not the special front (for corner/internal)
     val needsFront = when (variant) {
-      External, Unconnected, Terminal -> true
+      External, Unconnected, UnconnectedCrossing, Terminal -> true
       Internal, Corner -> false
     }
 
     if (needsSides) {
-      val quadRotMap = mapOf(
-        Direction.DOWN to mapOf(
-          Direction.NORTH to 2,
-          Direction.SOUTH to 0,
-          Direction.WEST to 3,
-          Direction.EAST to 1
-        ),
-        Direction.UP to mapOf(
-          Direction.NORTH to 0,
-          Direction.SOUTH to 2,
-          Direction.WEST to 3,
-          Direction.EAST to 1
-        ),
-        Direction.NORTH to mapOf(
-          Direction.DOWN to 0,
-          Direction.UP to 2,
-          Direction.WEST to 1,
-          Direction.EAST to 3
-        ),
-        Direction.SOUTH to mapOf(
-          Direction.DOWN to 0,
-          Direction.UP to 2,
-          Direction.WEST to 3,
-          Direction.EAST to 1
-        ),
-        Direction.WEST to mapOf(
-          Direction.DOWN to 0,
-          Direction.UP to 2,
-          Direction.NORTH to 1,
-          Direction.SOUTH to 3
-        ),
-        Direction.EAST to mapOf(
-          Direction.DOWN to 0,
-          Direction.UP to 2,
-          Direction.NORTH to 3,
-          Direction.SOUTH to 1
-        )
-      )
-
-      val quadRot = quadRotMap.getValue(side).getValue(edge)
+      val quadRot = when (side) {
+        DOWN -> when (edge) {
+          NORTH -> 2
+          SOUTH -> 0
+          WEST -> 3
+          EAST -> 1
+          else -> error("unreachable")
+        }
+        UP -> when (edge) {
+          NORTH -> 0
+          SOUTH -> 2
+          WEST -> 3
+          EAST -> 1
+          else -> error("unreachable")
+        }
+        NORTH -> when (edge) {
+          DOWN -> 0
+          UP -> 2
+          WEST -> 1
+          EAST -> 3
+          else -> error("unreachable")
+        }
+        SOUTH -> when (edge) {
+          DOWN -> 0
+          UP -> 2
+          WEST -> 3
+          EAST -> 1
+          else -> error("unreachable")
+        }
+        WEST -> when (edge) {
+          DOWN -> 0
+          UP -> 2
+          NORTH -> 1
+          SOUTH -> 3
+          else -> error("unreachable")
+        }
+        EAST -> when (edge) {
+          DOWN -> 0
+          UP -> 2
+          NORTH -> 3
+          SOUTH -> 1
+          else -> error("unreachable")
+        }
+      }
 
       var flags = 0
-      if (side in setOf(Direction.SOUTH, Direction.WEST) && edge.axis == Y) flags = combine(flags, MutableQuadView.BAKE_FLIP_U)
-      if (side == Direction.UP && edge.axis == X) flags = combine(flags, MutableQuadView.BAKE_FLIP_U)
+      if (side in setOf(SOUTH, WEST) && edge.axis == Y) flags = combine(flags, MutableQuadView.BAKE_FLIP_U)
+      if (side == UP && edge.axis == X) flags = combine(flags, MutableQuadView.BAKE_FLIP_U)
       if (quadRot and 1 != 0) flags = combine(flags, MutableQuadView.BAKE_ROTATE_270)
 
       builder.emitter.prepare()
@@ -271,61 +282,66 @@ class UnbakedWireModel(
       NEGATIVE -> Vec2f(0f, 0f)
     }
 
-    val key = 0
+    var key = 0
+
+    if (side.axis != Y && edge.axis != Y) key = key xor 1
+
     val list = listOf(arm1Side1Uv, arm1Side2Uv, arm2Side1Uv, arm2Side2Uv)
     val side1 = list[key]
     val side2 = list[key xor 1]
 
-    val quadRotMap = mapOf(
-      Direction.DOWN to mapOf(
-        Direction.NORTH to 0,
-        Direction.SOUTH to 0,
-        Direction.WEST to 0,
-        Direction.EAST to 0
-      ),
-      Direction.UP to mapOf(
-        Direction.NORTH to 2,
-        Direction.SOUTH to 2,
-        Direction.WEST to 2,
-        Direction.EAST to 2
-      ),
-      Direction.NORTH to mapOf(
-        Direction.DOWN to 0,
-        Direction.UP to 2,
-        Direction.WEST to 3,
-        Direction.EAST to 1
-      ),
-      Direction.SOUTH to mapOf(
-        Direction.DOWN to 2,
-        Direction.UP to 0,
-        Direction.WEST to 1,
-        Direction.EAST to 3
-      ),
-      Direction.WEST to mapOf(
-        Direction.DOWN to 3,
-        Direction.UP to 3,
-        Direction.NORTH to 3,
-        Direction.SOUTH to 1
-      ),
-      Direction.EAST to mapOf(
-        Direction.DOWN to 1,
-        Direction.UP to 1,
-        Direction.NORTH to 1,
-        Direction.SOUTH to 3
-      )
-    )
-
-    if (edge != Direction.WEST || side != Direction.SOUTH) return
-
-    val quadRot = 0 //quadRotMap.getValue(side).getValue(edge)
+    val (quadRot1, quadRot2) = when (side) {
+      DOWN -> when (edge) {
+        NORTH -> Pair(0, 8)
+        SOUTH -> Pair(0, 8)
+        WEST -> Pair(0, 8)
+        EAST -> Pair(0, 8)
+        else -> error("unreachable")
+      }
+      UP -> when (edge) {
+        NORTH -> Pair(16, 2)
+        SOUTH -> Pair(16, 2)
+        WEST -> Pair(16, 2)
+        EAST -> Pair(16, 2)
+        else -> error("unreachable")
+      }
+      NORTH -> when (edge) {
+        DOWN -> Pair(17, 1)
+        UP -> Pair(17, 1)
+        WEST -> Pair(0, 16)
+        EAST -> Pair(0, 16)
+        else -> error("unreachable")
+      }
+      SOUTH -> when (edge) {
+        DOWN -> Pair(1, 17)
+        UP -> Pair(1, 17)
+        WEST -> Pair(16, 0)
+        EAST -> Pair(16, 0)
+        else -> error("unreachable")
+      }
+      WEST -> when (edge) {
+        DOWN -> Pair(17, 1)
+        UP -> Pair(17, 1)
+        NORTH -> Pair(17, 3)
+        SOUTH -> Pair(17, 3)
+        else -> error("unreachable")
+      }
+      EAST -> when (edge) {
+        DOWN -> Pair(1, 17)
+        UP -> Pair(1, 17)
+        NORTH -> Pair(19, 1)
+        SOUTH -> Pair(19, 1)
+        else -> error("unreachable")
+      }
+    }
 
     builder.emitter.prepare()
-      .squareRotY(a, origin.x, origin.y, origin.x + armLength, origin.y + cableHeight, armLength, quadRot)
+      .squareRotY(a, origin.x, origin.y, origin.x + armLength, origin.y + cableHeight, armLength, quadRot1)
       .uv(0, side1, cableHeight, armLength, MutableQuadView.BAKE_NORMALIZED or flags)
       .spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED or flags)
       .emit()
     builder.emitter.prepare()
-      .squareRotY(b, origin.x, origin.y, origin.x + armLength, origin.y + cableHeight, armLength, quadRot)
+      .squareRotY(b, origin.x, origin.y, origin.x + armLength, origin.y + cableHeight, armLength, quadRot2)
       .uv(0, side2, cableHeight, armLength, MutableQuadView.BAKE_NORMALIZED or flags)
       .spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED or flags)
       .emit()
@@ -337,55 +353,59 @@ class UnbakedWireModel(
       false -> cableBackUv
     }
 
-    val quadRotMap = mapOf(
-      Direction.DOWN to mapOf(
-        Direction.NORTH to 0,
-        Direction.SOUTH to 0,
-        Direction.WEST to 0,
-        Direction.EAST to 0
-      ),
-      Direction.UP to mapOf(
-        Direction.NORTH to 2,
-        Direction.SOUTH to 2,
-        Direction.WEST to 2,
-        Direction.EAST to 2
-      ),
-      Direction.NORTH to mapOf(
-        Direction.DOWN to 0,
-        Direction.UP to 2,
-        Direction.WEST to 3,
-        Direction.EAST to 1
-      ),
-      Direction.SOUTH to mapOf(
-        Direction.DOWN to 2,
-        Direction.UP to 0,
-        Direction.WEST to 1,
-        Direction.EAST to 3
-      ),
-      Direction.WEST to mapOf(
-        Direction.DOWN to 3,
-        Direction.UP to 3,
-        Direction.NORTH to 3,
-        Direction.SOUTH to 1
-      ),
-      Direction.EAST to mapOf(
-        Direction.DOWN to 1,
-        Direction.UP to 1,
-        Direction.NORTH to 1,
-        Direction.SOUTH to 3
-      )
-    )
-
-    val quadRot = quadRotMap.getValue(side).getValue(edge)
+    val quadRot = when (side) {
+      DOWN -> when (edge) {
+        NORTH -> 0
+        SOUTH -> 0
+        WEST -> 0
+        EAST -> 0
+        else -> error("unreachable")
+      }
+      UP -> when (edge) {
+        NORTH -> 2
+        SOUTH -> 2
+        WEST -> 2
+        EAST -> 2
+        else -> error("unreachable")
+      }
+      NORTH -> when (edge) {
+        DOWN -> 0
+        UP -> 2
+        WEST -> 3
+        EAST -> 1
+        else -> error("unreachable")
+      }
+      SOUTH -> when (edge) {
+        DOWN -> 2
+        UP -> 0
+        WEST -> 1
+        EAST -> 3
+        else -> error("unreachable")
+      }
+      WEST -> when (edge) {
+        DOWN -> 3
+        UP -> 3
+        NORTH -> 3
+        SOUTH -> 1
+        else -> error("unreachable")
+      }
+      EAST -> when (edge) {
+        DOWN -> 1
+        UP -> 1
+        NORTH -> 1
+        SOUTH -> 3
+        else -> error("unreachable")
+      }
+    }
 
     var flags = 0
     if (flags and 1 == 0) flags = combine(flags, MutableQuadView.BAKE_ROTATE_90)
     if (side.axis == X) flags = combine(flags, MutableQuadView.BAKE_ROTATE_90)
     if (side.axis == Z && edge.axis == X) flags = combine(flags, MutableQuadView.BAKE_ROTATE_90)
-    if (side.axis == Y && edge in setOf(Direction.EAST, Direction.NORTH)) flags = combine(flags, MutableQuadView.BAKE_FLIP_V)
+    if (side.axis == Y && edge in setOf(EAST, NORTH)) flags = combine(flags, MutableQuadView.BAKE_FLIP_V)
     if (side.axis != Y) flags = combine(flags, MutableQuadView.BAKE_FLIP_V)
-    if (edge == Direction.DOWN) flags = combine(flags, MutableQuadView.BAKE_FLIP_V)
-    if (edge == Direction.UP && side.axis == Z) flags = combine(flags, MutableQuadView.BAKE_FLIP_V)
+    if (edge == DOWN) flags = combine(flags, MutableQuadView.BAKE_FLIP_V)
+    if (edge == UP && side.axis == Z) flags = combine(flags, MutableQuadView.BAKE_FLIP_V)
 
     builder.emitter.prepare()
       .squareRotY(edge, armLength, 0f, 1 - armLength, cableHeight, depth, quadRot)
@@ -454,7 +474,7 @@ class UnbakedWireModel(
   }
 
   private fun QuadEmitter.squareRotY(nominalFace: Direction, left: Float, bottom: Float, right: Float, top: Float, depth: Float, rotate: Int): QuadEmitter {
-    val (xy1, xy2) = rotate(Vec2f(left, top), Vec2f(right, bottom), rotate and 3 or MutableQuadView.BAKE_NORMALIZED)
+    val (xy1, xy2) = rotate(Vec2f(left, top), Vec2f(right, bottom), rotate or MutableQuadView.BAKE_NORMALIZED)
     return this.square(nominalFace, xy1.x, xy2.y, xy2.x, xy1.y, depth)
   }
 
@@ -485,17 +505,18 @@ private operator fun Vec2f.times(f: Float) = Vec2f(x * f, y * f)
 
 private operator fun Vec2f.div(f: Float) = Vec2f(x / f, y / f)
 
-private enum class CenterVariant {
+enum class CenterVariant {
   Crossing,
   Straight1, // X axis
   Straight2, // Z axis
   Standalone,
 }
 
-private enum class ExtVariant {
+enum class ExtVariant {
   External,
   Internal,
   Corner,
   Unconnected,
+  UnconnectedCrossing,
   Terminal,
 }
