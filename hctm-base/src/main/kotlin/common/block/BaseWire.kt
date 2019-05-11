@@ -1,4 +1,4 @@
-package therealfarfetchd.retrocomputers.common.block
+package therealfarfetchd.hctm.common.block
 
 import net.minecraft.advancement.criterion.Criterions
 import net.minecraft.block.Block

@@ -31,8 +31,8 @@ import therealfarfetchd.hctm.client.render.model.ExtVariant.Terminal
 import therealfarfetchd.hctm.client.render.model.ExtVariant.Unconnected
 import therealfarfetchd.hctm.client.render.model.ExtVariant.UnconnectedCrossing
 import therealfarfetchd.hctm.client.wire.ClientNetworkState
+import therealfarfetchd.hctm.common.block.WireUtils
 import therealfarfetchd.hctm.common.wire.WirePartExtType
-import therealfarfetchd.retrocomputers.common.block.WireUtils
 import java.util.*
 import java.util.function.Supplier
 
