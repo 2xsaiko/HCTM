@@ -10,21 +10,22 @@ import net.minecraft.item.ItemGroup
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
 import therealfarfetchd.rswires.ModID
-
-object BlockEntityTypes {
-
-
-  private fun <T : BlockEntity> create(builder: () -> T, name: String): BlockEntityType<T> {
-    return Registry.register(Registry.BLOCK_ENTITY, Identifier(ModID, name), BlockEntityType.Builder.create(builder).build(null))
-  }
-
-}
+import java.util.function.Supplier
 
 object Blocks {
 
 
   private fun <T : Block> create(block: T, name: String): T {
     return Registry.register(Registry.BLOCK, Identifier(ModID, name), block)
+  }
+
+}
+
+object BlockEntityTypes {
+
+
+  private fun <T : BlockEntity> create(builder: () -> T, name: String, vararg blocks: Block): BlockEntityType<T> {
+    return Registry.register(Registry.BLOCK_ENTITY, Identifier(ModID, name), BlockEntityType.Builder.create(Supplier(builder), *blocks).build(null))
   }
 
 }

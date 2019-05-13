@@ -4,7 +4,7 @@ import net.minecraft.advancement.criterion.Criterions
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.WallMountedBlock
-import net.minecraft.entity.VerticalEntityPosition
+import net.minecraft.entity.EntityContext
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
@@ -48,7 +48,7 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
 
   override fun appendProperties(b: Builder<Block, BlockState>) {
     for (prop in BaseWireProperties.PlacedWires.values) {
-      b.with(prop)
+      b.add(prop)
     }
   }
 
@@ -67,7 +67,7 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
       .fold(VoxelShapes.empty(), VoxelShapes::union)
   }
 
-  override fun getOutlineShape(state: BlockState, view: BlockView, pos: BlockPos, vep: VerticalEntityPosition?): VoxelShape {
+  override fun getOutlineShape(state: BlockState, view: BlockView, pos: BlockPos, ec: EntityContext?): VoxelShape {
     return getShape(state)
   }
 

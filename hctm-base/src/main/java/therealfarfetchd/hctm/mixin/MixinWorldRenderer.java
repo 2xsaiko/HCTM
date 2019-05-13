@@ -5,7 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.VerticalEntityPosition;
+import net.minecraft.entity.EntityContext;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -50,7 +50,7 @@ public abstract class MixinWorldRenderer {
         double double_1 = camera_1.getPos().x;
         double double_2 = camera_1.getPos().y;
         double double_3 = camera_1.getPos().z;
-        drawShapeOutline(blockState_1.getOutlineShape(this.world, blockPos_1, VerticalEntityPosition.fromEntity(camera_1.getFocusedEntity())), (double) blockPos_1.getX() - double_1, (double) blockPos_1.getY() - double_2, (double) blockPos_1.getZ() - double_3, 0.0F, 0.0F, 0.0F, 0.4F);
+        drawShapeOutline(blockState_1.getOutlineShape(this.world, blockPos_1, EntityContext.of(camera_1.getFocusedEntity())), (double) blockPos_1.getX() - double_1, (double) blockPos_1.getY() - double_2, (double) blockPos_1.getZ() - double_3, 0.0F, 0.0F, 0.0F, 0.4F);
         GlStateManager.popMatrix();
         GlStateManager.matrixMode(5888);
         GlStateManager.depthMask(true);
