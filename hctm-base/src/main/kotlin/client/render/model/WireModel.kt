@@ -128,9 +128,17 @@ class WireModel(
   fun shittyGetWireState(pos: BlockPos, state: BlockState): Set<WireRepr> {
     val net = ClientNetworkState.request(MinecraftClient.getInstance().world) ?: return emptySet()
     val nodes = net.getNodesAt(pos)
-    val connMap = nodes.associate { node -> (node.data.ext as? WirePartExtType)?.side to node.connections.mapNotNull { it.other(node).data.pos.subtract(node.data.pos).let { Direction.fromVector(it.x, it.y, it.z) } } }
+    val connMap = nodes.associate { node ->
+      val side = (node.data.ext as? WirePartExtType)?.side ?: return@associate Pair(null, null)
+      side to node.connections.mapNotNull {
+        val other = it.other(node)
+        if (node.data.pos == other.data.pos && other.data.ext is WirePartExtType) Connection(other.data.ext.side, INTERNAL)
+        else other.data.pos.subtract(node.data.pos.offset(side)).let { Direction.fromVector(it.x, it.y, it.z) }?.let { Connection(it, CORNER) }
+             ?: other.data.pos.subtract(node.data.pos).let { Direction.fromVector(it.x, it.y, it.z) }?.let { Connection(it, EXTERNAL) }
+      }
+    }
     return WireUtils.getOccupiedSides(state).map { side ->
-      WireRepr(side, connMap[side]?.map { Connection(it, EXTERNAL) }?.toSet().orEmpty())
+      WireRepr(side, connMap[side]?.toSet().orEmpty())
     }.toSet()
   }
 
