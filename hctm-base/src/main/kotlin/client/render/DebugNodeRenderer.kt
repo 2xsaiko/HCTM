@@ -1,16 +1,8 @@
 package therealfarfetchd.hctm.client.render
 
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.platform.GlStateManager.DestFactor.ONE_MINUS_SRC_COLOR
-import com.mojang.blaze3d.platform.GlStateManager.SourceFactor.ONE
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.render.BufferBuilder
-import net.minecraft.client.render.Tessellator
-import net.minecraft.client.render.VertexFormats
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
-import org.lwjgl.opengl.GL11
-import therealfarfetchd.hctm.client.wire.ClientNetworkState
 import therealfarfetchd.hctm.common.wire.NetLink
 import therealfarfetchd.hctm.common.wire.NetNode
 import therealfarfetchd.hctm.common.wire.WireNetworkController
@@ -19,52 +11,51 @@ import java.util.*
 import kotlin.streams.asSequence
 
 fun draw(delta: Float) {
-  return
-  val mc = MinecraftClient.getInstance()
-  val cam = mc.gameRenderer.camera
-  // val camEnt = mc.cameraEntity ?: mc.player
-  // val camEntPos = camEnt.getCameraPosVec(delta).subtract(0.0, camEnt.getEyeHeight(camEnt.pose).toDouble(), 0.0)
-  val controller = ClientNetworkState.request(mc.world) ?: return
-  val ndp = NodeDrawPositioner(controller)
-
-  GlStateManager.pushMatrix()
-
-  GlStateManager.disableTexture()
-  GlStateManager.disableDepthTest()
-  GlStateManager.depthMask(false)
-  //  GlStateManager.disableCull()
-  GlStateManager.enableBlend()
-  GlStateManager.blendFunc(ONE, ONE_MINUS_SRC_COLOR)
-
-  GlStateManager.translated(-cam.pos.x, -cam.pos.y, -cam.pos.z)
-
-  val t = Tessellator.getInstance()
-  val buf = t.bufferBuilder
-
-  for (network in controller.getNetworks()) {
-    val color = getNetworkColor(network.id)
-    GlStateManager.color4f(color.red / 255f, color.green / 255f, color.blue / 255f, 0.5f)
-    buf.begin(GL11.GL_LINES, VertexFormats.POSITION)
-    for (node in network.getNodes()) {
-      for (link in node.connections) {
-        if (link.first == node) {
-          drawLink(buf, link, ndp)
-        }
-      }
-    }
-    t.draw()
-  }
-
-  for (network in controller.getNetworks()) {
-    val color = getNetworkColor(network.id)
-    GlStateManager.color4f(color.red / 255f, color.green / 255f, color.blue / 255f, 0.5f)
-    buf.begin(GL11.GL_QUADS, VertexFormats.POSITION)
-    for (node in network.getNodes()) {
-      drawNode(buf, node, ndp)
-    }
-    t.draw()
-  }
-  GlStateManager.popMatrix()
+  //  val mc = MinecraftClient.getInstance()
+  //  val cam = mc.gameRenderer.camera
+  //  // val camEnt = mc.cameraEntity ?: mc.player
+  //  // val camEntPos = camEnt.getCameraPosVec(delta).subtract(0.0, camEnt.getEyeHeight(camEnt.pose).toDouble(), 0.0)
+  //  val controller = ClientNetworkState.request(mc.world) ?: return
+  //  val ndp = NodeDrawPositioner(controller)
+  //
+  //  GlStateManager.pushMatrix()
+  //
+  //  GlStateManager.disableTexture()
+  //  GlStateManager.disableDepthTest()
+  //  GlStateManager.depthMask(false)
+  //  //  GlStateManager.disableCull()
+  //  GlStateManager.enableBlend()
+  //  GlStateManager.blendFunc(ONE, ONE_MINUS_SRC_COLOR)
+  //
+  //  GlStateManager.translated(-cam.pos.x, -cam.pos.y, -cam.pos.z)
+  //
+  //  val t = Tessellator.getInstance()
+  //  val buf = t.bufferBuilder
+  //
+  //  for (network in controller.getNetworks()) {
+  //    val color = getNetworkColor(network.id)
+  //    GlStateManager.color4f(color.red / 255f, color.green / 255f, color.blue / 255f, 0.5f)
+  //    buf.begin(GL11.GL_LINES, VertexFormats.POSITION)
+  //    for (node in network.getNodes()) {
+  //      for (link in node.connections) {
+  //        if (link.first == node) {
+  //          drawLink(buf, link, ndp)
+  //        }
+  //      }
+  //    }
+  //    t.draw()
+  //  }
+  //
+  //  for (network in controller.getNetworks()) {
+  //    val color = getNetworkColor(network.id)
+  //    GlStateManager.color4f(color.red / 255f, color.green / 255f, color.blue / 255f, 0.5f)
+  //    buf.begin(GL11.GL_QUADS, VertexFormats.POSITION)
+  //    for (node in network.getNodes()) {
+  //      drawNode(buf, node, ndp)
+  //    }
+  //    t.draw()
+  //  }
+  //  GlStateManager.popMatrix()
 }
 
 private fun getNetworkColor(id: UUID): Color {
