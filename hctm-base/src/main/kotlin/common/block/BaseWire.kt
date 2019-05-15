@@ -1,15 +1,20 @@
 package therealfarfetchd.hctm.common.block
 
+import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable
 import net.minecraft.advancement.criterion.Criterions
 import net.minecraft.block.Block
+import net.minecraft.block.BlockEntityProvider
 import net.minecraft.block.BlockState
 import net.minecraft.block.WallMountedBlock
 import net.minecraft.entity.EntityContext
+import net.minecraft.block.entity.BlockEntity
+import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
 import net.minecraft.item.ItemPlacementContext
 import net.minecraft.nbt.ByteTag
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
@@ -33,13 +38,17 @@ import net.minecraft.world.BlockView
 import net.minecraft.world.IWorld
 import net.minecraft.world.ViewableWorld
 import net.minecraft.world.World
+import therealfarfetchd.hctm.common.block.ConnectionType.CORNER
+import therealfarfetchd.hctm.common.block.ConnectionType.EXTERNAL
+import therealfarfetchd.hctm.common.block.ConnectionType.INTERNAL
 import therealfarfetchd.hctm.common.block.ext.BlockCustomBreak
 import therealfarfetchd.hctm.common.wire.BlockPartProvider
 import therealfarfetchd.hctm.common.wire.PartExt
+import therealfarfetchd.hctm.common.wire.WirePartExtType
 import therealfarfetchd.hctm.common.wire.getWireNetworkState
 import net.minecraft.block.Blocks as MCBlocks
 
-abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Block(settings), BlockCustomBreak, BlockPartProvider {
+abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Block(settings), BlockCustomBreak, BlockPartProvider, BlockEntityProvider {
 
   init {
     defaultState =
@@ -128,6 +137,79 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
 
 }
 
+open class BaseWireBlockEntity(type: BlockEntityType<out BlockEntity>) : BlockEntity(type), BlockEntityClientSerializable {
+
+  var connections: Set<WireRepr> = emptySet()
+    private set
+
+  override fun toTag(tag: CompoundTag): CompoundTag {
+    tag.putLong("c", serConnections())
+    return super.toTag(tag)
+  }
+
+  override fun fromTag(tag: CompoundTag) {
+    super.fromTag(tag)
+    deserConnections(tag.getLong("c"))
+  }
+
+  override fun toClientTag(tag: CompoundTag): CompoundTag {
+    tag.putLong("c", serConnections())
+    return tag
+  }
+
+  override fun fromClientTag(tag: CompoundTag) {
+    deserConnections(tag.getLong("c"))
+    getWorld()?.updateListeners(getPos(), cachedState, cachedState, 3)
+  }
+
+  // data structure:
+  // 2 bits for ConnectionType
+  // 4 ConnectionTypes + 1 "exists" bit -> 9 bits per face
+  // 6 faces -> 54 bits
+
+  private fun serConnections(): Long {
+    var l = 0L
+    for (c in connections) {
+      val list = Direction.values().filter { it.axis != c.side.axis }
+      val pos = 9 * c.side.id
+      l = 1L shl pos or l
+      for (s in c.connections) {
+        val pos = 9 * c.side.id + 2 * list.indexOf(s.edge) + 1
+        val bits = when (s.type) {
+          INTERNAL -> 1L; EXTERNAL -> 2L; CORNER -> 3L
+        }
+        l = bits shl pos or l
+      }
+    }
+    return l
+  }
+
+  private fun deserConnections(packed: Long) {
+    connections = emptySet()
+    for (face in Direction.values()) {
+      if (packed shr (9 * face.id) and 1L != 0L) {
+        val list = mutableSetOf<Connection>()
+        for ((i, edge) in Direction.values().filter { it.axis != face.axis }.withIndex()) {
+          val type = when (packed shr (9 * face.id + 2 * i + 1) and 3L) {
+            1L -> INTERNAL; 2L -> EXTERNAL; 3L -> CORNER; else -> null
+          }
+          if (type != null) list += Connection(edge, type)
+        }
+        connections += WireRepr(face, list)
+      }
+    }
+  }
+
+  fun updateConnections(connections: Set<WireRepr>) {
+    if (connections != this.connections) {
+      this.connections = connections
+      markDirty()
+      getWorld()?.updateListeners(getPos(), cachedState, cachedState, 3)
+    }
+  }
+
+}
+
 open class BaseWireItem(block: BaseWireBlock, settings: Item.Settings = Item.Settings()) : BlockItem(block, settings) {
 
   override fun place(ctx: ItemPlacementContext): ActionResult {
@@ -195,6 +277,16 @@ object BaseWireProperties {
   )
 }
 
+data class WireRepr(val side: Direction, val connections: Set<Connection>)
+
+data class Connection(val edge: Direction, val type: ConnectionType)
+
+enum class ConnectionType {
+  INTERNAL,
+  EXTERNAL,
+  CORNER,
+}
+
 object WireUtils {
   @Suppress("UNCHECKED_CAST")
   fun rayTrace(state: BlockState, pos: BlockPos, from: Vec3d, to: Vec3d): Pair<Direction, BlockHitResult>? {
@@ -226,47 +318,23 @@ object WireUtils {
       .map { it.key }
       .toSet()
   }
-}
 
-// data class WireConnection(val side: Direction, val to: Direction) {
-//
-//   val isValid = side.axis != to.axis
-//
-//   fun getBit(): Int? = cmap.indexOf(this).takeIf { it >= 0 }
-//
-//   fun getMask() = getBit()?.let { 1u shl it } ?: 0u
-//
-//   companion object {
-//     fun fromBit(i: Int): WireConnection? = i.takeIf { it in cmap.indices }?.let { cmap[it] }
-//
-//     @Suppress("NAME_SHADOWING")
-//     fun fromMask(i: UInt): Set<WireConnection> {
-//       return i.bits().mapNotNull { fromBit(it) }.toSet()
-//     }
-//   }
-//
-// }
-//
-// private fun UInt.bits(): Set<Int> {
-//   var i = this
-//
-//   val set = mutableSetOf<Int>()
-//   var b = 0
-//
-//   while (i != 0u) {
-//     if (i and 1u != 0u) set += b
-//     i = i shr 1
-//     b++
-//   }
-//
-//   return set
-// }
-//
-// private fun Int.bits() = toUInt().bits()
-//
-// private val cmap = Direction.values()
-//   .flatMap { f1 -> Direction.values().map { f2 -> WireConnection(f1, f2) } }
-//   .filter { it.isValid }
-//
-// private val ItemUsageContext.hitResult: BlockHitResult
-///   get() = BlockHitResult(pos, facing, blockPos, method_17699())
+  fun updateClient(world: ServerWorld, pos: BlockPos) {
+    val be = world.getBlockEntity(pos) as? BaseWireBlockEntity ?: return
+    val state = world.getBlockState(pos)
+    val net = world.getWireNetworkState().controller
+    val nodes = net.getNodesAt(pos)
+    val connMap: Map<Direction?, List<Connection>?> = nodes.associate { node ->
+      val side = (node.data.ext as? WirePartExtType)?.side ?: return@associate Pair(null, null)
+      side to node.connections.mapNotNull {
+        val other = it.other(node)
+        if (node.data.pos == other.data.pos && other.data.ext is WirePartExtType) Connection(other.data.ext.side, INTERNAL)
+        else other.data.pos.subtract(node.data.pos.offset(side)).let { Direction.fromVector(it.x, it.y, it.z) }?.let { Connection(it, CORNER) }
+             ?: other.data.pos.subtract(node.data.pos).let { Direction.fromVector(it.x, it.y, it.z) }?.let { Connection(it, EXTERNAL) }
+      }
+    }
+    val connections = getOccupiedSides(state).map { side -> WireRepr(side, connMap[side]?.toSet().orEmpty()) }.toSet()
+    be.updateConnections(connections)
+  }
+
+}

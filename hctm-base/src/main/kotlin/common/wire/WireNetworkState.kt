@@ -25,15 +25,15 @@ typealias NetLink = Link<NetworkPart<out PartExt>, Nothing?>
 
 typealias TNetNode<T> = Node<NetworkPart<T>, Nothing>
 
-class WireNetworkState(private val world: ServerWorld) : PersistentState(getNameForDimension(world.getDimension())) {
-  var controller = WireNetworkController(::markDirty)
+class WireNetworkState(val world: ServerWorld) : PersistentState(getNameForDimension(world.getDimension())) {
+  var controller = WireNetworkController(::markDirty, world)
 
   override fun toTag(tag: CompoundTag): CompoundTag {
     return tag.copyFrom(controller.toTag(world))
   }
 
   override fun fromTag(tag: CompoundTag) {
-    controller = WireNetworkController.fromTag(tag)
+    controller = WireNetworkController.fromTag(tag, world)
     controller.changeListener = ::markDirty
   }
 
@@ -42,10 +42,12 @@ class WireNetworkState(private val world: ServerWorld) : PersistentState(getName
   }
 }
 
-class WireNetworkController(var changeListener: () -> Unit = {}) {
+class WireNetworkController(var changeListener: () -> Unit = {}, internal val world: ServerWorld? = null) {
   private val networks = mutableMapOf<UUID, Network>()
   @JvmSynthetic internal val networksInPos = HashMultimap.create<BlockPos, Network>()
   @JvmSynthetic internal val nodesToNetworks = mutableMapOf<NetNode, UUID>()
+
+  private var changed = setOf<NetNode>()
 
   fun onBlockChanged(world: ServerWorld, pos: BlockPos, state: BlockState) {
     val actualState = world.getBlockState(pos)
@@ -120,7 +122,6 @@ class WireNetworkController(var changeListener: () -> Unit = {}) {
     }
 
     nodesToNetworks -= nodesToNetworks.filter { it.value == id }.keys
-
   }
 
   fun rebuildRefs(vararg networks: UUID) {
@@ -160,9 +161,21 @@ class WireNetworkController(var changeListener: () -> Unit = {}) {
     return tag
   }
 
+  fun scheduleUpdate(node: Node<NetworkPart<out PartExt>, Nothing?>) {
+    changed += node
+  }
+
+  fun flushUpdates() {
+    while (changed.isNotEmpty()) {
+      val n = changed.first()
+      world?.also { n.data.ext.onChanged(n, world, n.data.pos) }
+      changed -= n
+    }
+  }
+
   companion object {
-    fun fromTag(tag: CompoundTag): WireNetworkController {
-      val controller = WireNetworkController()
+    fun fromTag(tag: CompoundTag, world: ServerWorld? = null): WireNetworkController {
+      val controller = WireNetworkController(world = world)
 
       val sNetworks = tag.getList("networks", NbtType.COMPOUND)
       for (sNetwork in sNetworks.map { it as CompoundTag }) {
@@ -190,12 +203,16 @@ class Network(val controller: WireNetworkController, val id: UUID) {
     nodesInPos.put(pos, node)
     controller.networksInPos.put(pos, this)
     controller.nodesToNetworks[node] = this.id
+    controller.scheduleUpdate(node)
     return node
   }
 
   fun destroyNode(node: NetNode) {
     controller.changeListener()
+    val connected = node.connections.map { it.other(node) }
     graph.remove(node)
+    controller.scheduleUpdate(node)
+    for (other in connected) controller.scheduleUpdate(other)
 
     split().forEach { controller.rebuildRefs(it.id) }
 
@@ -205,6 +222,8 @@ class Network(val controller: WireNetworkController, val id: UUID) {
 
   fun link(node1: NetNode, node2: NetNode) {
     graph.link(node1, node2, null)
+    controller.scheduleUpdate(node1)
+    controller.scheduleUpdate(node2)
   }
 
   fun merge(other: Network) {
@@ -349,6 +368,13 @@ interface PartExt {
   fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode>
 
   fun toTag(): Tag
+
+  /**
+   * Node created, removed, connected, disconnected
+   */
+  @JvmDefault
+  fun onChanged(self: NetNode, world: ServerWorld, pos: BlockPos) {
+  }
 
   override fun hashCode(): Int
 

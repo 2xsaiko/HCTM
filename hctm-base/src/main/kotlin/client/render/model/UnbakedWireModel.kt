@@ -238,7 +238,7 @@ class UnbakedWireModel(
 
       val uvBottom = when (variant) {
         External -> arm2BottomUv
-        Internal -> innerBottom1Uv
+        Internal -> innerBottom2Uv
         Corner -> arm2BottomUv
         Unconnected -> centerBottomUv // unused
         UnconnectedCrossing -> centerBottomUv // unused

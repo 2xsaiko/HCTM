@@ -6,7 +6,6 @@ import grondag.frex.api.model.ModelHelper
 import grondag.frex.api.render.RenderContext
 import grondag.frex.api.render.TerrainBlockView
 import net.minecraft.block.BlockState
-import net.minecraft.client.MinecraftClient
 import net.minecraft.client.render.model.BakedModel
 import net.minecraft.client.render.model.BakedQuad
 import net.minecraft.client.render.model.json.ModelItemPropertyOverrideList
@@ -21,18 +20,18 @@ import therealfarfetchd.hctm.client.render.model.CenterVariant.Crossing
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Standalone
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Straight1
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Straight2
-import therealfarfetchd.hctm.client.render.model.ConnectionType.CORNER
-import therealfarfetchd.hctm.client.render.model.ConnectionType.EXTERNAL
-import therealfarfetchd.hctm.client.render.model.ConnectionType.INTERNAL
 import therealfarfetchd.hctm.client.render.model.ExtVariant.Corner
 import therealfarfetchd.hctm.client.render.model.ExtVariant.External
 import therealfarfetchd.hctm.client.render.model.ExtVariant.Internal
 import therealfarfetchd.hctm.client.render.model.ExtVariant.Terminal
 import therealfarfetchd.hctm.client.render.model.ExtVariant.Unconnected
 import therealfarfetchd.hctm.client.render.model.ExtVariant.UnconnectedCrossing
-import therealfarfetchd.hctm.client.wire.ClientNetworkState
-import therealfarfetchd.hctm.common.block.WireUtils
-import therealfarfetchd.hctm.common.wire.WirePartExtType
+import therealfarfetchd.hctm.common.block.BaseWireBlockEntity
+import therealfarfetchd.hctm.common.block.Connection
+import therealfarfetchd.hctm.common.block.ConnectionType.CORNER
+import therealfarfetchd.hctm.common.block.ConnectionType.EXTERNAL
+import therealfarfetchd.hctm.common.block.ConnectionType.INTERNAL
+import therealfarfetchd.hctm.common.block.WireRepr
 import java.util.*
 import java.util.function.Supplier
 
@@ -46,7 +45,7 @@ class WireModel(
   }
 
   override fun emitBlockQuads(blockView: TerrainBlockView, state: BlockState, pos: BlockPos, randomSupplier: Supplier<Random>, context: RenderContext) {
-    emitQuads(getWireState(pos, state), context)
+    emitQuads(getWireState(blockView, pos, state), context)
   }
 
   fun emitQuads(state: Set<WireRepr>, context: RenderContext) {
@@ -121,25 +120,8 @@ class WireModel(
     return emptyList()
   }
 
-  fun getWireState(pos: BlockPos, state: BlockState): Set<WireRepr> {
-    return shittyGetWireState(pos, state)
-  }
-
-  fun shittyGetWireState(pos: BlockPos, state: BlockState): Set<WireRepr> {
-    val net = ClientNetworkState.request(MinecraftClient.getInstance().world) ?: return emptySet()
-    val nodes = net.getNodesAt(pos)
-    val connMap = nodes.associate { node ->
-      val side = (node.data.ext as? WirePartExtType)?.side ?: return@associate Pair(null, null)
-      side to node.connections.mapNotNull {
-        val other = it.other(node)
-        if (node.data.pos == other.data.pos && other.data.ext is WirePartExtType) Connection(other.data.ext.side, INTERNAL)
-        else other.data.pos.subtract(node.data.pos.offset(side)).let { Direction.fromVector(it.x, it.y, it.z) }?.let { Connection(it, CORNER) }
-             ?: other.data.pos.subtract(node.data.pos).let { Direction.fromVector(it.x, it.y, it.z) }?.let { Connection(it, EXTERNAL) }
-      }
-    }
-    return WireUtils.getOccupiedSides(state).map { side ->
-      WireRepr(side, connMap[side]?.toSet().orEmpty())
-    }.toSet()
+  fun getWireState(world: TerrainBlockView, pos: BlockPos, state: BlockState): Set<WireRepr> {
+    return (world.getBlockEntity(pos) as? BaseWireBlockEntity)?.connections.orEmpty()
   }
 
   fun getItemWireState(): Set<WireRepr> {
@@ -147,10 +129,10 @@ class WireModel(
       WireRepr(
         side = Direction.DOWN,
         connections = setOf(
-          Connection(edge = Direction.NORTH, type = ConnectionType.EXTERNAL),
-          Connection(edge = Direction.SOUTH, type = ConnectionType.EXTERNAL),
-          Connection(edge = Direction.WEST, type = ConnectionType.EXTERNAL),
-          Connection(edge = Direction.EAST, type = ConnectionType.EXTERNAL)
+          Connection(edge = Direction.NORTH, type = EXTERNAL),
+          Connection(edge = Direction.SOUTH, type = EXTERNAL),
+          Connection(edge = Direction.WEST, type = EXTERNAL),
+          Connection(edge = Direction.EAST, type = EXTERNAL)
         )
       )
     )
@@ -170,16 +152,6 @@ class WireModel(
 
   override fun getItemPropertyOverrides() = ModelItemPropertyOverrideList.EMPTY
 
-}
-
-data class WireRepr(val side: Direction, val connections: Set<Connection>)
-
-data class Connection(val edge: Direction, val type: ConnectionType)
-
-enum class ConnectionType {
-  INTERNAL,
-  EXTERNAL,
-  CORNER,
 }
 
 data class WireModelParts(val sides: Map<Direction, WireModelPart>)
