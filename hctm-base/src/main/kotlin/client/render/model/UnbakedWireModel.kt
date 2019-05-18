@@ -167,21 +167,23 @@ class UnbakedWireModel(
 
     if (dir == POSITIVE) {
       val uvTop = when (variant) {
-        External -> arm1TopUv
+        External, Unconnected, UnconnectedCrossing -> arm1TopUv
         Internal -> innerTop1Uv
         Corner -> arm1TopUv
-        Unconnected -> centerTopUv // unused
-        UnconnectedCrossing -> centerTopUv // unused
         Terminal -> center8Top1Uv
       }
 
       val uvBottom = when (variant) {
-        External -> arm1BottomUv
+        External, Unconnected, UnconnectedCrossing -> arm1BottomUv
         Internal -> innerBottom1Uv
         Corner -> arm1BottomUv
-        Unconnected -> centerTopUv // unused
-        UnconnectedCrossing -> centerTopUv // unused
         Terminal -> center8Bottom1Uv
+      }
+
+      val (uvSide1, uvSide2) = when (variant) {
+        External, Corner, Unconnected, UnconnectedCrossing -> Pair(arm1Side1Uv, arm1Side2Uv)
+        Internal -> Pair(innerArm1Side1Uv, innerArm1Side2Uv)
+        Terminal -> Pair(center8Arm1Side1Uv, center8Arm1Side2Uv)
       }
 
       val uvFront = cableFrontUv.takeIf { variant in setOf(External, Terminal) }
@@ -191,9 +193,9 @@ class UnbakedWireModel(
         vec3(1 - armLength, cableHeight, 1 - armLength + baseLength),
         down = UvCoords(uvBottom, cableWidth / scaleFactor, baseLength / scaleFactor),
         up = UvCoords(uvTop, cableWidth / scaleFactor, baseLength / scaleFactor),
-        south = uvFront?.let { UvCoords(uvFront, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90) },
-        west = UvCoords(arm1Side1Uv, cableHeight / scaleFactor, armLength / scaleFactor, MutableQuadView.BAKE_ROTATE_90),
-        east = UvCoords(arm1Side2Uv, cableHeight / scaleFactor, armLength / scaleFactor, MutableQuadView.BAKE_ROTATE_90)
+        south = uvFront?.let { UvCoords(uvFront, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U) },
+        west = UvCoords(uvSide1, cableHeight / scaleFactor, baseLength / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U),
+        east = UvCoords(uvSide2, cableHeight / scaleFactor, baseLength / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U)
       ).transform(mat).into(builder.emitter, t)
 
       when (variant) {
@@ -201,9 +203,9 @@ class UnbakedWireModel(
           box(
             vec3(armLength, 0f, 1 - cableHeight),
             vec3(1 - armLength, cableHeight, 1f),
-            up = UvCoords(cableFrontUv, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90),
-            west = UvCoords(icornerSide1Uv, cableHeight / scaleFactor, cableHeight / scaleFactor),
-            east = UvCoords(icornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor)
+            up = UvCoords(cableFrontUv, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U),
+            west = UvCoords(icornerSide1Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_ROTATE_180),
+            east = UvCoords(icornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_ROTATE_180)
           ).transform(mat).into(builder.emitter, t)
         }
         Corner -> {
@@ -212,13 +214,16 @@ class UnbakedWireModel(
             vec3(1 - armLength, cableHeight, 1 + cableHeight),
             up = UvCoords(cornerTop1Uv, cableWidth / scaleFactor, cableHeight / scaleFactor),
             south = UvCoords(cornerTop2Uv, cableWidth / scaleFactor, cableHeight / scaleFactor),
-            west = UvCoords(cornerSide1Uv, cableHeight / scaleFactor, cableHeight / scaleFactor),
-            east = UvCoords(cornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor)
+            west = UvCoords(cornerSide1Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_FLIP_V),
+            east = UvCoords(cornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_FLIP_V)
           ).transform(mat).into(builder.emitter, t)
         }
         Unconnected, UnconnectedCrossing -> {
-          val (mat1, d) = getExtGenInfo(side, edge.rotateClockwise(side.axis))
-          val coords = UvCoords(if (!swapUnconnectedSides) centerSide1Uv else centerSide2Uv, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90)
+          val coords = UvCoords(
+            if (!swapUnconnectedSides) centerSide1Uv else centerSide2Uv,
+            cableHeight / scaleFactor, cableWidth / scaleFactor,
+            if (!swapUnconnectedSides) MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U else MutableQuadView.BAKE_ROTATE_270
+          )
           box(
             vec3(armLength, 0f, armLength),
             vec3(1 - armLength, cableHeight, 1 - armLength),
@@ -228,21 +233,23 @@ class UnbakedWireModel(
       }
     } else {
       val uvTop = when (variant) {
-        External -> arm2TopUv
+        External, Unconnected, UnconnectedCrossing -> arm2TopUv
         Internal -> innerTop2Uv
         Corner -> arm2TopUv
-        Unconnected -> arm2TopUv // unused
-        UnconnectedCrossing -> arm2TopUv // unused
         Terminal -> center8Top2Uv
       }
 
       val uvBottom = when (variant) {
-        External -> arm2BottomUv
+        External, Unconnected, UnconnectedCrossing -> arm2BottomUv
         Internal -> innerBottom2Uv
         Corner -> arm2BottomUv
-        Unconnected -> centerBottomUv // unused
-        UnconnectedCrossing -> centerBottomUv // unused
         Terminal -> center8Bottom2Uv
+      }
+
+      val (uvSide1, uvSide2) = when (variant) {
+        External, Corner, Unconnected, UnconnectedCrossing -> Pair(arm2Side1Uv, arm2Side2Uv)
+        Internal -> Pair(innerArm2Side1Uv, innerArm2Side2Uv)
+        Terminal -> Pair(center8Arm2Side1Uv, center8Arm2Side2Uv)
       }
 
       val uvFront = cableBackUv.takeIf { variant in setOf(External, Terminal) }
@@ -252,9 +259,9 @@ class UnbakedWireModel(
         vec3(1 - armLength, cableHeight, armLength),
         down = UvCoords(uvBottom, cableWidth / scaleFactor, baseLength / scaleFactor),
         up = UvCoords(uvTop, cableWidth / scaleFactor, baseLength / scaleFactor),
-        north = uvFront?.let { UvCoords(uvFront, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90) },
-        west = UvCoords(arm2Side1Uv, cableHeight / scaleFactor, armLength / scaleFactor, MutableQuadView.BAKE_ROTATE_90),
-        east = UvCoords(arm2Side2Uv, cableHeight / scaleFactor, armLength / scaleFactor, MutableQuadView.BAKE_ROTATE_90)
+        north = uvFront?.let { UvCoords(uvFront, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U) },
+        west = UvCoords(uvSide1, cableHeight / scaleFactor, baseLength / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U),
+        east = UvCoords(uvSide2, cableHeight / scaleFactor, baseLength / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U)
       ).transform(mat).into(builder.emitter, t)
 
       when (variant) {
@@ -262,24 +269,27 @@ class UnbakedWireModel(
           box(
             vec3(armLength, 0f, 0f),
             vec3(1 - armLength, cableHeight, cableHeight),
-            up = UvCoords(cableBackUv, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90),
-            west = UvCoords(icornerSide1Uv, cableHeight / scaleFactor, cableHeight / scaleFactor),
-            east = UvCoords(icornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor)
+            up = UvCoords(cableBackUv, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U),
+            west = UvCoords(icornerSide1Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_FLIP_V),
+            east = UvCoords(icornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_FLIP_V)
           ).transform(mat).into(builder.emitter, t)
         }
         Corner -> {
           box(
             vec3(armLength, 0f, -cableHeight),
             vec3(1 - armLength, cableHeight, 0f),
-            up = UvCoords(cornerTop2Uv, cableWidth / scaleFactor, cableHeight / scaleFactor),
+            up = UvCoords(cornerTop2Uv, cableWidth / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_FLIP_V),
             north = UvCoords(cornerTop1Uv, cableWidth / scaleFactor, cableHeight / scaleFactor),
-            west = UvCoords(cornerSide1Uv, cableHeight / scaleFactor, cableHeight / scaleFactor),
-            east = UvCoords(cornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor)
+            west = UvCoords(cornerSide1Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_ROTATE_180),
+            east = UvCoords(cornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_ROTATE_180)
           ).transform(mat).into(builder.emitter, t)
         }
         Unconnected, UnconnectedCrossing -> {
-          val (mat1, d) = getExtGenInfo(side, edge.rotateClockwise(side.axis))
-          val coords = UvCoords(if (!swapUnconnectedSides) centerSide2Uv else centerSide1Uv, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90)
+          val coords = UvCoords(
+            if (!swapUnconnectedSides) centerSide2Uv else centerSide1Uv,
+            cableHeight / scaleFactor, cableWidth / scaleFactor,
+            if (!swapUnconnectedSides) MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U else MutableQuadView.BAKE_ROTATE_270
+          )
           box(
             vec3(armLength, 0f, armLength),
             vec3(1 - armLength, cableHeight, 1 - armLength),
