@@ -1,9 +1,9 @@
 package therealfarfetchd.hctm.client.render.model
 
-import grondag.frex.api.RendererAccess
-import grondag.frex.api.mesh.Mesh
-import grondag.frex.api.mesh.MutableQuadView
-import grondag.frex.api.mesh.QuadEmitter
+import net.fabricmc.fabric.api.renderer.v1.RendererAccess
+import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh
+import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView
+import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter
 import net.minecraft.client.render.model.BakedModel
 import net.minecraft.client.render.model.ModelBakeSettings
 import net.minecraft.client.render.model.ModelLoader

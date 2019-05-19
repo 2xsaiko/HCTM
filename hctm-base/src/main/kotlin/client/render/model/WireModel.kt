@@ -1,10 +1,9 @@
 package therealfarfetchd.hctm.client.render.model
 
-import grondag.frex.api.mesh.Mesh
-import grondag.frex.api.model.DynamicBakedModel
-import grondag.frex.api.model.ModelHelper
-import grondag.frex.api.render.RenderContext
-import grondag.frex.api.render.TerrainBlockView
+import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh
+import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel
+import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper
+import net.fabricmc.fabric.api.renderer.v1.render.RenderContext
 import net.minecraft.block.BlockState
 import net.minecraft.client.render.model.BakedModel
 import net.minecraft.client.render.model.BakedQuad
@@ -16,6 +15,7 @@ import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Direction.Axis.X
 import net.minecraft.util.math.Direction.Axis.Y
 import net.minecraft.util.math.Direction.Axis.Z
+import net.minecraft.world.ExtendedBlockView
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Crossing
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Standalone
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Straight1
@@ -38,13 +38,13 @@ import java.util.function.Supplier
 class WireModel(
   val particle: Sprite,
   val parts: WireModelParts
-) : BakedModel, DynamicBakedModel {
+) : BakedModel, FabricBakedModel {
 
   override fun emitItemQuads(stack: ItemStack, randomSupplier: Supplier<Random>, context: RenderContext) {
     emitQuads(getItemWireState(), context)
   }
 
-  override fun emitBlockQuads(blockView: TerrainBlockView, state: BlockState, pos: BlockPos, randomSupplier: Supplier<Random>, context: RenderContext) {
+  override fun emitBlockQuads(blockView: ExtendedBlockView, state: BlockState, pos: BlockPos, randomSupplier: Supplier<Random>, context: RenderContext) {
     emitQuads(getWireState(blockView, pos, state), context)
   }
 
@@ -120,7 +120,7 @@ class WireModel(
     return emptyList()
   }
 
-  fun getWireState(world: TerrainBlockView, pos: BlockPos, state: BlockState): Set<WireRepr> {
+  fun getWireState(world: ExtendedBlockView, pos: BlockPos, state: BlockState): Set<WireRepr> {
     return (world.getBlockEntity(pos) as? BaseWireBlockEntity)?.connections.orEmpty()
   }
 

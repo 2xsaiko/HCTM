@@ -29,13 +29,11 @@ allprojects {
         mappings group: "net.fabricmc", name: "yarn", version: mappings_version
         modCompile group: "net.fabricmc", name: "fabric-loader", version: loader_version
 
-        modCompile group: "net.fabricmc", name: "fabric", version: fabric_api_version
+        modCompile group: "net.fabricmc.fabric-api", name: "fabric-api", version: fabric_api_version
         compile group: "net.fabricmc", name: "fabric-language-kotlin", version: fabric_kotlin_version
         compileOnly group: "org.jetbrains.kotlin", name: "kotlin-stdlib", version: kotlin_version
         compileOnly group: "org.jetbrains.kotlin", name: "kotlin-stdlib-jdk8", version: kotlin_version
 
-        modCompile group: "grondag", name: "frex", version: frex_version
-        modCompile group: "grondag", name: "canvas", version: canvas_version
         compile group: "org.joml", name: "joml", version: "1.9.14"
     }
 
@@ -44,10 +42,10 @@ allprojects {
     }
 
     repositories {
-        mavenLocal()
-        maven { url 'https://maven.shadowfacts.net' }
-        maven { url 'https://minecraft.curseforge.com/api/maven' }
-        maven { url 'https://grondag-repo.appspot.com'; credentials { username 'guest'; password '' } }
+        // mavenLocal()
+        // maven { url 'https://maven.shadowfacts.net' }
+        // maven { url 'https://minecraft.curseforge.com/api/maven' }
+        // maven { url 'https://grondag-repo.appspot.com'; credentials { username 'guest'; password '' } }
     }
 
     afterEvaluate {
