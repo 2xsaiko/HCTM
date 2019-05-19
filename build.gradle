@@ -1,11 +1,10 @@
-import net.fabricmc.loom.task.RemapJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static org.gradle.api.JavaVersion.VERSION_1_8
 
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.30'
-    id 'fabric-loom' version '0.2.2-SNAPSHOT' apply false
+    id 'fabric-loom' version '0.2.3-SNAPSHOT' apply false
 }
 
 allprojects {
@@ -30,7 +29,9 @@ allprojects {
         modCompile group: "net.fabricmc", name: "fabric-loader", version: loader_version
 
         modCompile group: "net.fabricmc.fabric-api", name: "fabric-api", version: fabric_api_version
-        compile group: "net.fabricmc", name: "fabric-language-kotlin", version: fabric_kotlin_version
+        compile(group: "net.fabricmc", name: "fabric-language-kotlin", version: fabric_kotlin_version) {
+            exclude module: 'fabric-loader'
+        }
         compileOnly group: "org.jetbrains.kotlin", name: "kotlin-stdlib", version: kotlin_version
         compileOnly group: "org.jetbrains.kotlin", name: "kotlin-stdlib-jdk8", version: kotlin_version
 
@@ -83,11 +84,11 @@ subprojects {
     }
 }
 
-task remapMavenJar(type: RemapJar, dependsOn: remapJar) {
+task remapMavenJar(type: net.fabricmc.loom.task.RemapJarTask, dependsOn: remapJar) {
     afterEvaluate {
-        jar = file("${project.buildDir}/libs/${archivesBaseName}-${version}-dev.jar")
-        destination = file("${project.buildDir}/libs/${archivesBaseName}-${version}-maven.jar")
-        nestJar = false
+        input = file("${project.buildDir}/libs/${archivesBaseName}-${version}-dev.jar")
+        output = file("${project.buildDir}/libs/${archivesBaseName}-${version}-maven.jar")
+        addNestedDependencies = false
     }
 }
 
