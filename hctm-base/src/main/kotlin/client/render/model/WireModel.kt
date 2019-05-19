@@ -142,7 +142,7 @@ class WireModel(
 
   override fun getTransformation() = ModelHelper.MODEL_TRANSFORM_BLOCK
 
-  override fun useAmbientOcclusion() = false
+  override fun useAmbientOcclusion() = true
 
   override fun hasDepthInGui() = true
 
