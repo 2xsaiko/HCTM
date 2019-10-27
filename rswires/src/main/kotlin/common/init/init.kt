@@ -58,7 +58,7 @@ object Items {
   val ColoredBundledCables = Blocks.ColoredBundledCables.mapValues { (color, block) -> create(BaseWireItem(block), "${color.getName()}_bundled_cable") }
 
   private fun <T : Block> create(block: T, name: String): BlockItem {
-    return create(BlockItem(block, Settings().itemGroup(ItemGroup.REDSTONE)), name)
+    return create(BlockItem(block, Settings().group(ItemGroup.REDSTONE)), name)
   }
 
   private fun <T : Item> create(item: T, name: String): T {

@@ -3,3 +3,9 @@ plugins {
 }
 
 archivesBaseName = 'hctm-base'
+
+dependencies {
+    modCompile('therealfarfetchd.qcommon:cfg:1.0.0-8') {
+        exclude group: 'net.fabricmc.fabric-api'
+    }
+}

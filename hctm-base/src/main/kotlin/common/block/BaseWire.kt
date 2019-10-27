@@ -6,9 +6,9 @@ import net.minecraft.block.Block
 import net.minecraft.block.BlockEntityProvider
 import net.minecraft.block.BlockState
 import net.minecraft.block.WallMountedBlock
-import net.minecraft.entity.EntityContext
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
+import net.minecraft.entity.EntityContext
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
@@ -19,7 +19,7 @@ import net.minecraft.nbt.Tag
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.sound.SoundCategory
-import net.minecraft.state.StateFactory.Builder
+import net.minecraft.state.StateManager.Builder
 import net.minecraft.state.property.Properties
 import net.minecraft.util.ActionResult
 import net.minecraft.util.hit.BlockHitResult
@@ -36,8 +36,8 @@ import net.minecraft.util.shape.VoxelShape
 import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.BlockView
 import net.minecraft.world.IWorld
-import net.minecraft.world.ViewableWorld
 import net.minecraft.world.World
+import net.minecraft.world.WorldView
 import therealfarfetchd.hctm.common.block.ConnectionType.CORNER
 import therealfarfetchd.hctm.common.block.ConnectionType.EXTERNAL
 import therealfarfetchd.hctm.common.block.ConnectionType.INTERNAL
@@ -62,10 +62,10 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
   }
 
   override fun getPlacementState(ctx: ItemPlacementContext): BlockState? {
-    return super.getPlacementState(ctx)?.with(BaseWireProperties.PlacedWires.getValue(ctx.facing.opposite), true)
+    return super.getPlacementState(ctx)?.with(BaseWireProperties.PlacedWires.getValue(ctx.side.opposite), true)
   }
 
-  override fun canPlaceAt(state: BlockState, world: ViewableWorld, pos: BlockPos): Boolean {
+  override fun canPlaceAt(state: BlockState, world: WorldView, pos: BlockPos): Boolean {
     return WireUtils.getOccupiedSides(state).all { side -> WallMountedBlock.canPlaceAt(world, pos, side) }
   }
 
@@ -213,7 +213,7 @@ open class BaseWireBlockEntity(type: BlockEntityType<out BlockEntity>) : BlockEn
 open class BaseWireItem(block: BaseWireBlock, settings: Item.Settings = Item.Settings()) : BlockItem(block, settings) {
 
   override fun place(ctx: ItemPlacementContext): ActionResult {
-    val state = this.getBlockState(ctx) ?: return ActionResult.PASS
+    val state = this.getPlacementState(ctx) ?: return ActionResult.PASS
 
     if (!doPlace(ctx, state)) return ActionResult.PASS
 
@@ -231,12 +231,12 @@ open class BaseWireItem(block: BaseWireBlock, settings: Item.Settings = Item.Set
   private fun placePart(ctx: ItemPlacementContext, state: BlockState): Boolean {
     val old = ctx.world.getBlockState(ctx.blockPos)
     val combined = tryFit(old, state) ?: return false
-    return this.setBlockState(ctx, combined)
+    return this.place(ctx, combined)
   }
 
   private fun placeBlock(ctx: ItemPlacementContext, state: BlockState): Boolean {
     if (!ctx.canPlace()) return false
-    return this.setBlockState(ctx, state)
+    return this.place(ctx, state)
   }
 
   private fun doPlace(ctx: ItemPlacementContext, state: BlockState): Boolean {
@@ -248,7 +248,7 @@ open class BaseWireItem(block: BaseWireBlock, settings: Item.Settings = Item.Set
     val pos = ctx.blockPos
     val world = ctx.world
     val player = ctx.player
-    val stack = ctx.itemStack
+    val stack = ctx.stack
     val placedState = world.getBlockState(pos)
     val block = placedState.block
     if (block === state.block) {
@@ -260,7 +260,7 @@ open class BaseWireItem(block: BaseWireBlock, settings: Item.Settings = Item.Set
 
     val sg = placedState.soundGroup
     world.playSound(player, pos, this.getPlaceSound(placedState), SoundCategory.BLOCKS, (sg.getVolume() + 1.0f) / 2.0f, sg.getPitch() * 0.8f)
-    stack.subtractAmount(1)
+    stack.decrement(1)
     return true
   }
 
@@ -268,12 +268,12 @@ open class BaseWireItem(block: BaseWireBlock, settings: Item.Settings = Item.Set
 
 object BaseWireProperties {
   val PlacedWires = mapOf(
-    UP to Properties.UP_BOOL,
-    DOWN to Properties.DOWN_BOOL,
-    NORTH to Properties.NORTH_BOOL,
-    SOUTH to Properties.SOUTH_BOOL,
-    EAST to Properties.EAST_BOOL,
-    WEST to Properties.WEST_BOOL
+    UP to Properties.UP,
+    DOWN to Properties.DOWN,
+    NORTH to Properties.NORTH,
+    SOUTH to Properties.SOUTH,
+    EAST to Properties.EAST,
+    WEST to Properties.WEST
   )
 }
 

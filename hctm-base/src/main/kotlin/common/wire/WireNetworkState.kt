@@ -339,7 +339,7 @@ data class NetworkPart<T : PartExt>(var pos: BlockPos, val ext: T) {
   companion object {
     fun fromTag(tag: CompoundTag): NetworkPart<PartExt>? {
       val block = Registry.BLOCK[Identifier(tag.getString("block"))]
-      val extTag = tag.getTag("ext")
+      val extTag = tag["ext"]
       if (block is BlockPartProvider && extTag != null) {
         val ext = block.createExtFromTag(extTag) ?: return null
         val pos = BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"))

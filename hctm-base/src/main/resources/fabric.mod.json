@@ -19,6 +19,7 @@
   "requires": {
     "fabricloader": ">=0.4.0",
     "fabric": "*",
-    "fabric-language-kotlin": ">=1.3.30"
+    "fabric-language-kotlin": ">=1.3.30",
+    "common-cfg": ">=1.0.0"
   }
 }

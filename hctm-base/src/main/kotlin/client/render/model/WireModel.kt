@@ -15,7 +15,7 @@ import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Direction.Axis.X
 import net.minecraft.util.math.Direction.Axis.Y
 import net.minecraft.util.math.Direction.Axis.Z
-import net.minecraft.world.ExtendedBlockView
+import net.minecraft.world.BlockRenderView
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Crossing
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Standalone
 import therealfarfetchd.hctm.client.render.model.CenterVariant.Straight1
@@ -44,7 +44,7 @@ class WireModel(
     emitQuads(getItemWireState(), context)
   }
 
-  override fun emitBlockQuads(blockView: ExtendedBlockView, state: BlockState, pos: BlockPos, randomSupplier: Supplier<Random>, context: RenderContext) {
+  override fun emitBlockQuads(blockView: BlockRenderView, state: BlockState, pos: BlockPos, randomSupplier: Supplier<Random>, context: RenderContext) {
     emitQuads(getWireState(blockView, pos, state), context)
   }
 
@@ -120,7 +120,7 @@ class WireModel(
     return emptyList()
   }
 
-  fun getWireState(world: ExtendedBlockView, pos: BlockPos, state: BlockState): Set<WireRepr> {
+  fun getWireState(world: BlockRenderView, pos: BlockPos, state: BlockState): Set<WireRepr> {
     return (world.getBlockEntity(pos) as? BaseWireBlockEntity)?.connections.orEmpty()
   }
 

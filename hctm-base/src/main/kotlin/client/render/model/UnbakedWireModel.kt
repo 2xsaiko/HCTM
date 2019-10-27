@@ -41,6 +41,7 @@ import therealfarfetchd.hctm.client.render.model.ExtVariant.Internal
 import therealfarfetchd.hctm.client.render.model.ExtVariant.Terminal
 import therealfarfetchd.hctm.client.render.model.ExtVariant.Unconnected
 import therealfarfetchd.hctm.client.render.model.ExtVariant.UnconnectedCrossing
+import therealfarfetchd.hctm.common.util.ext.rotateClockwise
 import java.util.function.Function
 import kotlin.math.PI
 
@@ -99,7 +100,7 @@ class UnbakedWireModel(
   val builder = renderer.meshBuilder()
   val finder = renderer.materialFinder()
 
-  override fun bake(ml: ModelLoader, getTexture: Function<Identifier, Sprite>, settings: ModelBakeSettings): BakedModel {
+  override fun bake(ml: ModelLoader, getTexture: Function<Identifier, Sprite>, settings: ModelBakeSettings, p3: Identifier): BakedModel {
     finder.clear()
     val standard = finder.find()
     finder.disableAo(0, true)

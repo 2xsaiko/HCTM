@@ -25,7 +25,7 @@ public abstract class MixinServerPlayerInteractionManager {
     @Shadow public ServerPlayerEntity player;
 
     @Inject(
-        method = "destroyBlock(Lnet/minecraft/util/math/BlockPos;)Z",
+        method = "tryBreakBlock",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/block/Block;onBreak(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/entity/player/PlayerEntity;)V",
@@ -34,7 +34,7 @@ public abstract class MixinServerPlayerInteractionManager {
         locals = LocalCapture.CAPTURE_FAILHARD,
         cancellable = true
     )
-    private void destroyBlock(BlockPos blockPos_1, CallbackInfoReturnable<Boolean> cir, BlockState blockState_1) {
+    private void tryBreakBlock(BlockPos blockPos_1, CallbackInfoReturnable<Boolean> cir, BlockState blockState_1) {
         Block block = blockState_1.getBlock();
         if (block instanceof BlockCustomBreak) {
             if (!((BlockCustomBreak) block).tryBreak(blockState_1, blockPos_1, world, player)) {

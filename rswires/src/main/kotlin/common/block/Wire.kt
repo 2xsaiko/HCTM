@@ -6,7 +6,7 @@ import net.minecraft.block.Material
 import net.minecraft.nbt.ByteTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.world.ServerWorld
-import net.minecraft.state.StateFactory.Builder
+import net.minecraft.state.StateManager.Builder
 import net.minecraft.state.property.Properties
 import net.minecraft.util.DyeColor
 import net.minecraft.util.math.BlockPos
@@ -69,7 +69,7 @@ data class RedAlloyWirePartExt(override val side: Direction) : PartExt, WirePart
   }
 
   override fun toTag(): Tag {
-    return ByteTag(side.id.toByte())
+    return ByteTag.of(side.id.toByte())
   }
 }
 
@@ -85,7 +85,7 @@ data class InsulatedWirePartExt(override val side: Direction, val color: DyeColo
   }
 
   override fun toTag(): Tag {
-    return ByteTag(side.id.toByte())
+    return ByteTag.of(side.id.toByte())
   }
 }
 
@@ -101,7 +101,7 @@ data class BundledCablePartExt(override val side: Direction, val color: DyeColor
   }
 
   override fun toTag(): Tag {
-    return ByteTag(side.id.toByte())
+    return ByteTag.of(side.id.toByte())
   }
 }
 
