@@ -4,109 +4,144 @@ import net.minecraft.server.world.ServerWorld
 import net.minecraft.util.math.BlockPos
 
 /**
- * Create a connection handler from DSL. Provides tryConnect method for use in PartExt
+ * Enumerates all possible connections. Returns a set of sequences where each
+ * sequence is seperately processed until the first matching connection in each
+ * sequence has been found.
  */
-fun <E : PartExt, T, D> connectionHandler(op: ConnectionHandlerScope<E, T, D>.() -> Unit): ConnectionHandler<E, D> {
-  val sc = ConnectionHandlerScopeImpl<E, T, D>().also(op)
-  return ConnectionHandlerImpl(sc.parts)
+interface ConnectionDiscoverer {
+  fun getPossibleConnections(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<Sequence<NetNode>>
 }
 
-interface ConnectionHandler<E : PartExt, D> {
-  fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView, data: D): Set<NetNode>
-}
+/**
+ * Used to filter possible connections, for example to ensure that only
+ * redstone wires connect to redstone wires, or ribbon cables only connect
+ * to themselves and peripherals, ...
+ */
+interface ConnectionFilter {
+  fun accepts(self: NetNode, other: NetNode): Boolean
 
-private class ConnectionHandlerImpl<E : PartExt, T, D>(private val parts: List<ConnectionHandlerPart<E, T, D>>) : ConnectionHandler<E, D> {
+  infix fun and(that: ConnectionFilter): ConnectionFilter {
+    return object : ConnectionFilter {
+      override fun accepts(self: NetNode, other: NetNode): Boolean {
+        return this@ConnectionFilter.accepts(self, other) && that.accepts(self, other)
+      }
+    }
+  }
 
-  override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView, data: D): Set<NetNode> {
-    self as TNetNode<E> // yep, this is unsafe, but if you pass the wrong type of NetNode here you're a dumbass
-    val nodes = mutableSetOf<NetNode>()
-    val triedOutputs = mutableListOf<T>()
-    for (p in parts) {
-      val outs = p.getPotentialOutputs(self, world, pos, data)
-      for (out in outs - triedOutputs) {
-        val node = p.tryConnect(out, self, world, pos, nv, data)
-        if (node != null) {
-          triedOutputs += out
-          nodes += node
+  companion object {
+    inline fun <reified T> forClass(): ConnectionFilter {
+      return object : ConnectionFilter {
+        override fun accepts(self: NetNode, other: NetNode): Boolean {
+          return self.data.ext is T && other.data.ext is T
         }
       }
     }
-    return nodes
+  }
+}
+
+fun find(cd: ConnectionDiscoverer, f: ConnectionFilter?, node: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
+  return cd.getPossibleConnections(node, world, pos, nv)
+    .mapNotNull { it.firstOrNull { f?.accepts(node, it) ?: true } }
+    .toSet()
+}
+
+
+/**
+ * Create a connection handler from DSL. Provides tryConnect method for use in PartExt
+ */
+fun <E : PartExt, T> connectionDiscoverer(op: ConnectionDiscovererScope<E, T>.() -> Unit): ConnectionDiscoverer {
+  val sc = ConnectionDiscovererScopeImpl<E, T>().also(op)
+  return ConnectionDiscovererImpl(sc.parts)
+}
+
+private class ConnectionDiscovererImpl<E : PartExt, T>(private val parts: List<ConnectionDiscovererPart<E, T>>) : ConnectionDiscoverer {
+
+  override fun getPossibleConnections(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<Sequence<NetNode>> {
+    self as TNetNode<E> // yep, this is unsafe, but if you pass the wrong type of NetNode here you're a dumbass
+    val map = mutableMapOf<T, MutableList<ConnectionDiscovererPart<E, T>>>()
+    for (part in parts) {
+      for (output in part.getPotentialOutputs(self, world, pos)) {
+        map.computeIfAbsent(output, { mutableListOf() }) += part
+      }
+    }
+    return map.keys.map { output ->
+      sequence {
+        for (part in map.getValue(output)) {
+          part.tryConnect(output, self, world, pos, nv).forEach { yield(it) }
+        }
+      }
+    }.toSet()
   }
 
 }
 
-private abstract class ConnectionHandlerPart<E : PartExt, T, D> {
-  abstract fun getPotentialOutputs(self: TNetNode<E>, world: ServerWorld, pos: BlockPos, data: D): List<T>
+private abstract class ConnectionDiscovererPart<E : PartExt, T> {
+  abstract fun getPotentialOutputs(self: TNetNode<E>, world: ServerWorld, pos: BlockPos): List<T>
 
-  abstract fun tryConnect(output: T, self: TNetNode<E>, world: ServerWorld, pos: BlockPos, nv: NodeView, data: D): NetNode?
+  abstract fun tryConnect(output: T, self: TNetNode<E>, world: ServerWorld, pos: BlockPos, nv: NodeView): List<NetNode>
 }
 
-interface ConnectionHandlerScope<E : PartExt, T, D> {
-  fun connectionRule(op: PartConfigScope<E, T, D>.() -> Unit)
+interface ConnectionDiscovererScope<E : PartExt, T> {
+  fun connectionRule(op: PartConfigScope<E, T>.() -> Unit)
 }
 
-interface PartConfigScope<E : PartExt, T, D> {
-  fun forOutputs(op: OutputsScope<E, D>.() -> List<T>)
-  fun connect(op: ConnectScope<E, T, D>.() -> NetNode?)
+interface PartConfigScope<E : PartExt, T> {
+  fun forOutputs(op: OutputsScope<E>.() -> List<T>)
+  fun connect(op: ConnectScope<E, T>.() -> List<NetNode>)
 }
 
-interface OutputsScope<E : PartExt, D> {
+interface OutputsScope<E : PartExt> {
   val self: TNetNode<E>
   val world: ServerWorld
   val pos: BlockPos
-  val data: D
 }
 
-interface ConnectScope<E : PartExt, out T, D> {
+interface ConnectScope<E : PartExt, out T> {
   val output: T
   val self: TNetNode<E>
   val world: ServerWorld
   val pos: BlockPos
   val nv: NodeView
-  val data: D
 }
 
-private class ConnectionHandlerScopeImpl<E : PartExt, T, D> : ConnectionHandlerScope<E, T, D> {
-  val parts = mutableListOf<ConnectionHandlerPart<E, T, D>>()
+private class ConnectionDiscovererScopeImpl<E : PartExt, T> : ConnectionDiscovererScope<E, T> {
+  val parts = mutableListOf<ConnectionDiscovererPart<E, T>>()
 
-  override fun connectionRule(op: PartConfigScope<E, T, D>.() -> Unit) {
-    val pcs = PartConfigScopeImpl<E, T, D>().also(op)
-    parts += object : ConnectionHandlerPart<E, T, D>() {
-      override fun getPotentialOutputs(self: TNetNode<E>, world: ServerWorld, pos: BlockPos, data: D): List<T> =
-        pcs.forOutputs(OutputsScopeImpl(self, world, pos, data))
+  override fun connectionRule(op: PartConfigScope<E, T>.() -> Unit) {
+    val pcs = PartConfigScopeImpl<E, T>().also(op)
+    parts += object : ConnectionDiscovererPart<E, T>() {
+      override fun getPotentialOutputs(self: TNetNode<E>, world: ServerWorld, pos: BlockPos): List<T> =
+        pcs.forOutputs(OutputsScopeImpl(self, world, pos))
 
-      override fun tryConnect(output: T, self: TNetNode<E>, world: ServerWorld, pos: BlockPos, nv: NodeView, data: D): NetNode? =
-        pcs.connect(ConnectScopeImpl(output, self, world, pos, nv, data))
+      override fun tryConnect(output: T, self: TNetNode<E>, world: ServerWorld, pos: BlockPos, nv: NodeView): List<NetNode> =
+        pcs.connect(ConnectScopeImpl(output, self, world, pos, nv))
     }
   }
 }
 
-private class PartConfigScopeImpl<E : PartExt, T, D> : PartConfigScope<E, T, D> {
-  var forOutputs: OutputsScope<E, D>.() -> List<T> = { emptyList() }
-  var connect: ConnectScope<E, T, D>.() -> NetNode? = { null }
+private class PartConfigScopeImpl<E : PartExt, T> : PartConfigScope<E, T> {
+  var forOutputs: OutputsScope<E>.() -> List<T> = { emptyList() }
+  var connect: ConnectScope<E, T>.() -> List<NetNode> = { emptyList() }
 
-  override fun forOutputs(op: OutputsScope<E, D>.() -> List<T>) {
+  override fun forOutputs(op: OutputsScope<E>.() -> List<T>) {
     forOutputs = op
   }
 
-  override fun connect(op: ConnectScope<E, T, D>.() -> NetNode?) {
+  override fun connect(op: ConnectScope<E, T>.() -> List<NetNode>) {
     connect = op
   }
 }
 
-private class OutputsScopeImpl<E : PartExt, D>(
+private class OutputsScopeImpl<E : PartExt>(
   override val self: TNetNode<E>,
   override val world: ServerWorld,
-  override val pos: BlockPos,
-  override val data: D
-) : OutputsScope<E, D>
+  override val pos: BlockPos
+) : OutputsScope<E>
 
-private class ConnectScopeImpl<E : PartExt, out T, D>(
+private class ConnectScopeImpl<E : PartExt, out T>(
   override val output: T,
   override val self: TNetNode<E>,
   override val world: ServerWorld,
   override val pos: BlockPos,
-  override val nv: NodeView,
-  override val data: D
-) : ConnectScope<E, T, D>
+  override val nv: NodeView
+) : ConnectScope<E, T>

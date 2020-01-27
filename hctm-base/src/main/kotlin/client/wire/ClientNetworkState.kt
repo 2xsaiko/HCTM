@@ -19,7 +19,7 @@ object ClientNetworkState {
 
     if (caches[world.dimension.type]?.isExpired() != false) {
       val buf = PacketByteBuf(Unpooled.buffer())
-      buf.writeString(Registry.DIMENSION.getId(world.dimension.type)!!.toString())
+      buf.writeString(Registry.DIMENSION_TYPE.getId(world.dimension.type)!!.toString())
       ClientSidePacketRegistry.INSTANCE.sendToServer(Packets.Server.DebugNetRequest, buf)
     }
 

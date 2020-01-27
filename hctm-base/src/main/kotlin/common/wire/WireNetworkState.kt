@@ -72,7 +72,11 @@ class WireNetworkController(var changeListener: () -> Unit = {}, internal val wo
   }
 
   fun getNodesAt(pos: BlockPos): Set<NetNode> {
-    return networksInPos.values().flatMap { net -> net.getNodesAt(pos).map { it } }.toSet()
+    return networksInPos[pos].flatMap { net -> net.getNodesAt(pos).map { it } }.toSet()
+  }
+
+  fun getNetworksAt(pos: BlockPos): Set<Network> {
+    return networksInPos[pos]
   }
 
   fun getBlockType(world: World, node: NetNode): Block {

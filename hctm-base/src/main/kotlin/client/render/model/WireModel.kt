@@ -144,7 +144,9 @@ class WireModel(
 
   override fun useAmbientOcclusion() = true
 
-  override fun hasDepthInGui() = true
+  override fun hasDepth() = true
+
+  override fun isSideLit() = true
 
   override fun isBuiltin() = false
 

@@ -10,6 +10,8 @@ import net.minecraft.client.render.model.ModelBakeSettings
 import net.minecraft.client.render.model.ModelLoader
 import net.minecraft.client.render.model.UnbakedModel
 import net.minecraft.client.texture.Sprite
+import net.minecraft.client.texture.SpriteAtlasTexture
+import net.minecraft.client.util.SpriteIdentifier
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Direction.Axis
@@ -100,15 +102,16 @@ class UnbakedWireModel(
   val builder = renderer.meshBuilder()
   val finder = renderer.materialFinder()
 
-  override fun bake(ml: ModelLoader, getTexture: Function<Identifier, Sprite>, settings: ModelBakeSettings, p3: Identifier): BakedModel {
+  override fun bake(ml: ModelLoader, getTexture: Function<SpriteIdentifier, Sprite>, settings: ModelBakeSettings, p3: Identifier): BakedModel? {
     finder.clear()
     val standard = finder.find()
     finder.disableAo(0, true)
     val corner = finder.find()
 
-    val parts = generateParts(RenderData(Materials(standard, corner), getTexture.apply(texture)))
+    val sid = SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEX, texture)
+    val parts = generateParts(RenderData(Materials(standard, corner), getTexture.apply(sid)))
 
-    return WireModel(getTexture.apply(texture), parts)
+    return WireModel(getTexture.apply(sid), parts)
   }
 
   private fun generateParts(d: RenderData): WireModelParts {
@@ -239,6 +242,8 @@ class UnbakedWireModel(
             south = coords
           ).transform(mat).into(builder.emitter, d.texture, d.materials.standard)
         }
+        else -> {
+        }
       }
     } else {
       val uvTop = when (variant) {
@@ -305,13 +310,17 @@ class UnbakedWireModel(
             north = coords
           ).transform(mat).into(builder.emitter, d.texture, d.materials.standard)
         }
+        else -> {
+        }
       }
     }
 
     return builder.build()
   }
 
-  override fun getTextureDependencies(var1: Function<Identifier, UnbakedModel>?, var2: MutableSet<String>?) = setOf(texture)
+  override fun getTextureDependencies(function: Function<Identifier, UnbakedModel>?, set: MutableSet<com.mojang.datafixers.util.Pair<String, String>>?): Collection<SpriteIdentifier> {
+    return setOf(SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEX, texture))
+  }
 
   override fun getModelDependencies() = emptySet<Identifier>()
 

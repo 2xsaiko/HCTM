@@ -103,7 +103,7 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
     val result = world.setBlockState(pos, state.with(BaseWireProperties.PlacedWires.getValue(side), false))
 
     if (result) {
-      onBreak(world, pos, getStateForSide(side), player) // particle
+      onBreak(world, pos, getStateForSide(state, side), player) // particle
       // dropStack(world, pos, Items.Wire.defaultStack) FIXME
     }
 
@@ -116,8 +116,24 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
   }
 
   override fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt> {
-    return WireUtils.getOccupiedSides(state).map(::createPartExtFromSide).toSet()
+    return WireUtils.getOccupiedSides(state).flatMap(::createPartExtsFromSide).toSet()
   }
+
+  abstract override fun createBlockEntity(view: BlockView): BaseWireBlockEntity
+
+  protected abstract fun createPartExtsFromSide(side: Direction): Set<PartExt>
+
+  private fun getStateForSide(oldState: BlockState, vararg side: Direction): BlockState =
+    if (side.isEmpty()) MCBlocks.AIR.defaultState else
+      side.fold(oldState) { state, s -> state.with(BaseWireProperties.PlacedWires.getValue(s), true) }
+
+  override fun getStateForNeighborUpdate(state: BlockState, side: Direction, state1: BlockState, world: IWorld, pos: BlockPos, pos1: BlockPos): BlockState {
+    return getStateForSide(state, *WireUtils.getOccupiedSides(state).filter { it != side || getStateForSide(state, it).canPlaceAt(world, pos) }.toTypedArray())
+  }
+
+}
+
+abstract class SingleBaseWireBlock(settings: Block.Settings, height: Float) : BaseWireBlock(settings, height) {
 
   override fun createExtFromTag(tag: Tag): PartExt? {
     return (tag as? ByteTag)
@@ -125,15 +141,10 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
       ?.let { createPartExtFromSide(Direction.byId(it.int)) }
   }
 
+  override fun createPartExtsFromSide(side: Direction): Set<PartExt> =
+    setOf(createPartExtFromSide(side))
+
   protected abstract fun createPartExtFromSide(side: Direction): PartExt
-
-  private fun getStateForSide(vararg side: Direction): BlockState =
-    if (side.isEmpty()) MCBlocks.AIR.defaultState else
-      side.fold(defaultState) { state, s -> state.with(BaseWireProperties.PlacedWires.getValue(s), true) }
-
-  override fun getStateForNeighborUpdate(state: BlockState, side: Direction, state1: BlockState, world: IWorld, pos: BlockPos, pos1: BlockPos): BlockState {
-    return getStateForSide(*WireUtils.getOccupiedSides(state).filter { it != side || getStateForSide(it).canPlaceAt(world, pos) }.toTypedArray())
-  }
 
 }
 
@@ -254,7 +265,7 @@ open class BaseWireItem(block: BaseWireBlock, settings: Item.Settings = Item.Set
     if (block === state.block) {
       block.onPlaced(world, pos, placedState, player, stack)
       if (player is ServerPlayerEntity) {
-        Criterions.PLACED_BLOCK.handle((player as ServerPlayerEntity?)!!, pos, stack)
+        Criterions.PLACED_BLOCK.trigger((player as ServerPlayerEntity?)!!, pos, stack)
       }
     }
 
@@ -323,17 +334,23 @@ object WireUtils {
     val be = world.getBlockEntity(pos) as? BaseWireBlockEntity ?: return
     val state = world.getBlockState(pos)
     val net = world.getWireNetworkState().controller
-    val nodes = net.getNodesAt(pos)
-    val connMap: Map<Direction?, List<Connection>?> = nodes.associate { node ->
-      val side = (node.data.ext as? WirePartExtType)?.side ?: return@associate Pair(null, null)
-      side to node.connections.mapNotNull {
-        val other = it.other(node)
-        if (node.data.pos == other.data.pos && other.data.ext is WirePartExtType) Connection(other.data.ext.side, INTERNAL)
-        else other.data.pos.subtract(node.data.pos.offset(side)).let { Direction.fromVector(it.x, it.y, it.z) }?.let { Connection(it, CORNER) }
-             ?: other.data.pos.subtract(node.data.pos).let { Direction.fromVector(it.x, it.y, it.z) }?.let { Connection(it, EXTERNAL) }
+
+    val nodes1 = net.getNodesAt(pos)
+      .filter { it.data.ext is WirePartExtType }
+      .groupBy { (it.data.ext as WirePartExtType).side }
+      .mapValues { (side, nodes) ->
+        val c = nodes.flatMap { node ->
+          node.connections.mapNotNull {
+            val other = it.other(node)
+            if (node.data.pos == other.data.pos && other.data.ext is WirePartExtType) Connection(other.data.ext.side, INTERNAL)
+            else other.data.pos.subtract(node.data.pos.offset(side)).let { Direction.fromVector(it.x, it.y, it.z) }?.let { Connection(it, CORNER) }
+                 ?: other.data.pos.subtract(node.data.pos).let { Direction.fromVector(it.x, it.y, it.z) }?.let { Connection(it, EXTERNAL) }
+          }
+        }
+        c.groupBy { it.edge }.mapNotNull { (_, v) -> v.distinct().singleOrNull() }
       }
-    }
-    val connections = getOccupiedSides(state).map { side -> WireRepr(side, connMap[side]?.toSet().orEmpty()) }.toSet()
+
+    val connections = getOccupiedSides(state).map { side -> WireRepr(side, nodes1[side]?.toSet().orEmpty()) }.toSet()
     be.updateConnections(connections)
   }
 
