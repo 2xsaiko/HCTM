@@ -123,9 +123,24 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
 
   protected abstract fun createPartExtsFromSide(side: Direction): Set<PartExt>
 
+  open fun mustConnectInternally() = false
+
+  // TODO use this
+  fun validateIntegrity(state: BlockState): Boolean {
+    if (mustConnectInternally()) {
+      val sides = WireUtils.getOccupiedSides(state)
+      if (!sides.all { it.opposite !in sides || sides.any { side -> side.axis != it.axis } }) return false
+    }
+    return true
+  }
+
+  open fun overrideConnection(world: World, pos: BlockPos, state: BlockState, side: Direction, edge: Direction, current: ConnectionType?): ConnectionType? {
+    return current
+  }
+
   private fun getStateForSide(oldState: BlockState, vararg side: Direction): BlockState =
     if (side.isEmpty()) MCBlocks.AIR.defaultState else
-      side.fold(oldState) { state, s -> state.with(BaseWireProperties.PlacedWires.getValue(s), true) }
+      Direction.values().fold(oldState) { state, s -> state.with(BaseWireProperties.PlacedWires.getValue(s), s in side) }
 
   override fun getStateForNeighborUpdate(state: BlockState, side: Direction, state1: BlockState, world: IWorld, pos: BlockPos, pos1: BlockPos): BlockState {
     return getStateForSide(state, *WireUtils.getOccupiedSides(state).filter { it != side || getStateForSide(state, it).canPlaceAt(world, pos) }.toTypedArray())
@@ -333,6 +348,7 @@ object WireUtils {
   fun updateClient(world: ServerWorld, pos: BlockPos) {
     val be = world.getBlockEntity(pos) as? BaseWireBlockEntity ?: return
     val state = world.getBlockState(pos)
+    val wb = state.block as BaseWireBlock
     val net = world.getWireNetworkState().controller
 
     val nodes1 = net.getNodesAt(pos)
@@ -350,7 +366,18 @@ object WireUtils {
         c.groupBy { it.edge }.mapNotNull { (_, v) -> v.distinct().singleOrNull() }
       }
 
-    val connections = getOccupiedSides(state).map { side -> WireRepr(side, nodes1[side]?.toSet().orEmpty()) }.toSet()
+    val connections = getOccupiedSides(state)
+      .map { side -> WireRepr(side, nodes1[side]?.toSet().orEmpty()) }
+      .map { (side, connections) ->
+        val nonConnected = Direction.values().filter { it.axis != side.axis } - connections.map { it.edge }
+        val new =
+          (connections.mapNotNull { wb.overrideConnection(world, pos, state, side, it.edge, it.type)?.let { r -> Connection(it.edge, r) } } +
+           nonConnected.mapNotNull { wb.overrideConnection(world, pos, state, side, it, null)?.let { r -> Connection(it, r) } })
+            .toSet()
+        WireRepr(side, new)
+      }
+      .toSet()
+
     be.updateConnections(connections)
   }
 
