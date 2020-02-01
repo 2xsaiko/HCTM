@@ -5,6 +5,8 @@ plugins {
 archivesBaseName = 'hctm-base'
 
 dependencies {
+    include group: 'net.dblsaiko', name: 'libaddict', version: libaddict_version
+
     modCompile('therealfarfetchd.qcommon:cfg:1.0.0-8') {
         exclude group: 'net.fabricmc.fabric-api'
     }

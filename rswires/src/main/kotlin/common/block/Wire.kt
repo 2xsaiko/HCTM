@@ -55,7 +55,7 @@ abstract class BaseRedstoneWireBlock(settings: Block.Settings, height: Float) : 
     if (world is ServerWorld) {
       WireUtils.updateClient(world, pos) // redstone connections
       RSWires.wiresGivePower = false
-      if (RedAlloyWireBlock.isReceivingPower(state, world, pos) != state[WireProperties.Powered]) {
+      if (isReceivingPower(state, world, pos) != state[WireProperties.Powered]) {
         RedstoneWireUtils.scheduleUpdate(world, pos)
       }
       RSWires.wiresGivePower = true
@@ -64,9 +64,12 @@ abstract class BaseRedstoneWireBlock(settings: Block.Settings, height: Float) : 
 
   override fun mustConnectInternally() = true
 
+  abstract fun isReceivingPower(state: BlockState, world: World, pos: BlockPos): Boolean
+
   override fun overrideConnection(world: World, pos: BlockPos, state: BlockState, side: Direction, edge: Direction, current: ConnectionType?): ConnectionType? {
     if (current == null) {
-      if (world.getBlockState(pos.offset(edge)).emitsRedstonePower()) {
+      val blockState = world.getBlockState(pos.offset(edge))
+      if (blockState.block !is BaseWireBlock && blockState.emitsRedstonePower()) {
         return ConnectionType.EXTERNAL
       }
     }
@@ -99,8 +102,12 @@ class RedAlloyWireBlock : BaseRedstoneWireBlock(Block.Settings.of(Material.STONE
 
   override fun createBlockEntity(view: BlockView) = BaseWireBlockEntity(BlockEntityTypes.RedAlloyWire)
 
+  override fun isReceivingPower(state: BlockState, world: World, pos: BlockPos) =
+    RedAlloyWireBlock.isReceivingPower(state, world, pos)
+
   companion object {
     fun isReceivingPower(state: BlockState, world: World, pos: BlockPos): Boolean {
+      if (state.block !is RedAlloyWireBlock) return false
       val sides = WireUtils.getOccupiedSides(state)
       val weakSides = Direction.values().filter { a -> sides.any { b -> b.axis != a.axis } }.distinct() - sides
       return sides.any { world.getReceivedRedstonePower(pos.offset(it)) > 0 } || weakSides.any { world.getEmittedRedstonePower(pos.offset(it), it) > 0 }
@@ -129,8 +136,12 @@ class InsulatedWireBlock(val color: DyeColor) : BaseRedstoneWireBlock(Block.Sett
     ) 15 else 0
   }
 
+  override fun isReceivingPower(state: BlockState, world: World, pos: BlockPos) =
+    InsulatedWireBlock.isReceivingPower(state, world, pos)
+
   companion object {
     fun isReceivingPower(state: BlockState, world: World, pos: BlockPos): Boolean {
+      if (state.block !is InsulatedWireBlock) return false
       val sides = WireUtils.getOccupiedSides(state)
       val weakSides = Direction.values().filter { a -> sides.any { b -> b.axis != a.axis } }.distinct() - sides
       return weakSides.any { world.getEmittedRedstonePower(pos.offset(it), it) > 0 }

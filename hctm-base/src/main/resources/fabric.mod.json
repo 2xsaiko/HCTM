@@ -4,10 +4,10 @@
   "version": "1.0.0",
   "name": "HCTM Base",
   "description": "Common library for HCTM",
-  "authors": ["the_real_farfetchd"],
+  "authors": ["2xsaiko"],
   "contact": {
-    "homepage": "https://github.com/therealfarfetchd/HCTM",
-    "sources": "https://github.com/therealfarfetchd/HCTM"
+    "homepage": "https://github.com/2xsaiko/HCTM",
+    "sources": "https://github.com/2xsaiko/HCTM"
   },
   "license": "MIT",
   "icon": "assets/hctm-base/icon.png",
@@ -20,6 +20,7 @@
     "fabricloader": ">=0.4.0",
     "fabric": "*",
     "fabric-language-kotlin": ">=1.3.30",
-    "common-cfg": ">=1.0.0"
+    "common-cfg": ">=1.0.0",
+    "libaddict": ">=0.1.2"
   }
 }

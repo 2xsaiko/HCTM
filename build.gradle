@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 import static org.gradle.api.JavaVersion.VERSION_1_8
 
 plugins {
@@ -15,7 +13,7 @@ allprojects {
         targetCompatibility = VERSION_1_8
     }
 
-    tasks.withType(KotlinCompile) {
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile) {
         kotlinOptions.jvmTarget = '1.8'
         kotlinOptions.freeCompilerArgs += '-Xuse-experimental=kotlin.ExperimentalUnsignedTypes'
         kotlinOptions.freeCompilerArgs += '-Xjvm-default=enable'
@@ -33,7 +31,7 @@ allprojects {
             exclude module: 'fabric-loader'
         }
 
-        modRuntime group: 'net.dblsaiko', name: 'winwonders', version: '0.1.0-1'
+        modImplementation group: 'net.dblsaiko', name: 'libaddict', version: libaddict_version
 
         compile group: "org.joml", name: "joml", version: "1.9.14"
     }
@@ -44,7 +42,7 @@ allprojects {
 
     repositories {
         // mavenLocal()
-        maven { url 'https://maven.therealfarfetchd.dev' }
+        maven { url 'https://maven.dblsaiko.net' }
         // maven { url 'https://maven.shadowfacts.net' }
         // maven { url 'https://minecraft.curseforge.com/api/maven' }
         // maven { url 'https://grondag-repo.appspot.com'; credentials { username 'guest'; password '' } }
@@ -93,7 +91,14 @@ task remapMavenJar(type: net.fabricmc.loom.task.RemapJarTask, dependsOn: jar) {
     }
 }
 
+repositories {
+    maven { url = 'https://maven.dblsaiko.net' }
+}
+
 dependencies {
+    modRuntime group: 'net.dblsaiko', name: 'winwonders', version: '0.1.0-1'
+    modRuntime group: 'io.github.prospector', name: 'modmenu', version: '1.8.5+build.23'
+
     afterEvaluate {
         subprojects.each { compile it }
     }
