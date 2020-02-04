@@ -7,7 +7,13 @@ archivesBaseName = 'hctm-base'
 dependencies {
     include group: 'net.dblsaiko', name: 'libaddict', version: libaddict_version
 
-    modCompile('therealfarfetchd.qcommon:cfg:1.0.0-8') {
+    modRuntime(group: 'net.dblsaiko.qcommon.cfg', name: 'cfg', version: cfg_version) {
         exclude group: 'net.fabricmc.fabric-api'
     }
+
+    implementation(group: 'net.dblsaiko.qcommon.cfg', name: 'cfg-core', version: cfg_core_version) {
+        exclude group: 'net.fabricmc.fabric-api'
+    }
+
+    include group: 'net.dblsaiko.qcommon.cfg', name: 'cfg-core', version: cfg_core_version
 }

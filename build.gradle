@@ -24,10 +24,10 @@ allprojects {
     dependencies {
         minecraft group: "com.mojang", name: "minecraft", version: minecraft_version
         mappings group: "net.fabricmc", name: "yarn", version: mappings_version, classifier: "v2"
-        modCompile group: "net.fabricmc", name: "fabric-loader", version: loader_version
+        modImplementation group: "net.fabricmc", name: "fabric-loader", version: loader_version
 
-        modCompile group: "net.fabricmc.fabric-api", name: "fabric-api", version: fabric_api_version
-        compile(group: "net.fabricmc", name: "fabric-language-kotlin", version: fabric_kotlin_version) {
+        modImplementation group: "net.fabricmc.fabric-api", name: "fabric-api", version: fabric_api_version
+        implementation(group: "net.fabricmc", name: "fabric-language-kotlin", version: fabric_kotlin_version) {
             exclude module: 'fabric-loader'
         }
 
