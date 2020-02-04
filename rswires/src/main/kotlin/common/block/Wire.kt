@@ -84,8 +84,7 @@ class RedAlloyWireBlock : BaseRedstoneWireBlock(Block.Settings.of(Material.STONE
     return if (
       RSWires.wiresGivePower &&
       state[WireProperties.Powered] &&
-      state[BaseWireProperties.PlacedWires[facing]] &&
-      view.getBlockState(pos.offset(facing)).block != Blocks.REDSTONE_WIRE
+      state[BaseWireProperties.PlacedWires[facing]]
     ) 15 else 0
   }
 
@@ -93,8 +92,7 @@ class RedAlloyWireBlock : BaseRedstoneWireBlock(Block.Settings.of(Material.STONE
     return if (
       RSWires.wiresGivePower &&
       state[WireProperties.Powered] &&
-      (BaseWireProperties.PlacedWires - facing.opposite).any { state[it.value] } &&
-      view.getBlockState(pos.offset(facing.opposite)).block != Blocks.REDSTONE_WIRE
+      (BaseWireProperties.PlacedWires - facing.opposite).any { state[it.value] }
     ) 15 else 0
   }
 
@@ -110,7 +108,19 @@ class RedAlloyWireBlock : BaseRedstoneWireBlock(Block.Settings.of(Material.STONE
       if (state.block !is RedAlloyWireBlock) return false
       val sides = WireUtils.getOccupiedSides(state)
       val weakSides = Direction.values().filter { a -> sides.any { b -> b.axis != a.axis } }.distinct() - sides
-      return sides.any { world.getReceivedRedstonePower(pos.offset(it)) > 0 } || weakSides.any { world.getEmittedRedstonePower(pos.offset(it), it) > 0 }
+      return weakSides
+               .map {
+                 if (world.getBlockState(pos.offset(it)).block == Blocks.REDSTONE_WIRE) 0
+                 else {
+                   val state = world.getBlockState(pos.offset(it))
+                   if (state.isSimpleFullBlock(world, pos)) state.getStrongRedstonePower(world, pos, it)
+                   else state.getWeakRedstonePower(world, pos, it)
+                 }
+               }
+               .any { it > 0 } ||
+             sides
+               .filterNot { world.getBlockState(pos.offset(it)).block == Blocks.REDSTONE_WIRE }
+               .any { world.getEmittedRedstonePower(pos.offset(it), it) > 0 }
     }
   }
 
@@ -131,8 +141,7 @@ class InsulatedWireBlock(val color: DyeColor) : BaseRedstoneWireBlock(Block.Sett
     return if (
       RSWires.wiresGivePower &&
       state[WireProperties.Powered] &&
-      (BaseWireProperties.PlacedWires - facing.opposite).any { state[it.value] } &&
-      view.getBlockState(pos.offset(facing.opposite)).block != Blocks.REDSTONE_WIRE
+      (BaseWireProperties.PlacedWires - facing.opposite).any { state[it.value] }
     ) 15 else 0
   }
 
@@ -144,7 +153,9 @@ class InsulatedWireBlock(val color: DyeColor) : BaseRedstoneWireBlock(Block.Sett
       if (state.block !is InsulatedWireBlock) return false
       val sides = WireUtils.getOccupiedSides(state)
       val weakSides = Direction.values().filter { a -> sides.any { b -> b.axis != a.axis } }.distinct() - sides
-      return weakSides.any { world.getEmittedRedstonePower(pos.offset(it), it) > 0 }
+      return weakSides
+        .filterNot { world.getBlockState(pos.offset(it)).block == Blocks.REDSTONE_WIRE }
+        .any { world.getEmittedRedstonePower(pos.offset(it), it) > 0 }
     }
   }
 
