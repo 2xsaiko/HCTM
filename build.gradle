@@ -1,12 +1,16 @@
 import static org.gradle.api.JavaVersion.VERSION_1_8
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.61'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.61' apply false
     id 'fabric-loom' version '0.2.7-SNAPSHOT' apply false
 }
 
+version = hctm_version
+
 allprojects {
+    apply plugin: 'maven-publish'
     apply plugin: 'fabric-loom'
+    apply plugin: 'org.jetbrains.kotlin.jvm'
 
     java {
         sourceCompatibility = VERSION_1_8
@@ -19,7 +23,7 @@ allprojects {
         kotlinOptions.freeCompilerArgs += '-Xjvm-default=enable'
     }
 
-    group = "therealfarfetchd.hctm"
+    group = "net.dblsaiko"
 
     dependencies {
         minecraft group: "com.mojang", name: "minecraft", version: minecraft_version
@@ -33,7 +37,7 @@ allprojects {
 
         modImplementation group: 'net.dblsaiko', name: 'libaddict', version: libaddict_version
 
-        compile group: "org.joml", name: "joml", version: "1.9.14"
+        implementation group: "org.joml", name: "joml", version: "1.9.14"
     }
 
     configurations {
@@ -41,11 +45,7 @@ allprojects {
     }
 
     repositories {
-        // mavenLocal()
         maven { url 'https://maven.dblsaiko.net' }
-        // maven { url 'https://maven.shadowfacts.net' }
-        // maven { url 'https://minecraft.curseforge.com/api/maven' }
-        // maven { url 'https://grondag-repo.appspot.com'; credentials { username 'guest'; password '' } }
     }
 
     afterEvaluate {
@@ -68,8 +68,54 @@ allprojects {
     }
 
     task sourcesJar(type: Jar, dependsOn: classes) {
-        classifier = 'sources'
+        archiveClassifier = 'sources'
         from sourceSets.main.allSource
+    }
+
+    apply from: 'https://raw.githubusercontent.com/2xsaiko/gradle-tools/master/publish/publish-slim.gradle'
+}
+
+subprojects {
+    if (name != 'hctm-base') {
+        tasks.remapJar {
+            afterEvaluate {
+                addNestedDependencies = false
+            }
+        }
+
+        task remapStandaloneJar(type: net.fabricmc.loom.task.RemapJarTask, dependsOn: jar) {
+            afterEvaluate {
+                input = file("${project.buildDir}/libs/${archivesBaseName}-${version}-dev.jar")
+                archiveName = "${archivesBaseName}-${version}-standalone.jar"
+                addNestedDependencies = true
+            }
+        }
+
+        tasks.build.dependsOn remapStandaloneJar
+
+        dependencies {
+            compile project(path: ':hctm-base', configuration: "dev")
+            include project(':hctm-base')
+        }
+
+        publishing {
+            publications {
+                mavenJava(MavenPublication) {
+                    pom.withXml {
+                        def buildid = System.getenv("PUBLISH_BUILD")
+
+                        def depsNode = asNode().appendNode("dependencies")
+                        [project(':hctm-base')].each {
+                            def depNode = depsNode.appendNode("dependency")
+                            depNode.appendNode("groupId", it.group)
+                            depNode.appendNode("artifactId", it.name)
+                            depNode.appendNode("version", buildid != null ? "${it.version}-${buildid}" : it.version)
+                            depNode.appendNode("scope", "compile")
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -79,6 +125,21 @@ subprojects {
             from("${project.buildDir}/libs/$archivesBaseName-${version}.jar")
             into("${project.buildDir}/libs/")
             rename { String fn -> "$archivesBaseName-${version}-maven.jar" }
+        }
+    }
+
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                afterEvaluate {
+                    artifact(file("${project.buildDir}/libs/$archivesBaseName-${project.version}-maven.jar")) {
+                        builtBy remapMavenJar
+                    }
+                }
+                artifact(sourcesJar) {
+                    builtBy remapSourcesJar
+                }
+            }
         }
     }
 }
@@ -91,6 +152,33 @@ task remapMavenJar(type: net.fabricmc.loom.task.RemapJarTask, dependsOn: jar) {
     }
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact(file("${project.buildDir}/libs/$archivesBaseName-${project.version}-maven.jar")) {
+                builtBy remapMavenJar
+            }
+            artifact(sourcesJar) {
+                builtBy remapSourcesJar
+            }
+            pom.withXml {
+                def buildid = System.getenv("PUBLISH_BUILD")
+
+                def depsNode = asNode().appendNode("dependencies")
+                subprojects.each {
+                    def depNode = depsNode.appendNode("dependency")
+                    depNode.appendNode("groupId", it.group)
+                    depNode.appendNode("artifactId", it.name)
+                    depNode.appendNode("version", buildid != null ? "${it.version}-${buildid}" : it.version)
+                    depNode.appendNode("scope", "compile")
+                }
+            }
+        }
+    }
+}
+
+subprojects.each { remapJar.dependsOn("${it.path}:remapJar") }
+
 repositories {
     maven { url = 'https://maven.dblsaiko.net' }
 }
@@ -100,6 +188,9 @@ dependencies {
     modRuntime group: 'io.github.prospector', name: 'modmenu', version: '1.8.5+build.23'
 
     afterEvaluate {
-        subprojects.each { compile it }
+        subprojects.each {
+            compile project(path: ":${it.name}", configuration: "dev")
+            include project("${it.name}:")
+        }
     }
 }

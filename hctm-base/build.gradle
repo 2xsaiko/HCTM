@@ -1,12 +1,6 @@
-plugins {
-    id 'org.jetbrains.kotlin.jvm'
-}
-
-archivesBaseName = 'hctm-base'
+version = base_version
 
 dependencies {
-    include group: 'net.dblsaiko', name: 'libaddict', version: libaddict_version
-
     modRuntime(group: 'net.dblsaiko.qcommon.cfg', name: 'cfg', version: cfg_version) {
         exclude group: 'net.fabricmc.fabric-api'
     }
@@ -15,5 +9,7 @@ dependencies {
         exclude group: 'net.fabricmc.fabric-api'
     }
 
+    include group: 'net.dblsaiko', name: 'libaddict', version: libaddict_version
     include group: 'net.dblsaiko.qcommon.cfg', name: 'cfg-core', version: cfg_core_version
+    include group: "org.joml", name: "joml", version: "1.9.14"
 }

@@ -6,7 +6,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'HCTM'
+rootProject.name = 'hctm'
 
 include 'hctm-base'
 include 'retrocomputers'
