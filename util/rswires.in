@@ -1,0 +1,7 @@
+add red_alloy_wire red_alloy_wire
+add bundled_cable bundled_cable
+
+for color in white orange magenta light_blue yellow lime pink gray light_gray cyan purple blue brown red green black; do
+  add ${color}_insulated_wire ${color}_insulated_wire
+  add ${color}_bundled_cable ${color}_bundled_cable
+done

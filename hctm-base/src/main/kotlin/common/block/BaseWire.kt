@@ -84,7 +84,7 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
     return getShape(state)
   }
 
-  override fun tryBreak(state: BlockState, pos: BlockPos, world: World, player: PlayerEntity): Boolean {
+  override fun tryBreak(state: BlockState, pos: BlockPos, world: World, player: PlayerEntity, blockEntity: BlockEntity?): Boolean {
     if (WireUtils.getOccupiedSides(state).size < 2) return true
 
     val dist = if (player.isCreative) 5.0f else 4.5f
@@ -93,18 +93,18 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
     val to = from.add(dir.x * dist, dir.y * dist, dir.z * dist)
     val (side, _) = WireUtils.rayTrace(state, pos, from, to) ?: return true
 
-    breakPart(state, pos, world, player, side)
+    breakPart(state, pos, world, player, side, blockEntity)
     return false
   }
 
-  private fun breakPart(state: BlockState, pos: BlockPos, world: World, player: PlayerEntity, side: Direction): Boolean {
+  private fun breakPart(state: BlockState, pos: BlockPos, world: World, player: PlayerEntity, side: Direction, blockEntity: BlockEntity?): Boolean {
     if (!state[BaseWireProperties.PlacedWires.getValue(side)]) return false
 
     val result = world.setBlockState(pos, state.with(BaseWireProperties.PlacedWires.getValue(side), false))
 
     if (result) {
       onBreak(world, pos, getStateForSide(state, side), player) // particle
-      // dropStack(world, pos, Items.Wire.defaultStack) FIXME
+      afterBreak(world, player, pos, getStateForSide(state, side), blockEntity, player.mainHandStack.copy())
     }
 
     return result
@@ -236,7 +236,7 @@ open class BaseWireBlockEntity(type: BlockEntityType<out BlockEntity>) : BlockEn
 
 }
 
-open class BaseWireItem(block: BaseWireBlock, settings: Item.Settings = Item.Settings()) : BlockItem(block, settings) {
+open class BaseWireItem(block: BaseWireBlock, settings: Item.Settings) : BlockItem(block, settings) {
 
   override fun place(ctx: ItemPlacementContext): ActionResult {
     val state = this.getPlacementState(ctx) ?: return ActionResult.PASS

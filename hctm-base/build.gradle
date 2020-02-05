@@ -11,7 +11,7 @@ dependencies {
         exclude group: 'net.fabricmc.fabric-api'
     }
 
-    implementation(group: 'net.dblsaiko.qcommon.cfg', name: 'cfg-core', version: cfg_core_version) {
+    modImplementation(group: 'net.dblsaiko.qcommon.cfg', name: 'cfg-core', version: cfg_core_version) {
         exclude group: 'net.fabricmc.fabric-api'
     }
 

@@ -3,7 +3,6 @@ package therealfarfetchd.rswires.common.block
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
-import net.minecraft.block.Material
 import net.minecraft.nbt.ByteTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.world.ServerWorld
@@ -78,7 +77,7 @@ abstract class BaseRedstoneWireBlock(settings: Block.Settings, height: Float) : 
 
 }
 
-class RedAlloyWireBlock : BaseRedstoneWireBlock(Block.Settings.of(Material.STONE).noCollision().strength(0.25f, 0.25f), 2 / 16f) {
+class RedAlloyWireBlock(settings: Block.Settings) : BaseRedstoneWireBlock(settings, 2 / 16f) {
 
   override fun getStrongRedstonePower(state: BlockState, view: BlockView, pos: BlockPos, facing: Direction): Int {
     return if (
@@ -126,7 +125,7 @@ class RedAlloyWireBlock : BaseRedstoneWireBlock(Block.Settings.of(Material.STONE
 
 }
 
-class InsulatedWireBlock(val color: DyeColor) : BaseRedstoneWireBlock(Block.Settings.of(Material.STONE).noCollision().strength(0.25f, 0.25f), 3 / 16f) {
+class InsulatedWireBlock(settings: Block.Settings, val color: DyeColor) : BaseRedstoneWireBlock(settings, 3 / 16f) {
 
 
   override fun createPartExtFromSide(side: Direction) = InsulatedWirePartExt(side, color)
@@ -161,7 +160,7 @@ class InsulatedWireBlock(val color: DyeColor) : BaseRedstoneWireBlock(Block.Sett
 
 }
 
-class BundledCableBlock(val color: DyeColor?) : BaseWireBlock(Block.Settings.of(Material.STONE).noCollision().strength(0.25f, 0.25f), 4 / 16f) {
+class BundledCableBlock(settings: Block.Settings, val color: DyeColor?) : BaseWireBlock(settings, 4 / 16f) {
 
   override fun createExtFromTag(tag: Tag): PartExt? {
     val data = (tag as? ByteTag)?.byte ?: return null

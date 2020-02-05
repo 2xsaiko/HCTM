@@ -33,9 +33,9 @@ public abstract class MixinClientPlayerInteractionManager {
         locals = LocalCapture.CAPTURE_FAILHARD,
         cancellable = true
     )
-    private void breakBlock(BlockPos blockPos_1, CallbackInfoReturnable<Boolean> cir, World world_1, BlockState blockState_1, Block block_1) {
-        if (block_1 instanceof BlockCustomBreak) {
-            if (!((BlockCustomBreak) block_1).tryBreak(blockState_1, blockPos_1, world_1, client.player)) {
+    private void breakBlock(BlockPos pos, CallbackInfoReturnable<Boolean> cir, World world, BlockState blockState, Block block) {
+        if (block instanceof BlockCustomBreak) {
+            if (!((BlockCustomBreak) block).tryBreak(blockState, pos, world, client.player, world.getBlockEntity(pos))) {
                 cir.setReturnValue(false);
             }
         }

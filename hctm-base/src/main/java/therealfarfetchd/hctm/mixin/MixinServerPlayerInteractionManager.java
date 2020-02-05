@@ -2,6 +2,7 @@ package therealfarfetchd.hctm.mixin;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.ServerPlayerInteractionManager;
 import net.minecraft.server.world.ServerWorld;
@@ -34,10 +35,9 @@ public abstract class MixinServerPlayerInteractionManager {
         locals = LocalCapture.CAPTURE_FAILHARD,
         cancellable = true
     )
-    private void tryBreakBlock(BlockPos blockPos_1, CallbackInfoReturnable<Boolean> cir, BlockState blockState_1) {
-        Block block = blockState_1.getBlock();
+    private void tryBreakBlock(BlockPos blockPos, CallbackInfoReturnable<Boolean> cir, BlockState blockState, BlockEntity blockEntity, Block block) {
         if (block instanceof BlockCustomBreak) {
-            if (!((BlockCustomBreak) block).tryBreak(blockState_1, blockPos_1, world, player)) {
+            if (!((BlockCustomBreak) block).tryBreak(blockState, blockPos, world, player, blockEntity)) {
                 cir.setReturnValue(false);
             }
         }

@@ -1,6 +1,8 @@
 package therealfarfetchd.rswires.common.init
 
+import net.fabricmc.fabric.api.block.FabricBlockSettings
 import net.minecraft.block.Block
+import net.minecraft.block.Material
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.item.BlockItem
@@ -39,10 +41,12 @@ object BlockEntityTypes {
 
 object Blocks {
 
-  val RedAlloyWire = create(RedAlloyWireBlock(), "red_alloy_wire")
-  val InsulatedWires = DyeColor.values().associate { it to create(InsulatedWireBlock(it), "${it.getName()}_insulated_wire") }
-  val UncoloredBundledCable = create(BundledCableBlock(null), "bundled_cable")
-  val ColoredBundledCables = DyeColor.values().associate { it to create(BundledCableBlock(it), "${it.getName()}_bundled_cable") }
+  private val wireSettings = FabricBlockSettings.of(Material.STONE).breakByHand(true).noCollision().strength(0.25f, 0.25f).build()
+
+  val RedAlloyWire = create(RedAlloyWireBlock(wireSettings), "red_alloy_wire")
+  val InsulatedWires = DyeColor.values().associate { it to create(InsulatedWireBlock(wireSettings, it), "${it.getName()}_insulated_wire") }
+  val UncoloredBundledCable = create(BundledCableBlock(wireSettings, null), "bundled_cable")
+  val ColoredBundledCables = DyeColor.values().associate { it to create(BundledCableBlock(wireSettings, it), "${it.getName()}_bundled_cable") }
 
   private fun <T : Block> create(block: T, name: String): T {
     return Registry.register(Registry.BLOCK, Identifier(ModID, name), block)
@@ -52,10 +56,10 @@ object Blocks {
 
 object Items {
 
-  val RedAlloyWire = create(BaseWireItem(Blocks.RedAlloyWire), "red_alloy_wire")
-  val InsulatedWires = Blocks.InsulatedWires.mapValues { (color, block) -> create(BaseWireItem(block), "${color.getName()}_insulated_wire") }
-  val UncoloredBundledCable = create(BaseWireItem(Blocks.UncoloredBundledCable), "bundled_cable")
-  val ColoredBundledCables = Blocks.ColoredBundledCables.mapValues { (color, block) -> create(BaseWireItem(block), "${color.getName()}_bundled_cable") }
+  val RedAlloyWire = create(BaseWireItem(Blocks.RedAlloyWire, Item.Settings()), "red_alloy_wire")
+  val InsulatedWires = Blocks.InsulatedWires.mapValues { (color, block) -> create(BaseWireItem(block, Item.Settings()), "${color.getName()}_insulated_wire") }
+  val UncoloredBundledCable = create(BaseWireItem(Blocks.UncoloredBundledCable, Item.Settings()), "bundled_cable")
+  val ColoredBundledCables = Blocks.ColoredBundledCables.mapValues { (color, block) -> create(BaseWireItem(block, Item.Settings()), "${color.getName()}_bundled_cable") }
 
   private fun <T : Block> create(block: T, name: String): BlockItem {
     return create(BlockItem(block, Settings().group(ItemGroup.REDSTONE)), name)
