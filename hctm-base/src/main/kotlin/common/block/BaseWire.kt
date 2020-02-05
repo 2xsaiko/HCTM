@@ -146,6 +146,15 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
     return getStateForSide(state, *WireUtils.getOccupiedSides(state).filter { it != side || getStateForSide(state, it).canPlaceAt(world, pos) }.toTypedArray())
   }
 
+  override fun calcBlockBreakingDelta(state: BlockState, player: PlayerEntity, world: BlockView, pos: BlockPos): Float {
+    val f = state.getHardness(world, pos)
+    return if (f == -1.0f) {
+      0.0f
+    } else {
+      1.0f / f / 100.0f
+    }
+  }
+
 }
 
 abstract class SingleBaseWireBlock(settings: Block.Settings, height: Float) : BaseWireBlock(settings, height) {
