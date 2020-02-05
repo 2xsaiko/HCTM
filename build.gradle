@@ -75,6 +75,21 @@ allprojects {
     apply from: 'https://raw.githubusercontent.com/2xsaiko/gradle-tools/master/publish/publish-slim.gradle'
 }
 
+// shitty fix for 'unspecified' in version number
+subprojects {
+    switch (name) {
+        case 'hctm-base':
+            version = base_version
+            break
+        case 'retrocomputers':
+            version = retrocomputers_version
+            break
+        case 'rswires':
+            version = rswires_version
+            break
+    }
+}
+
 subprojects {
     if (name != 'hctm-base') {
         tasks.remapJar {
