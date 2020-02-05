@@ -13,7 +13,7 @@
   "icon": "assets/hctm-base/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [{ "value": "therealfarfetchd.hctm.HCTM", "adapter": "kotlin" }]
+    "main": [{ "value": "net.dblsaiko.hctm.HCTM", "adapter": "kotlin" }]
   },
   "mixins": ["hctm.mixins.json"],
   "requires": {

@@ -1,5 +1,16 @@
-package therealfarfetchd.hctm.client.render.model
+package net.dblsaiko.hctm.client.render.model
 
+import net.dblsaiko.hctm.client.render.model.CenterVariant.Crossing
+import net.dblsaiko.hctm.client.render.model.CenterVariant.Standalone
+import net.dblsaiko.hctm.client.render.model.CenterVariant.Straight1
+import net.dblsaiko.hctm.client.render.model.CenterVariant.Straight2
+import net.dblsaiko.hctm.client.render.model.ExtVariant.Corner
+import net.dblsaiko.hctm.client.render.model.ExtVariant.External
+import net.dblsaiko.hctm.client.render.model.ExtVariant.Internal
+import net.dblsaiko.hctm.client.render.model.ExtVariant.Terminal
+import net.dblsaiko.hctm.client.render.model.ExtVariant.Unconnected
+import net.dblsaiko.hctm.client.render.model.ExtVariant.UnconnectedCrossing
+import net.dblsaiko.hctm.common.util.ext.rotateClockwise
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh
@@ -33,17 +44,6 @@ import org.joml.Matrix4f
 import org.joml.Matrix4fc
 import org.joml.Vector2fc
 import org.joml.Vector3fc
-import therealfarfetchd.hctm.client.render.model.CenterVariant.Crossing
-import therealfarfetchd.hctm.client.render.model.CenterVariant.Standalone
-import therealfarfetchd.hctm.client.render.model.CenterVariant.Straight1
-import therealfarfetchd.hctm.client.render.model.CenterVariant.Straight2
-import therealfarfetchd.hctm.client.render.model.ExtVariant.Corner
-import therealfarfetchd.hctm.client.render.model.ExtVariant.External
-import therealfarfetchd.hctm.client.render.model.ExtVariant.Internal
-import therealfarfetchd.hctm.client.render.model.ExtVariant.Terminal
-import therealfarfetchd.hctm.client.render.model.ExtVariant.Unconnected
-import therealfarfetchd.hctm.client.render.model.ExtVariant.UnconnectedCrossing
-import therealfarfetchd.hctm.common.util.ext.rotateClockwise
 import java.util.function.Function
 import kotlin.math.PI
 

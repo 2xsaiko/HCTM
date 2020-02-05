@@ -1,4 +1,4 @@
-package therealfarfetchd.hctm.common.util.ext
+package net.dblsaiko.hctm.common.util.ext
 
 import net.minecraft.util.math.Direction
 import net.minecraft.util.math.Direction.Axis.X

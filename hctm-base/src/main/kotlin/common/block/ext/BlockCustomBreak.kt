@@ -1,4 +1,4 @@
-package therealfarfetchd.hctm.common.block.ext
+package net.dblsaiko.hctm.common.block.ext
 
 import net.minecraft.block.BlockState
 import net.minecraft.block.entity.BlockEntity

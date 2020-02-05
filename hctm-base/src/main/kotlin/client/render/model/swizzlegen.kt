@@ -1,4 +1,4 @@
-// package therealfarfetchd.hctm.client.render.model
+// package net.dblsaiko.hctm.client.render.model
 //
 // val scalar = Type("Float", "%s.toFloat()", "x")
 // val vec2 = Type("Vector2fc", "vec2(%s, %s)", "xy")

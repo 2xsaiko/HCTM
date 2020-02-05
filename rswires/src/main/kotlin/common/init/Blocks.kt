@@ -1,17 +1,17 @@
-package therealfarfetchd.rswires.common.init
+package net.dblsaiko.rswires.common.init
 
+import net.dblsaiko.hctm.common.util.delegatedNotNull
+import net.dblsaiko.hctm.common.util.flatten
+import net.dblsaiko.rswires.ModID
+import net.dblsaiko.rswires.common.block.BundledCableBlock
+import net.dblsaiko.rswires.common.block.InsulatedWireBlock
+import net.dblsaiko.rswires.common.block.RedAlloyWireBlock
 import net.fabricmc.fabric.api.block.FabricBlockSettings
 import net.minecraft.block.Block
 import net.minecraft.block.Material
 import net.minecraft.util.DyeColor
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
-import therealfarfetchd.hctm.common.util.delegatedNotNull
-import therealfarfetchd.hctm.common.util.flatten
-import therealfarfetchd.rswires.ModID
-import therealfarfetchd.rswires.common.block.BundledCableBlock
-import therealfarfetchd.rswires.common.block.InsulatedWireBlock
-import therealfarfetchd.rswires.common.block.RedAlloyWireBlock
 import kotlin.properties.ReadOnlyProperty
 
 object Blocks {

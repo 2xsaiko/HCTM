@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package therealfarfetchd.hctm.client.render.model
+package net.dblsaiko.hctm.client.render.model
 
 import org.joml.Vector2fc
 import org.joml.Vector3fc

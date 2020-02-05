@@ -1,6 +1,9 @@
-package therealfarfetchd.hctm.common.wire
+package net.dblsaiko.hctm.common.wire
 
 import com.google.common.collect.HashMultimap
+import net.dblsaiko.hctm.common.graph.Graph
+import net.dblsaiko.hctm.common.graph.Link
+import net.dblsaiko.hctm.common.graph.Node
 import net.fabricmc.fabric.api.util.NbtType
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
@@ -14,9 +17,6 @@ import net.minecraft.util.registry.Registry
 import net.minecraft.world.PersistentState
 import net.minecraft.world.World
 import net.minecraft.world.dimension.Dimension
-import therealfarfetchd.hctm.common.graph.Graph
-import therealfarfetchd.hctm.common.graph.Link
-import therealfarfetchd.hctm.common.graph.Node
 import java.util.*
 
 typealias NetNode = Node<NetworkPart<out PartExt>, Nothing?>

@@ -1,5 +1,21 @@
-package therealfarfetchd.hctm.client.render.model
+package net.dblsaiko.hctm.client.render.model
 
+import net.dblsaiko.hctm.client.render.model.CenterVariant.Crossing
+import net.dblsaiko.hctm.client.render.model.CenterVariant.Standalone
+import net.dblsaiko.hctm.client.render.model.CenterVariant.Straight1
+import net.dblsaiko.hctm.client.render.model.CenterVariant.Straight2
+import net.dblsaiko.hctm.client.render.model.ExtVariant.Corner
+import net.dblsaiko.hctm.client.render.model.ExtVariant.External
+import net.dblsaiko.hctm.client.render.model.ExtVariant.Internal
+import net.dblsaiko.hctm.client.render.model.ExtVariant.Terminal
+import net.dblsaiko.hctm.client.render.model.ExtVariant.Unconnected
+import net.dblsaiko.hctm.client.render.model.ExtVariant.UnconnectedCrossing
+import net.dblsaiko.hctm.common.block.BaseWireBlockEntity
+import net.dblsaiko.hctm.common.block.Connection
+import net.dblsaiko.hctm.common.block.ConnectionType.CORNER
+import net.dblsaiko.hctm.common.block.ConnectionType.EXTERNAL
+import net.dblsaiko.hctm.common.block.ConnectionType.INTERNAL
+import net.dblsaiko.hctm.common.block.WireRepr
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper
@@ -16,22 +32,6 @@ import net.minecraft.util.math.Direction.Axis.X
 import net.minecraft.util.math.Direction.Axis.Y
 import net.minecraft.util.math.Direction.Axis.Z
 import net.minecraft.world.BlockRenderView
-import therealfarfetchd.hctm.client.render.model.CenterVariant.Crossing
-import therealfarfetchd.hctm.client.render.model.CenterVariant.Standalone
-import therealfarfetchd.hctm.client.render.model.CenterVariant.Straight1
-import therealfarfetchd.hctm.client.render.model.CenterVariant.Straight2
-import therealfarfetchd.hctm.client.render.model.ExtVariant.Corner
-import therealfarfetchd.hctm.client.render.model.ExtVariant.External
-import therealfarfetchd.hctm.client.render.model.ExtVariant.Internal
-import therealfarfetchd.hctm.client.render.model.ExtVariant.Terminal
-import therealfarfetchd.hctm.client.render.model.ExtVariant.Unconnected
-import therealfarfetchd.hctm.client.render.model.ExtVariant.UnconnectedCrossing
-import therealfarfetchd.hctm.common.block.BaseWireBlockEntity
-import therealfarfetchd.hctm.common.block.Connection
-import therealfarfetchd.hctm.common.block.ConnectionType.CORNER
-import therealfarfetchd.hctm.common.block.ConnectionType.EXTERNAL
-import therealfarfetchd.hctm.common.block.ConnectionType.INTERNAL
-import therealfarfetchd.hctm.common.block.WireRepr
 import java.util.*
 import java.util.function.Supplier
 

@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "therealfarfetchd.hctm.mixin",
+  "package": "net.dblsaiko.hctm.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "MixinServerPlayerInteractionManager"

@@ -1,9 +1,9 @@
-package therealfarfetchd.hctm
+package net.dblsaiko.hctm
 
+import net.dblsaiko.hctm.common.init.Packets
+import net.dblsaiko.hctm.common.wire.getWireNetworkState
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.server.ServerTickCallback
-import therealfarfetchd.hctm.common.init.Packets
-import therealfarfetchd.hctm.common.wire.getWireNetworkState
 
 const val ModID = "hctm-base"
 

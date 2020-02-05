@@ -1,13 +1,13 @@
-package therealfarfetchd.hctm.mixin;
+package net.dblsaiko.hctm.mixin;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerInteractionManager;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.network.ServerPlayerInteractionManager;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,15 +16,17 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import therealfarfetchd.hctm.common.block.ext.BlockCustomBreak;
+import net.dblsaiko.hctm.common.block.ext.BlockCustomBreak;
 
-@Mixin(ClientPlayerInteractionManager.class)
-public abstract class MixinClientPlayerInteractionManager {
+@Mixin(ServerPlayerInteractionManager.class)
+public abstract class MixinServerPlayerInteractionManager {
 
-    @Shadow @Final private MinecraftClient client;
+    @Shadow public ServerWorld world;
+
+    @Shadow public ServerPlayerEntity player;
 
     @Inject(
-        method = "breakBlock(Lnet/minecraft/util/math/BlockPos;)Z",
+        method = "tryBreakBlock",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/block/Block;onBreak(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/entity/player/PlayerEntity;)V",
@@ -33,9 +35,9 @@ public abstract class MixinClientPlayerInteractionManager {
         locals = LocalCapture.CAPTURE_FAILHARD,
         cancellable = true
     )
-    private void breakBlock(BlockPos pos, CallbackInfoReturnable<Boolean> cir, World world, BlockState blockState, Block block) {
+    private void tryBreakBlock(BlockPos blockPos, CallbackInfoReturnable<Boolean> cir, BlockState blockState, BlockEntity blockEntity, Block block) {
         if (block instanceof BlockCustomBreak) {
-            if (!((BlockCustomBreak) block).tryBreak(blockState, pos, world, client.player, world.getBlockEntity(pos))) {
+            if (!((BlockCustomBreak) block).tryBreak(blockState, blockPos, world, player, blockEntity)) {
                 cir.setReturnValue(false);
             }
         }

@@ -1,4 +1,4 @@
-package therealfarfetchd.hctm.mixin;
+package net.dblsaiko.hctm.mixin;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.render.VertexConsumer;
@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import therealfarfetchd.hctm.common.block.ext.BlockAdvancedShape;
+import net.dblsaiko.hctm.common.block.ext.BlockAdvancedShape;
 
 @Mixin(WorldRenderer.class)
 public abstract class MixinWorldRenderer {

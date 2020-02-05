@@ -1,4 +1,4 @@
-package therealfarfetchd.hctm.client.render.model
+package net.dblsaiko.hctm.client.render.model
 
 import org.joml.Vector2f
 import org.joml.Vector2fc

@@ -1,5 +1,9 @@
-package therealfarfetchd.rswires.common.init
+package net.dblsaiko.rswires.common.init
 
+import net.dblsaiko.hctm.common.block.BaseWireItem
+import net.dblsaiko.hctm.common.util.delegatedNotNull
+import net.dblsaiko.hctm.common.util.flatten
+import net.dblsaiko.rswires.ModID
 import net.minecraft.block.Block
 import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
@@ -7,10 +11,6 @@ import net.minecraft.item.Item.Settings
 import net.minecraft.item.ItemGroup
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
-import therealfarfetchd.hctm.common.block.BaseWireItem
-import therealfarfetchd.hctm.common.util.delegatedNotNull
-import therealfarfetchd.hctm.common.util.flatten
-import therealfarfetchd.rswires.ModID
 import kotlin.properties.ReadOnlyProperty
 
 object Items {

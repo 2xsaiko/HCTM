@@ -1,4 +1,4 @@
-package therealfarfetchd.hctm.common.util
+package net.dblsaiko.hctm.common.util
 
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty

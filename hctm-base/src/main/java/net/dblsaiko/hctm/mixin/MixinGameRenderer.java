@@ -1,4 +1,4 @@
-package therealfarfetchd.hctm.mixin;
+package net.dblsaiko.hctm.mixin;
 
 import net.minecraft.client.render.GameRenderer;
 

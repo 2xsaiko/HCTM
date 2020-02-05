@@ -1,11 +1,11 @@
-package therealfarfetchd.hctm.client.render
+package net.dblsaiko.hctm.client.render
 
+import net.dblsaiko.hctm.common.wire.NetLink
+import net.dblsaiko.hctm.common.wire.NetNode
+import net.dblsaiko.hctm.common.wire.WireNetworkController
 import net.minecraft.client.render.BufferBuilder
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
-import therealfarfetchd.hctm.common.wire.NetLink
-import therealfarfetchd.hctm.common.wire.NetNode
-import therealfarfetchd.hctm.common.wire.WireNetworkController
 import java.awt.Color
 import java.util.*
 import kotlin.streams.asSequence

@@ -1,11 +1,11 @@
-package therealfarfetchd.hctm.common.init
+package net.dblsaiko.hctm.common.init
 
+import net.dblsaiko.hctm.ModID
+import net.dblsaiko.hctm.client.packet.onDebugNetUpdateResponse
+import net.dblsaiko.hctm.common.packet.onDebugNetUpdateRequest
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry
 import net.minecraft.util.Identifier
-import therealfarfetchd.hctm.ModID
-import therealfarfetchd.hctm.client.packet.onDebugNetUpdateResponse
-import therealfarfetchd.hctm.common.packet.onDebugNetUpdateRequest
 
 object Packets {
 

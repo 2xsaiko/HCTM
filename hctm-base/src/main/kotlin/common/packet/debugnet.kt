@@ -1,6 +1,8 @@
-package therealfarfetchd.hctm.common.packet
+package net.dblsaiko.hctm.common.packet
 
 import io.netty.buffer.Unpooled
+import net.dblsaiko.hctm.common.init.Packets
+import net.dblsaiko.hctm.common.wire.getWireNetworkState
 import net.fabricmc.fabric.api.network.PacketContext
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry
 import net.minecraft.nbt.CompoundTag
@@ -8,8 +10,6 @@ import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Identifier
 import net.minecraft.util.PacketByteBuf
 import net.minecraft.world.dimension.DimensionType
-import therealfarfetchd.hctm.common.init.Packets
-import therealfarfetchd.hctm.common.wire.getWireNetworkState
 
 fun onDebugNetUpdateRequest(context: PacketContext, buffer: PacketByteBuf) {
   val dim = Identifier(buffer.readString())

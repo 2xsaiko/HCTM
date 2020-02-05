@@ -1,5 +1,13 @@
-package therealfarfetchd.hctm.common.block
+package net.dblsaiko.hctm.common.block
 
+import net.dblsaiko.hctm.common.block.ConnectionType.CORNER
+import net.dblsaiko.hctm.common.block.ConnectionType.EXTERNAL
+import net.dblsaiko.hctm.common.block.ConnectionType.INTERNAL
+import net.dblsaiko.hctm.common.block.ext.BlockCustomBreak
+import net.dblsaiko.hctm.common.wire.BlockPartProvider
+import net.dblsaiko.hctm.common.wire.PartExt
+import net.dblsaiko.hctm.common.wire.WirePartExtType
+import net.dblsaiko.hctm.common.wire.getWireNetworkState
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable
 import net.minecraft.advancement.criterion.Criterions
 import net.minecraft.block.Block
@@ -38,14 +46,6 @@ import net.minecraft.world.BlockView
 import net.minecraft.world.IWorld
 import net.minecraft.world.World
 import net.minecraft.world.WorldView
-import therealfarfetchd.hctm.common.block.ConnectionType.CORNER
-import therealfarfetchd.hctm.common.block.ConnectionType.EXTERNAL
-import therealfarfetchd.hctm.common.block.ConnectionType.INTERNAL
-import therealfarfetchd.hctm.common.block.ext.BlockCustomBreak
-import therealfarfetchd.hctm.common.wire.BlockPartProvider
-import therealfarfetchd.hctm.common.wire.PartExt
-import therealfarfetchd.hctm.common.wire.WirePartExtType
-import therealfarfetchd.hctm.common.wire.getWireNetworkState
 import net.minecraft.block.Blocks as MCBlocks
 
 abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Block(settings), BlockCustomBreak, BlockPartProvider, BlockEntityProvider {

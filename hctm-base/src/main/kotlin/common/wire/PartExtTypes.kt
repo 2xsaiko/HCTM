@@ -1,4 +1,4 @@
-package therealfarfetchd.hctm.common.wire
+package net.dblsaiko.hctm.common.wire
 
 import net.minecraft.util.math.Direction
 

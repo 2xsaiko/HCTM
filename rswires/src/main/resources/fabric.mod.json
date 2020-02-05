@@ -13,8 +13,8 @@
   "icon": "assets/rswires/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [{ "value": "therealfarfetchd.rswires.RSWires", "adapter": "kotlin" }],
-    "client": [{ "value": "therealfarfetchd.rswires.client.RSWiresClient", "adapter": "kotlin" }]
+    "main": [{ "value": "net.dblsaiko.rswires.RSWires", "adapter": "kotlin" }],
+    "client": [{ "value": "net.dblsaiko.rswires.client.RSWiresClient", "adapter": "kotlin" }]
   },
   "requires": {
     "fabricloader": ">=0.4.0",

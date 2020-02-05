@@ -1,10 +1,10 @@
-package therealfarfetchd.rswires.common.init
+package net.dblsaiko.rswires.common.init
 
+import net.dblsaiko.hctm.common.util.ext.makeStack
+import net.dblsaiko.rswires.ModID
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder
 import net.minecraft.item.ItemGroup
 import net.minecraft.util.Identifier
-import therealfarfetchd.hctm.common.util.ext.makeStack
-import therealfarfetchd.rswires.ModID
 
 object ItemGroups {
 

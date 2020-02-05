@@ -1,14 +1,14 @@
-package therealfarfetchd.hctm.client.wire
+package net.dblsaiko.hctm.client.wire
 
 import io.netty.buffer.Unpooled
+import net.dblsaiko.hctm.common.init.Packets
+import net.dblsaiko.hctm.common.wire.WireNetworkController
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.PacketByteBuf
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 import net.minecraft.world.dimension.DimensionType
-import therealfarfetchd.hctm.common.init.Packets
-import therealfarfetchd.hctm.common.wire.WireNetworkController
 
 object ClientNetworkState {
 

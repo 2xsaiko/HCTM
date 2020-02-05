@@ -1,14 +1,14 @@
-package therealfarfetchd.rswires.common.init
+package net.dblsaiko.rswires.common.init
 
+import net.dblsaiko.hctm.common.block.BaseWireBlockEntity
+import net.dblsaiko.hctm.common.util.delegatedNotNull
+import net.dblsaiko.rswires.ModID
 import net.minecraft.block.Block
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
 import net.minecraft.block.entity.BlockEntityType.Builder
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
-import therealfarfetchd.hctm.common.block.BaseWireBlockEntity
-import therealfarfetchd.hctm.common.util.delegatedNotNull
-import therealfarfetchd.rswires.ModID
 import java.util.function.Supplier
 import kotlin.properties.ReadOnlyProperty
 

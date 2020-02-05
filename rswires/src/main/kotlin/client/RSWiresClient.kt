@@ -1,14 +1,14 @@
-package therealfarfetchd.rswires.client
+package net.dblsaiko.rswires.client
 
+import net.dblsaiko.hctm.client.render.model.UnbakedWireModel
+import net.dblsaiko.rswires.ModID
+import net.dblsaiko.rswires.common.init.Blocks
 import net.fabricmc.api.ClientModInitializer
 import net.fabricmc.fabric.api.client.model.ModelLoadingRegistry
 import net.fabricmc.fabric.api.client.model.ModelVariantProvider
 import net.minecraft.util.DyeColor
 import net.minecraft.util.Identifier
 import net.minecraft.util.registry.Registry
-import therealfarfetchd.hctm.client.render.model.UnbakedWireModel
-import therealfarfetchd.rswires.ModID
-import therealfarfetchd.rswires.common.init.Blocks
 
 object RSWiresClient : ClientModInitializer {
 

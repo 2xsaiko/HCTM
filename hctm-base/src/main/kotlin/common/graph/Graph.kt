@@ -1,4 +1,4 @@
-package therealfarfetchd.hctm.common.graph
+package net.dblsaiko.hctm.common.graph
 
 class Graph<N, L> {
   var nodes: Set<Node<N, L>> = emptySet()
