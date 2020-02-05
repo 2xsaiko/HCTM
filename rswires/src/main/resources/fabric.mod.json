@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "rswires",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "name": "RSWires",
   "description": "Improved redstone, or something.",
   "authors": ["2xsaiko"],
@@ -16,7 +16,7 @@
     "main": [{ "value": "net.dblsaiko.rswires.RSWires", "adapter": "kotlin" }],
     "client": [{ "value": "net.dblsaiko.rswires.client.RSWiresClient", "adapter": "kotlin" }]
   },
-  "requires": {
+  "depends": {
     "fabricloader": ">=0.4.0",
     "fabric": "*",
     "fabric-language-kotlin": ">=1.3.30",
