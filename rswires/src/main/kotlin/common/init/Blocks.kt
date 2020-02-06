@@ -5,6 +5,7 @@ import net.dblsaiko.hctm.common.util.flatten
 import net.dblsaiko.rswires.ModID
 import net.dblsaiko.rswires.common.block.BundledCableBlock
 import net.dblsaiko.rswires.common.block.InsulatedWireBlock
+import net.dblsaiko.rswires.common.block.NullCellBlock
 import net.dblsaiko.rswires.common.block.RedAlloyWireBlock
 import net.fabricmc.fabric.api.block.FabricBlockSettings
 import net.minecraft.block.Block
@@ -24,10 +25,17 @@ object Blocks {
     .strength(0.05f, 0.05f)
     .build()
 
+  private val gateSettings = FabricBlockSettings.of(Material.STONE)
+    .breakByHand(true)
+    .strength(0.05f, 0.05f)
+    .build()
+
   val RedAlloyWire by create("red_alloy_wire", RedAlloyWireBlock(wireSettings))
   val InsulatedWires by DyeColor.values().associate { it to create("${it.getName()}_insulated_wire", InsulatedWireBlock(wireSettings, it)) }.flatten()
   val UncoloredBundledCable by create("bundled_cable", BundledCableBlock(wireSettings, null))
   val ColoredBundledCables by DyeColor.values().associate { it to create("${it.getName()}_bundled_cable", BundledCableBlock(wireSettings, it)) }.flatten()
+
+  val NullCell by create("null_cell", NullCellBlock(gateSettings))
 
   private fun <T : Block> create(name: String, block: T): ReadOnlyProperty<Blocks, T> {
     var regBlock: T? = null

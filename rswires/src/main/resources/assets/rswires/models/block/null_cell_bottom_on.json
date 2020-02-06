@@ -1,0 +1,6 @@
+{
+  "parent": "rswires:block/null_cell_bottom",
+  "textures": {
+    "texture": "rswires:block/null_cell_on"
+  }
+}

@@ -50,12 +50,15 @@ import net.minecraft.block.Blocks as MCBlocks
 
 abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Block(settings), BlockCustomBreak, BlockPartProvider, BlockEntityProvider {
 
+  val boxes = WireUtils.generateShapes(height.toDouble())
+
   init {
     defaultState =
       BaseWireProperties.PlacedWires.values.fold(defaultState) { state, prop -> state.with(prop, false) }
   }
 
   override fun appendProperties(b: Builder<Block, BlockState>) {
+    super.appendProperties(b)
     for (prop in BaseWireProperties.PlacedWires.values) {
       b.add(prop)
     }
@@ -72,7 +75,7 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
   private fun getShape(state: BlockState): VoxelShape {
     return BaseWireProperties.PlacedWires.entries
       .filter { (_, prop) -> state[prop] }
-      .map { (a, _) -> WireUtils.getShapeForSide(height.toDouble(), a) }
+      .map { (a, _) -> boxes.getValue(a) }
       .fold(VoxelShapes.empty(), VoxelShapes::union)
   }
 
@@ -329,7 +332,7 @@ object WireUtils {
 
     return BaseWireProperties.PlacedWires.entries.asSequence()
       .filter { (_, prop) -> state[prop] }
-      .map { (a, _) -> Pair(a, getShapeForSide(block.height.toDouble(), a)) }
+      .map { (a, _) -> Pair(a, block.boxes.getValue(a)) }
       .map { (a, s) -> Pair(a, s.rayTrace(from, to, pos)) }
       .filter { it.second != null }
       .minBy { (_, bhr) -> bhr!!.pos.distanceTo(from) }
@@ -345,6 +348,10 @@ object WireUtils {
       WEST -> VoxelShapes.cuboid(0.0, 0.0, 0.0, boxHeight, 1.0, 1.0)
       EAST -> VoxelShapes.cuboid(1 - boxHeight, 0.0, 0.0, 1.0, 1.0, 1.0)
     }
+  }
+
+  fun generateShapes(boxHeight: Double): Map<Direction, VoxelShape> {
+    return Direction.values().asIterable().associateWith { getShapeForSide(boxHeight, it) }
   }
 
   fun getOccupiedSides(state: BlockState): Set<Direction> {

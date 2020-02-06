@@ -11,7 +11,7 @@ object ConnectionDiscoverers {
       forOutputs { Direction.values().filter { it.axis != self.data.ext.side.axis } }
       connect {
         findNode(pos,
-          Constraint(WirePartExtType::class) { it.side == output }
+          Constraint(WirePartExtType::class) { it.side == output && it.canConnectAt(world, pos, self.data.ext.side) }
         )
       }
     }
@@ -20,8 +20,9 @@ object ConnectionDiscoverers {
     connectionRule {
       forOutputs { Direction.values().filter { it.axis != self.data.ext.side.axis } }
       connect {
-        findNode(pos.offset(output),
-          Constraint(WirePartExtType::class) { it.side == self.data.ext.side }
+        val otherPos = pos.offset(output)
+        findNode(otherPos,
+          Constraint(WirePartExtType::class) { it.side == self.data.ext.side && it.canConnectAt(world, otherPos, output.opposite) }
         )
       }
     }
@@ -40,8 +41,9 @@ object ConnectionDiscoverers {
     connectionRule {
       forOutputs { Direction.values().filter { it.axis != self.data.ext.side.axis } }
       connect {
-        findNode(pos.offset(output).offset(self.data.ext.side),
-          Constraint(WirePartExtType::class) { it.side == output.opposite }
+        val otherPos = pos.offset(output).offset(self.data.ext.side)
+        findNode(otherPos,
+          Constraint(WirePartExtType::class) { it.side == output.opposite && it.canConnectAt(world, otherPos, self.data.ext.side.opposite) }
         )
       }
     }

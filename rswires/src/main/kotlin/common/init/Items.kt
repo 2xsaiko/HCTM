@@ -22,6 +22,8 @@ object Items {
   val UncoloredBundledCable by create("bundled_cable", BaseWireItem(Blocks.UncoloredBundledCable, Settings().group(ItemGroups.All)))
   val ColoredBundledCables by Blocks.ColoredBundledCables.mapValues { (color, block) -> create("${color.getName()}_bundled_cable", BaseWireItem(block, Settings().group(ItemGroups.All))) }.flatten()
 
+  val NullCell by create("null_cell", BlockItem(Blocks.NullCell, Item.Settings().group(ItemGroups.All)))
+
   val RedAlloyCompound by create("red_alloy_compound", Item(Item.Settings().group(ItemGroups.All)))
   val RedAlloyIngot by create("red_alloy_ingot", Item(Item.Settings().group(ItemGroups.All)))
 

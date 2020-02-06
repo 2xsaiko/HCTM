@@ -29,11 +29,15 @@ interface ConnectionFilter {
   }
 
   companion object {
-    inline fun <reified T> forClass(): ConnectionFilter {
-      return object : ConnectionFilter {
-        override fun accepts(self: NetNode, other: NetNode): Boolean {
-          return self.data.ext is T && other.data.ext is T
-        }
+    inline operator fun invoke(crossinline op: (self: NetNode, other: NetNode) -> Boolean) = object : ConnectionFilter {
+      override fun accepts(self: NetNode, other: NetNode): Boolean {
+        return op(self, other)
+      }
+    }
+
+    inline fun <reified T> forClass() = object : ConnectionFilter {
+      override fun accepts(self: NetNode, other: NetNode): Boolean {
+        return self.data.ext is T && other.data.ext is T
       }
     }
   }
@@ -44,7 +48,6 @@ fun find(cd: ConnectionDiscoverer, f: ConnectionFilter?, node: NetNode, world: S
     .mapNotNull { it.firstOrNull { f?.accepts(node, it) ?: true } }
     .toSet()
 }
-
 
 /**
  * Create a connection handler from DSL. Provides tryConnect method for use in PartExt
