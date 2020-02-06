@@ -1,14 +1,6 @@
 version = base_version
 
 dependencies {
-    modRuntime(group: 'net.dblsaiko.qcommon.cfg', name: 'cfg', version: cfg_version) {
-        exclude group: 'net.fabricmc.fabric-api'
-    }
-
-    modImplementation(group: 'net.dblsaiko.qcommon.cfg', name: 'cfg-core', version: cfg_core_version) {
-        exclude group: 'net.fabricmc.fabric-api'
-    }
-
     include group: 'net.dblsaiko', name: 'libaddict', version: libaddict_version
     include group: 'net.dblsaiko.qcommon.cfg', name: 'cfg-core', version: cfg_core_version
     include group: "org.joml", name: "joml", version: "1.9.14"

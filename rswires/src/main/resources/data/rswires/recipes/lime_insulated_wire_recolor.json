@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [{ "item": "minecraft:lime_dye" }, { "tag": "rswires:insulated_wires" }],
+  "result": {
+    "item": "rswires:lime_insulated_wire",
+    "count": 1
+  }
+}
+

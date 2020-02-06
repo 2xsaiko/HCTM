@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 add() {
   sed "s/%DROP/${modid}:${2}/g" \
@@ -6,5 +6,9 @@ add() {
     > ${modid}-loot-tables/${1}.json
 }
 
-modid=rswires
-source rswires.in
+include() {
+  modid=$1
+  source "${1}.lt.in"
+}
+
+include rswires

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [{ "item": "minecraft:iron_ingot" }, { "item": "minecraft:redstone" }, { "item": "minecraft:redstone" }, { "item": "minecraft:redstone" }, { "item": "minecraft:redstone" }],
+  "result": {
+    "item": "rswires:red_alloy_compound",
+    "count": 1
+  }
+}
+

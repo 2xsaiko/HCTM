@@ -1,0 +1,59 @@
+s='minecraft:string'
+p='minecraft:paper'
+r='minecraft:redstone'
+o='minecraft:iron_ingot'
+b='rswires:bundled_cable'
+c='rswires:red_alloy_compound'
+n='rswires:red_alloy_ingot'
+W='#minecraft:wool'
+I='#rswires:insulated_wires'
+B='#rswires:colored_bundled_cables'
+
+sl_add red_alloy_compound \
+  red_alloy_compound 1 \
+  'orrrr'
+
+bfurnace_add red_alloy_ingot \
+  red_alloy_ingot \
+  'c'
+
+add bundled_cable \
+  bundled_cable 1 \
+  'sIs' \
+  'III' \
+  'sIs'
+
+add insulated_wire \
+  white_insulated_wire 12 \
+  'WnW' \
+  'WnW' \
+  'WnW'
+
+add red_alloy_wire \
+  red_alloy_wire 12 \
+  'n' \
+  'n' \
+  'n'
+
+for color in white orange magenta light_blue yellow lime pink gray light_gray cyan purple blue brown red green black; do
+  d="minecraft:${color}_dye"
+  w="minecraft:${color}_wool"
+
+  add ${color}_insulated_wire \
+    ${color}_insulated_wire 12 \
+    'wnw' \
+    'wnw' \
+    'wnw'
+
+  sl_add ${color}_insulated_wire_recolor \
+    ${color}_insulated_wire 1 \
+    'Id'
+
+  sl_add ${color}_bundled_cable \
+    ${color}_bundled_cable 1 \
+    'bpd'
+
+  sl_add ${color}_bundled_cable_recolor \
+    ${color}_bundled_cable 1 \
+    'Bd'
+done

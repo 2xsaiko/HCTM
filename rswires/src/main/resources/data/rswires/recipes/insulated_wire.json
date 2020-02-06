@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["WnW", "WnW", "WnW"],
+  "key": {
+    "n": { "item": "rswires:red_alloy_ingot" }, "W": { "tag": "minecraft:wool" }
+  },
+  "result": {
+    "item": "rswires:white_insulated_wire",
+    "count": 12
+  }
+}
+

@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:blasting",
+  "ingredient": { "item": "rswires:red_alloy_compound" },
+  "result": "rswires:red_alloy_ingot"
+}
+

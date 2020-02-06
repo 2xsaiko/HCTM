@@ -22,6 +22,9 @@ object Items {
   val UncoloredBundledCable by create("bundled_cable", BaseWireItem(Blocks.UncoloredBundledCable, Settings().group(ItemGroups.All)))
   val ColoredBundledCables by Blocks.ColoredBundledCables.mapValues { (color, block) -> create("${color.getName()}_bundled_cable", BaseWireItem(block, Settings().group(ItemGroups.All))) }.flatten()
 
+  val RedAlloyCompound by create("red_alloy_compound", Item(Item.Settings().group(ItemGroups.All)))
+  val RedAlloyIngot by create("red_alloy_ingot", Item(Item.Settings().group(ItemGroups.All)))
+
   private fun <T : Block> create(name: String, block: T): ReadOnlyProperty<Items, BlockItem> {
     return create(name, BlockItem(block, Settings().group(ItemGroup.REDSTONE)))
   }

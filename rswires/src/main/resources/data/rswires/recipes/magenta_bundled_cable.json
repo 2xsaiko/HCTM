@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [{ "item": "rswires:bundled_cable" }, { "item": "minecraft:magenta_dye" }, { "item": "minecraft:paper" }],
+  "result": {
+    "item": "rswires:magenta_bundled_cable",
+    "count": 1
+  }
+}
+

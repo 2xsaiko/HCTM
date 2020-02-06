@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["sIs", "III", "sIs"],
+  "key": {
+    "I": { "tag": "rswires:insulated_wires" }, "s": { "item": "minecraft:string" }
+  },
+  "result": {
+    "item": "rswires:bundled_cable",
+    "count": 1
+  }
+}
+

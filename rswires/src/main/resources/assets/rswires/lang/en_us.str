@@ -1,3 +1,4 @@
 include en_us/blocks.str
+include en_us/items.str
 
 itemGroup.rswires.all: RSWires

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [{ "tag": "rswires:colored_bundled_cables" }, { "item": "minecraft:purple_dye" }],
+  "result": {
+    "item": "rswires:purple_bundled_cable",
+    "count": 1
+  }
+}
+

@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "rswires:item/red_alloy_ingot"
+  }
+}

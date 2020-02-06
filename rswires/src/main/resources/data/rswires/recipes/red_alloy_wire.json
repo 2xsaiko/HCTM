@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["n", "n", "n"],
+  "key": {
+    "n": { "item": "rswires:red_alloy_ingot" }
+  },
+  "result": {
+    "item": "rswires:red_alloy_wire",
+    "count": 12
+  }
+}
+

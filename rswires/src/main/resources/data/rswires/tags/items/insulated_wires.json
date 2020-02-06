@@ -1,0 +1,20 @@
+{
+  "values": [
+    "rswires:white_insulated_wire",
+    "rswires:orange_insulated_wire",
+    "rswires:magenta_insulated_wire",
+    "rswires:light_blue_insulated_wire",
+    "rswires:yellow_insulated_wire",
+    "rswires:lime_insulated_wire",
+    "rswires:pink_insulated_wire",
+    "rswires:gray_insulated_wire",
+    "rswires:light_gray_insulated_wire",
+    "rswires:cyan_insulated_wire",
+    "rswires:purple_insulated_wire",
+    "rswires:blue_insulated_wire",
+    "rswires:brown_insulated_wire",
+    "rswires:red_insulated_wire",
+    "rswires:green_insulated_wire",
+    "rswires:black_insulated_wire"
+  ]
+}
