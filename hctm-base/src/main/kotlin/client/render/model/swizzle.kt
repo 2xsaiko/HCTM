@@ -1,996 +1,975 @@
-@file:Suppress("unused")
-
 package net.dblsaiko.hctm.client.render.model
 
-import org.joml.Vector2fc
-import org.joml.Vector3fc
-import org.joml.Vector4fc
+import therealfarfetchd.qcommon.croco.Vec2
+import therealfarfetchd.qcommon.croco.Vec3
 
-val Float.x: Float
-  inline get() = this
-val Vector2fc.x: Float
-  inline get() = x()
-val Vector2fc.y: Float
-  inline get() = y()
-val Vector3fc.x: Float
-  inline get() = x()
-val Vector3fc.y: Float
-  inline get() = y()
-val Vector3fc.z: Float
-  inline get() = z()
-val Vector4fc.x: Float
-  inline get() = x()
-val Vector4fc.y: Float
-  inline get() = y()
-val Vector4fc.z: Float
-  inline get() = z()
-val Vector4fc.w: Float
-  inline get() = w()
-val Float.xx: Vector2fc
-  inline get() = vec2(this, this)
-val Vector2fc.xx: Vector2fc
-  inline get() = vec2(x(), x())
-val Vector2fc.yx: Vector2fc
-  inline get() = vec2(y(), x())
-val Vector2fc.xy: Vector2fc
-  inline get() = vec2(x(), y())
-val Vector2fc.yy: Vector2fc
-  inline get() = vec2(y(), y())
-val Vector3fc.xx: Vector2fc
-  inline get() = vec2(x(), x())
-val Vector3fc.yx: Vector2fc
-  inline get() = vec2(y(), x())
-val Vector3fc.zx: Vector2fc
-  inline get() = vec2(z(), x())
-val Vector3fc.xy: Vector2fc
-  inline get() = vec2(x(), y())
-val Vector3fc.yy: Vector2fc
-  inline get() = vec2(y(), y())
-val Vector3fc.zy: Vector2fc
-  inline get() = vec2(z(), y())
-val Vector3fc.xz: Vector2fc
-  inline get() = vec2(x(), z())
-val Vector3fc.yz: Vector2fc
-  inline get() = vec2(y(), z())
-val Vector3fc.zz: Vector2fc
-  inline get() = vec2(z(), z())
-val Vector4fc.xx: Vector2fc
-  inline get() = vec2(x(), x())
-val Vector4fc.yx: Vector2fc
-  inline get() = vec2(y(), x())
-val Vector4fc.zx: Vector2fc
-  inline get() = vec2(z(), x())
-val Vector4fc.wx: Vector2fc
-  inline get() = vec2(w(), x())
-val Vector4fc.xy: Vector2fc
-  inline get() = vec2(x(), y())
-val Vector4fc.yy: Vector2fc
-  inline get() = vec2(y(), y())
-val Vector4fc.zy: Vector2fc
-  inline get() = vec2(z(), y())
-val Vector4fc.wy: Vector2fc
-  inline get() = vec2(w(), y())
-val Vector4fc.xz: Vector2fc
-  inline get() = vec2(x(), z())
-val Vector4fc.yz: Vector2fc
-  inline get() = vec2(y(), z())
-val Vector4fc.zz: Vector2fc
-  inline get() = vec2(z(), z())
-val Vector4fc.wz: Vector2fc
-  inline get() = vec2(w(), z())
-val Vector4fc.xw: Vector2fc
-  inline get() = vec2(x(), w())
-val Vector4fc.yw: Vector2fc
-  inline get() = vec2(y(), w())
-val Vector4fc.zw: Vector2fc
-  inline get() = vec2(z(), w())
-val Vector4fc.ww: Vector2fc
-  inline get() = vec2(w(), w())
-val Float.xxx: Vector3fc
-  inline get() = vec3(this, this, this)
-val Vector2fc.xxx: Vector3fc
-  inline get() = vec3(x(), x(), x())
-val Vector2fc.yxx: Vector3fc
-  inline get() = vec3(y(), x(), x())
-val Vector2fc.xyx: Vector3fc
-  inline get() = vec3(x(), y(), x())
-val Vector2fc.yyx: Vector3fc
-  inline get() = vec3(y(), y(), x())
-val Vector2fc.xxy: Vector3fc
-  inline get() = vec3(x(), x(), y())
-val Vector2fc.yxy: Vector3fc
-  inline get() = vec3(y(), x(), y())
-val Vector2fc.xyy: Vector3fc
-  inline get() = vec3(x(), y(), y())
-val Vector2fc.yyy: Vector3fc
-  inline get() = vec3(y(), y(), y())
-val Vector3fc.xxx: Vector3fc
-  inline get() = vec3(x(), x(), x())
-val Vector3fc.yxx: Vector3fc
-  inline get() = vec3(y(), x(), x())
-val Vector3fc.zxx: Vector3fc
-  inline get() = vec3(z(), x(), x())
-val Vector3fc.xyx: Vector3fc
-  inline get() = vec3(x(), y(), x())
-val Vector3fc.yyx: Vector3fc
-  inline get() = vec3(y(), y(), x())
-val Vector3fc.zyx: Vector3fc
-  inline get() = vec3(z(), y(), x())
-val Vector3fc.xzx: Vector3fc
-  inline get() = vec3(x(), z(), x())
-val Vector3fc.yzx: Vector3fc
-  inline get() = vec3(y(), z(), x())
-val Vector3fc.zzx: Vector3fc
-  inline get() = vec3(z(), z(), x())
-val Vector3fc.xxy: Vector3fc
-  inline get() = vec3(x(), x(), y())
-val Vector3fc.yxy: Vector3fc
-  inline get() = vec3(y(), x(), y())
-val Vector3fc.zxy: Vector3fc
-  inline get() = vec3(z(), x(), y())
-val Vector3fc.xyy: Vector3fc
-  inline get() = vec3(x(), y(), y())
-val Vector3fc.yyy: Vector3fc
-  inline get() = vec3(y(), y(), y())
-val Vector3fc.zyy: Vector3fc
-  inline get() = vec3(z(), y(), y())
-val Vector3fc.xzy: Vector3fc
-  inline get() = vec3(x(), z(), y())
-val Vector3fc.yzy: Vector3fc
-  inline get() = vec3(y(), z(), y())
-val Vector3fc.zzy: Vector3fc
-  inline get() = vec3(z(), z(), y())
-val Vector3fc.xxz: Vector3fc
-  inline get() = vec3(x(), x(), z())
-val Vector3fc.yxz: Vector3fc
-  inline get() = vec3(y(), x(), z())
-val Vector3fc.zxz: Vector3fc
-  inline get() = vec3(z(), x(), z())
-val Vector3fc.xyz: Vector3fc
-  inline get() = vec3(x(), y(), z())
-val Vector3fc.yyz: Vector3fc
-  inline get() = vec3(y(), y(), z())
-val Vector3fc.zyz: Vector3fc
-  inline get() = vec3(z(), y(), z())
-val Vector3fc.xzz: Vector3fc
-  inline get() = vec3(x(), z(), z())
-val Vector3fc.yzz: Vector3fc
-  inline get() = vec3(y(), z(), z())
-val Vector3fc.zzz: Vector3fc
-  inline get() = vec3(z(), z(), z())
-val Vector4fc.xxx: Vector3fc
-  inline get() = vec3(x(), x(), x())
-val Vector4fc.yxx: Vector3fc
-  inline get() = vec3(y(), x(), x())
-val Vector4fc.zxx: Vector3fc
-  inline get() = vec3(z(), x(), x())
-val Vector4fc.wxx: Vector3fc
-  inline get() = vec3(w(), x(), x())
-val Vector4fc.xyx: Vector3fc
-  inline get() = vec3(x(), y(), x())
-val Vector4fc.yyx: Vector3fc
-  inline get() = vec3(y(), y(), x())
-val Vector4fc.zyx: Vector3fc
-  inline get() = vec3(z(), y(), x())
-val Vector4fc.wyx: Vector3fc
-  inline get() = vec3(w(), y(), x())
-val Vector4fc.xzx: Vector3fc
-  inline get() = vec3(x(), z(), x())
-val Vector4fc.yzx: Vector3fc
-  inline get() = vec3(y(), z(), x())
-val Vector4fc.zzx: Vector3fc
-  inline get() = vec3(z(), z(), x())
-val Vector4fc.wzx: Vector3fc
-  inline get() = vec3(w(), z(), x())
-val Vector4fc.xwx: Vector3fc
-  inline get() = vec3(x(), w(), x())
-val Vector4fc.ywx: Vector3fc
-  inline get() = vec3(y(), w(), x())
-val Vector4fc.zwx: Vector3fc
-  inline get() = vec3(z(), w(), x())
-val Vector4fc.wwx: Vector3fc
-  inline get() = vec3(w(), w(), x())
-val Vector4fc.xxy: Vector3fc
-  inline get() = vec3(x(), x(), y())
-val Vector4fc.yxy: Vector3fc
-  inline get() = vec3(y(), x(), y())
-val Vector4fc.zxy: Vector3fc
-  inline get() = vec3(z(), x(), y())
-val Vector4fc.wxy: Vector3fc
-  inline get() = vec3(w(), x(), y())
-val Vector4fc.xyy: Vector3fc
-  inline get() = vec3(x(), y(), y())
-val Vector4fc.yyy: Vector3fc
-  inline get() = vec3(y(), y(), y())
-val Vector4fc.zyy: Vector3fc
-  inline get() = vec3(z(), y(), y())
-val Vector4fc.wyy: Vector3fc
-  inline get() = vec3(w(), y(), y())
-val Vector4fc.xzy: Vector3fc
-  inline get() = vec3(x(), z(), y())
-val Vector4fc.yzy: Vector3fc
-  inline get() = vec3(y(), z(), y())
-val Vector4fc.zzy: Vector3fc
-  inline get() = vec3(z(), z(), y())
-val Vector4fc.wzy: Vector3fc
-  inline get() = vec3(w(), z(), y())
-val Vector4fc.xwy: Vector3fc
-  inline get() = vec3(x(), w(), y())
-val Vector4fc.ywy: Vector3fc
-  inline get() = vec3(y(), w(), y())
-val Vector4fc.zwy: Vector3fc
-  inline get() = vec3(z(), w(), y())
-val Vector4fc.wwy: Vector3fc
-  inline get() = vec3(w(), w(), y())
-val Vector4fc.xxz: Vector3fc
-  inline get() = vec3(x(), x(), z())
-val Vector4fc.yxz: Vector3fc
-  inline get() = vec3(y(), x(), z())
-val Vector4fc.zxz: Vector3fc
-  inline get() = vec3(z(), x(), z())
-val Vector4fc.wxz: Vector3fc
-  inline get() = vec3(w(), x(), z())
-val Vector4fc.xyz: Vector3fc
-  inline get() = vec3(x(), y(), z())
-val Vector4fc.yyz: Vector3fc
-  inline get() = vec3(y(), y(), z())
-val Vector4fc.zyz: Vector3fc
-  inline get() = vec3(z(), y(), z())
-val Vector4fc.wyz: Vector3fc
-  inline get() = vec3(w(), y(), z())
-val Vector4fc.xzz: Vector3fc
-  inline get() = vec3(x(), z(), z())
-val Vector4fc.yzz: Vector3fc
-  inline get() = vec3(y(), z(), z())
-val Vector4fc.zzz: Vector3fc
-  inline get() = vec3(z(), z(), z())
-val Vector4fc.wzz: Vector3fc
-  inline get() = vec3(w(), z(), z())
-val Vector4fc.xwz: Vector3fc
-  inline get() = vec3(x(), w(), z())
-val Vector4fc.ywz: Vector3fc
-  inline get() = vec3(y(), w(), z())
-val Vector4fc.zwz: Vector3fc
-  inline get() = vec3(z(), w(), z())
-val Vector4fc.wwz: Vector3fc
-  inline get() = vec3(w(), w(), z())
-val Vector4fc.xxw: Vector3fc
-  inline get() = vec3(x(), x(), w())
-val Vector4fc.yxw: Vector3fc
-  inline get() = vec3(y(), x(), w())
-val Vector4fc.zxw: Vector3fc
-  inline get() = vec3(z(), x(), w())
-val Vector4fc.wxw: Vector3fc
-  inline get() = vec3(w(), x(), w())
-val Vector4fc.xyw: Vector3fc
-  inline get() = vec3(x(), y(), w())
-val Vector4fc.yyw: Vector3fc
-  inline get() = vec3(y(), y(), w())
-val Vector4fc.zyw: Vector3fc
-  inline get() = vec3(z(), y(), w())
-val Vector4fc.wyw: Vector3fc
-  inline get() = vec3(w(), y(), w())
-val Vector4fc.xzw: Vector3fc
-  inline get() = vec3(x(), z(), w())
-val Vector4fc.yzw: Vector3fc
-  inline get() = vec3(y(), z(), w())
-val Vector4fc.zzw: Vector3fc
-  inline get() = vec3(z(), z(), w())
-val Vector4fc.wzw: Vector3fc
-  inline get() = vec3(w(), z(), w())
-val Vector4fc.xww: Vector3fc
-  inline get() = vec3(x(), w(), w())
-val Vector4fc.yww: Vector3fc
-  inline get() = vec3(y(), w(), w())
-val Vector4fc.zww: Vector3fc
-  inline get() = vec3(z(), w(), w())
-val Vector4fc.www: Vector3fc
-  inline get() = vec3(w(), w(), w())
-val Float.xxxx: Vector4fc
-  inline get() = vec4(this, this, this, this)
-val Vector2fc.xxxx: Vector4fc
-  inline get() = vec4(x(), x(), x(), x())
-val Vector2fc.yxxx: Vector4fc
-  inline get() = vec4(y(), x(), x(), x())
-val Vector2fc.xyxx: Vector4fc
-  inline get() = vec4(x(), y(), x(), x())
-val Vector2fc.yyxx: Vector4fc
-  inline get() = vec4(y(), y(), x(), x())
-val Vector2fc.xxyx: Vector4fc
-  inline get() = vec4(x(), x(), y(), x())
-val Vector2fc.yxyx: Vector4fc
-  inline get() = vec4(y(), x(), y(), x())
-val Vector2fc.xyyx: Vector4fc
-  inline get() = vec4(x(), y(), y(), x())
-val Vector2fc.yyyx: Vector4fc
-  inline get() = vec4(y(), y(), y(), x())
-val Vector2fc.xxxy: Vector4fc
-  inline get() = vec4(x(), x(), x(), y())
-val Vector2fc.yxxy: Vector4fc
-  inline get() = vec4(y(), x(), x(), y())
-val Vector2fc.xyxy: Vector4fc
-  inline get() = vec4(x(), y(), x(), y())
-val Vector2fc.yyxy: Vector4fc
-  inline get() = vec4(y(), y(), x(), y())
-val Vector2fc.xxyy: Vector4fc
-  inline get() = vec4(x(), x(), y(), y())
-val Vector2fc.yxyy: Vector4fc
-  inline get() = vec4(y(), x(), y(), y())
-val Vector2fc.xyyy: Vector4fc
-  inline get() = vec4(x(), y(), y(), y())
-val Vector2fc.yyyy: Vector4fc
-  inline get() = vec4(y(), y(), y(), y())
-val Vector3fc.xxxx: Vector4fc
-  inline get() = vec4(x(), x(), x(), x())
-val Vector3fc.yxxx: Vector4fc
-  inline get() = vec4(y(), x(), x(), x())
-val Vector3fc.zxxx: Vector4fc
-  inline get() = vec4(z(), x(), x(), x())
-val Vector3fc.xyxx: Vector4fc
-  inline get() = vec4(x(), y(), x(), x())
-val Vector3fc.yyxx: Vector4fc
-  inline get() = vec4(y(), y(), x(), x())
-val Vector3fc.zyxx: Vector4fc
-  inline get() = vec4(z(), y(), x(), x())
-val Vector3fc.xzxx: Vector4fc
-  inline get() = vec4(x(), z(), x(), x())
-val Vector3fc.yzxx: Vector4fc
-  inline get() = vec4(y(), z(), x(), x())
-val Vector3fc.zzxx: Vector4fc
-  inline get() = vec4(z(), z(), x(), x())
-val Vector3fc.xxyx: Vector4fc
-  inline get() = vec4(x(), x(), y(), x())
-val Vector3fc.yxyx: Vector4fc
-  inline get() = vec4(y(), x(), y(), x())
-val Vector3fc.zxyx: Vector4fc
-  inline get() = vec4(z(), x(), y(), x())
-val Vector3fc.xyyx: Vector4fc
-  inline get() = vec4(x(), y(), y(), x())
-val Vector3fc.yyyx: Vector4fc
-  inline get() = vec4(y(), y(), y(), x())
-val Vector3fc.zyyx: Vector4fc
-  inline get() = vec4(z(), y(), y(), x())
-val Vector3fc.xzyx: Vector4fc
-  inline get() = vec4(x(), z(), y(), x())
-val Vector3fc.yzyx: Vector4fc
-  inline get() = vec4(y(), z(), y(), x())
-val Vector3fc.zzyx: Vector4fc
-  inline get() = vec4(z(), z(), y(), x())
-val Vector3fc.xxzx: Vector4fc
-  inline get() = vec4(x(), x(), z(), x())
-val Vector3fc.yxzx: Vector4fc
-  inline get() = vec4(y(), x(), z(), x())
-val Vector3fc.zxzx: Vector4fc
-  inline get() = vec4(z(), x(), z(), x())
-val Vector3fc.xyzx: Vector4fc
-  inline get() = vec4(x(), y(), z(), x())
-val Vector3fc.yyzx: Vector4fc
-  inline get() = vec4(y(), y(), z(), x())
-val Vector3fc.zyzx: Vector4fc
-  inline get() = vec4(z(), y(), z(), x())
-val Vector3fc.xzzx: Vector4fc
-  inline get() = vec4(x(), z(), z(), x())
-val Vector3fc.yzzx: Vector4fc
-  inline get() = vec4(y(), z(), z(), x())
-val Vector3fc.zzzx: Vector4fc
-  inline get() = vec4(z(), z(), z(), x())
-val Vector3fc.xxxy: Vector4fc
-  inline get() = vec4(x(), x(), x(), y())
-val Vector3fc.yxxy: Vector4fc
-  inline get() = vec4(y(), x(), x(), y())
-val Vector3fc.zxxy: Vector4fc
-  inline get() = vec4(z(), x(), x(), y())
-val Vector3fc.xyxy: Vector4fc
-  inline get() = vec4(x(), y(), x(), y())
-val Vector3fc.yyxy: Vector4fc
-  inline get() = vec4(y(), y(), x(), y())
-val Vector3fc.zyxy: Vector4fc
-  inline get() = vec4(z(), y(), x(), y())
-val Vector3fc.xzxy: Vector4fc
-  inline get() = vec4(x(), z(), x(), y())
-val Vector3fc.yzxy: Vector4fc
-  inline get() = vec4(y(), z(), x(), y())
-val Vector3fc.zzxy: Vector4fc
-  inline get() = vec4(z(), z(), x(), y())
-val Vector3fc.xxyy: Vector4fc
-  inline get() = vec4(x(), x(), y(), y())
-val Vector3fc.yxyy: Vector4fc
-  inline get() = vec4(y(), x(), y(), y())
-val Vector3fc.zxyy: Vector4fc
-  inline get() = vec4(z(), x(), y(), y())
-val Vector3fc.xyyy: Vector4fc
-  inline get() = vec4(x(), y(), y(), y())
-val Vector3fc.yyyy: Vector4fc
-  inline get() = vec4(y(), y(), y(), y())
-val Vector3fc.zyyy: Vector4fc
-  inline get() = vec4(z(), y(), y(), y())
-val Vector3fc.xzyy: Vector4fc
-  inline get() = vec4(x(), z(), y(), y())
-val Vector3fc.yzyy: Vector4fc
-  inline get() = vec4(y(), z(), y(), y())
-val Vector3fc.zzyy: Vector4fc
-  inline get() = vec4(z(), z(), y(), y())
-val Vector3fc.xxzy: Vector4fc
-  inline get() = vec4(x(), x(), z(), y())
-val Vector3fc.yxzy: Vector4fc
-  inline get() = vec4(y(), x(), z(), y())
-val Vector3fc.zxzy: Vector4fc
-  inline get() = vec4(z(), x(), z(), y())
-val Vector3fc.xyzy: Vector4fc
-  inline get() = vec4(x(), y(), z(), y())
-val Vector3fc.yyzy: Vector4fc
-  inline get() = vec4(y(), y(), z(), y())
-val Vector3fc.zyzy: Vector4fc
-  inline get() = vec4(z(), y(), z(), y())
-val Vector3fc.xzzy: Vector4fc
-  inline get() = vec4(x(), z(), z(), y())
-val Vector3fc.yzzy: Vector4fc
-  inline get() = vec4(y(), z(), z(), y())
-val Vector3fc.zzzy: Vector4fc
-  inline get() = vec4(z(), z(), z(), y())
-val Vector3fc.xxxz: Vector4fc
-  inline get() = vec4(x(), x(), x(), z())
-val Vector3fc.yxxz: Vector4fc
-  inline get() = vec4(y(), x(), x(), z())
-val Vector3fc.zxxz: Vector4fc
-  inline get() = vec4(z(), x(), x(), z())
-val Vector3fc.xyxz: Vector4fc
-  inline get() = vec4(x(), y(), x(), z())
-val Vector3fc.yyxz: Vector4fc
-  inline get() = vec4(y(), y(), x(), z())
-val Vector3fc.zyxz: Vector4fc
-  inline get() = vec4(z(), y(), x(), z())
-val Vector3fc.xzxz: Vector4fc
-  inline get() = vec4(x(), z(), x(), z())
-val Vector3fc.yzxz: Vector4fc
-  inline get() = vec4(y(), z(), x(), z())
-val Vector3fc.zzxz: Vector4fc
-  inline get() = vec4(z(), z(), x(), z())
-val Vector3fc.xxyz: Vector4fc
-  inline get() = vec4(x(), x(), y(), z())
-val Vector3fc.yxyz: Vector4fc
-  inline get() = vec4(y(), x(), y(), z())
-val Vector3fc.zxyz: Vector4fc
-  inline get() = vec4(z(), x(), y(), z())
-val Vector3fc.xyyz: Vector4fc
-  inline get() = vec4(x(), y(), y(), z())
-val Vector3fc.yyyz: Vector4fc
-  inline get() = vec4(y(), y(), y(), z())
-val Vector3fc.zyyz: Vector4fc
-  inline get() = vec4(z(), y(), y(), z())
-val Vector3fc.xzyz: Vector4fc
-  inline get() = vec4(x(), z(), y(), z())
-val Vector3fc.yzyz: Vector4fc
-  inline get() = vec4(y(), z(), y(), z())
-val Vector3fc.zzyz: Vector4fc
-  inline get() = vec4(z(), z(), y(), z())
-val Vector3fc.xxzz: Vector4fc
-  inline get() = vec4(x(), x(), z(), z())
-val Vector3fc.yxzz: Vector4fc
-  inline get() = vec4(y(), x(), z(), z())
-val Vector3fc.zxzz: Vector4fc
-  inline get() = vec4(z(), x(), z(), z())
-val Vector3fc.xyzz: Vector4fc
-  inline get() = vec4(x(), y(), z(), z())
-val Vector3fc.yyzz: Vector4fc
-  inline get() = vec4(y(), y(), z(), z())
-val Vector3fc.zyzz: Vector4fc
-  inline get() = vec4(z(), y(), z(), z())
-val Vector3fc.xzzz: Vector4fc
-  inline get() = vec4(x(), z(), z(), z())
-val Vector3fc.yzzz: Vector4fc
-  inline get() = vec4(y(), z(), z(), z())
-val Vector3fc.zzzz: Vector4fc
-  inline get() = vec4(z(), z(), z(), z())
-val Vector4fc.xxxx: Vector4fc
-  inline get() = vec4(x(), x(), x(), x())
-val Vector4fc.yxxx: Vector4fc
-  inline get() = vec4(y(), x(), x(), x())
-val Vector4fc.zxxx: Vector4fc
-  inline get() = vec4(z(), x(), x(), x())
-val Vector4fc.wxxx: Vector4fc
-  inline get() = vec4(w(), x(), x(), x())
-val Vector4fc.xyxx: Vector4fc
-  inline get() = vec4(x(), y(), x(), x())
-val Vector4fc.yyxx: Vector4fc
-  inline get() = vec4(y(), y(), x(), x())
-val Vector4fc.zyxx: Vector4fc
-  inline get() = vec4(z(), y(), x(), x())
-val Vector4fc.wyxx: Vector4fc
-  inline get() = vec4(w(), y(), x(), x())
-val Vector4fc.xzxx: Vector4fc
-  inline get() = vec4(x(), z(), x(), x())
-val Vector4fc.yzxx: Vector4fc
-  inline get() = vec4(y(), z(), x(), x())
-val Vector4fc.zzxx: Vector4fc
-  inline get() = vec4(z(), z(), x(), x())
-val Vector4fc.wzxx: Vector4fc
-  inline get() = vec4(w(), z(), x(), x())
-val Vector4fc.xwxx: Vector4fc
-  inline get() = vec4(x(), w(), x(), x())
-val Vector4fc.ywxx: Vector4fc
-  inline get() = vec4(y(), w(), x(), x())
-val Vector4fc.zwxx: Vector4fc
-  inline get() = vec4(z(), w(), x(), x())
-val Vector4fc.wwxx: Vector4fc
-  inline get() = vec4(w(), w(), x(), x())
-val Vector4fc.xxyx: Vector4fc
-  inline get() = vec4(x(), x(), y(), x())
-val Vector4fc.yxyx: Vector4fc
-  inline get() = vec4(y(), x(), y(), x())
-val Vector4fc.zxyx: Vector4fc
-  inline get() = vec4(z(), x(), y(), x())
-val Vector4fc.wxyx: Vector4fc
-  inline get() = vec4(w(), x(), y(), x())
-val Vector4fc.xyyx: Vector4fc
-  inline get() = vec4(x(), y(), y(), x())
-val Vector4fc.yyyx: Vector4fc
-  inline get() = vec4(y(), y(), y(), x())
-val Vector4fc.zyyx: Vector4fc
-  inline get() = vec4(z(), y(), y(), x())
-val Vector4fc.wyyx: Vector4fc
-  inline get() = vec4(w(), y(), y(), x())
-val Vector4fc.xzyx: Vector4fc
-  inline get() = vec4(x(), z(), y(), x())
-val Vector4fc.yzyx: Vector4fc
-  inline get() = vec4(y(), z(), y(), x())
-val Vector4fc.zzyx: Vector4fc
-  inline get() = vec4(z(), z(), y(), x())
-val Vector4fc.wzyx: Vector4fc
-  inline get() = vec4(w(), z(), y(), x())
-val Vector4fc.xwyx: Vector4fc
-  inline get() = vec4(x(), w(), y(), x())
-val Vector4fc.ywyx: Vector4fc
-  inline get() = vec4(y(), w(), y(), x())
-val Vector4fc.zwyx: Vector4fc
-  inline get() = vec4(z(), w(), y(), x())
-val Vector4fc.wwyx: Vector4fc
-  inline get() = vec4(w(), w(), y(), x())
-val Vector4fc.xxzx: Vector4fc
-  inline get() = vec4(x(), x(), z(), x())
-val Vector4fc.yxzx: Vector4fc
-  inline get() = vec4(y(), x(), z(), x())
-val Vector4fc.zxzx: Vector4fc
-  inline get() = vec4(z(), x(), z(), x())
-val Vector4fc.wxzx: Vector4fc
-  inline get() = vec4(w(), x(), z(), x())
-val Vector4fc.xyzx: Vector4fc
-  inline get() = vec4(x(), y(), z(), x())
-val Vector4fc.yyzx: Vector4fc
-  inline get() = vec4(y(), y(), z(), x())
-val Vector4fc.zyzx: Vector4fc
-  inline get() = vec4(z(), y(), z(), x())
-val Vector4fc.wyzx: Vector4fc
-  inline get() = vec4(w(), y(), z(), x())
-val Vector4fc.xzzx: Vector4fc
-  inline get() = vec4(x(), z(), z(), x())
-val Vector4fc.yzzx: Vector4fc
-  inline get() = vec4(y(), z(), z(), x())
-val Vector4fc.zzzx: Vector4fc
-  inline get() = vec4(z(), z(), z(), x())
-val Vector4fc.wzzx: Vector4fc
-  inline get() = vec4(w(), z(), z(), x())
-val Vector4fc.xwzx: Vector4fc
-  inline get() = vec4(x(), w(), z(), x())
-val Vector4fc.ywzx: Vector4fc
-  inline get() = vec4(y(), w(), z(), x())
-val Vector4fc.zwzx: Vector4fc
-  inline get() = vec4(z(), w(), z(), x())
-val Vector4fc.wwzx: Vector4fc
-  inline get() = vec4(w(), w(), z(), x())
-val Vector4fc.xxwx: Vector4fc
-  inline get() = vec4(x(), x(), w(), x())
-val Vector4fc.yxwx: Vector4fc
-  inline get() = vec4(y(), x(), w(), x())
-val Vector4fc.zxwx: Vector4fc
-  inline get() = vec4(z(), x(), w(), x())
-val Vector4fc.wxwx: Vector4fc
-  inline get() = vec4(w(), x(), w(), x())
-val Vector4fc.xywx: Vector4fc
-  inline get() = vec4(x(), y(), w(), x())
-val Vector4fc.yywx: Vector4fc
-  inline get() = vec4(y(), y(), w(), x())
-val Vector4fc.zywx: Vector4fc
-  inline get() = vec4(z(), y(), w(), x())
-val Vector4fc.wywx: Vector4fc
-  inline get() = vec4(w(), y(), w(), x())
-val Vector4fc.xzwx: Vector4fc
-  inline get() = vec4(x(), z(), w(), x())
-val Vector4fc.yzwx: Vector4fc
-  inline get() = vec4(y(), z(), w(), x())
-val Vector4fc.zzwx: Vector4fc
-  inline get() = vec4(z(), z(), w(), x())
-val Vector4fc.wzwx: Vector4fc
-  inline get() = vec4(w(), z(), w(), x())
-val Vector4fc.xwwx: Vector4fc
-  inline get() = vec4(x(), w(), w(), x())
-val Vector4fc.ywwx: Vector4fc
-  inline get() = vec4(y(), w(), w(), x())
-val Vector4fc.zwwx: Vector4fc
-  inline get() = vec4(z(), w(), w(), x())
-val Vector4fc.wwwx: Vector4fc
-  inline get() = vec4(w(), w(), w(), x())
-val Vector4fc.xxxy: Vector4fc
-  inline get() = vec4(x(), x(), x(), y())
-val Vector4fc.yxxy: Vector4fc
-  inline get() = vec4(y(), x(), x(), y())
-val Vector4fc.zxxy: Vector4fc
-  inline get() = vec4(z(), x(), x(), y())
-val Vector4fc.wxxy: Vector4fc
-  inline get() = vec4(w(), x(), x(), y())
-val Vector4fc.xyxy: Vector4fc
-  inline get() = vec4(x(), y(), x(), y())
-val Vector4fc.yyxy: Vector4fc
-  inline get() = vec4(y(), y(), x(), y())
-val Vector4fc.zyxy: Vector4fc
-  inline get() = vec4(z(), y(), x(), y())
-val Vector4fc.wyxy: Vector4fc
-  inline get() = vec4(w(), y(), x(), y())
-val Vector4fc.xzxy: Vector4fc
-  inline get() = vec4(x(), z(), x(), y())
-val Vector4fc.yzxy: Vector4fc
-  inline get() = vec4(y(), z(), x(), y())
-val Vector4fc.zzxy: Vector4fc
-  inline get() = vec4(z(), z(), x(), y())
-val Vector4fc.wzxy: Vector4fc
-  inline get() = vec4(w(), z(), x(), y())
-val Vector4fc.xwxy: Vector4fc
-  inline get() = vec4(x(), w(), x(), y())
-val Vector4fc.ywxy: Vector4fc
-  inline get() = vec4(y(), w(), x(), y())
-val Vector4fc.zwxy: Vector4fc
-  inline get() = vec4(z(), w(), x(), y())
-val Vector4fc.wwxy: Vector4fc
-  inline get() = vec4(w(), w(), x(), y())
-val Vector4fc.xxyy: Vector4fc
-  inline get() = vec4(x(), x(), y(), y())
-val Vector4fc.yxyy: Vector4fc
-  inline get() = vec4(y(), x(), y(), y())
-val Vector4fc.zxyy: Vector4fc
-  inline get() = vec4(z(), x(), y(), y())
-val Vector4fc.wxyy: Vector4fc
-  inline get() = vec4(w(), x(), y(), y())
-val Vector4fc.xyyy: Vector4fc
-  inline get() = vec4(x(), y(), y(), y())
-val Vector4fc.yyyy: Vector4fc
-  inline get() = vec4(y(), y(), y(), y())
-val Vector4fc.zyyy: Vector4fc
-  inline get() = vec4(z(), y(), y(), y())
-val Vector4fc.wyyy: Vector4fc
-  inline get() = vec4(w(), y(), y(), y())
-val Vector4fc.xzyy: Vector4fc
-  inline get() = vec4(x(), z(), y(), y())
-val Vector4fc.yzyy: Vector4fc
-  inline get() = vec4(y(), z(), y(), y())
-val Vector4fc.zzyy: Vector4fc
-  inline get() = vec4(z(), z(), y(), y())
-val Vector4fc.wzyy: Vector4fc
-  inline get() = vec4(w(), z(), y(), y())
-val Vector4fc.xwyy: Vector4fc
-  inline get() = vec4(x(), w(), y(), y())
-val Vector4fc.ywyy: Vector4fc
-  inline get() = vec4(y(), w(), y(), y())
-val Vector4fc.zwyy: Vector4fc
-  inline get() = vec4(z(), w(), y(), y())
-val Vector4fc.wwyy: Vector4fc
-  inline get() = vec4(w(), w(), y(), y())
-val Vector4fc.xxzy: Vector4fc
-  inline get() = vec4(x(), x(), z(), y())
-val Vector4fc.yxzy: Vector4fc
-  inline get() = vec4(y(), x(), z(), y())
-val Vector4fc.zxzy: Vector4fc
-  inline get() = vec4(z(), x(), z(), y())
-val Vector4fc.wxzy: Vector4fc
-  inline get() = vec4(w(), x(), z(), y())
-val Vector4fc.xyzy: Vector4fc
-  inline get() = vec4(x(), y(), z(), y())
-val Vector4fc.yyzy: Vector4fc
-  inline get() = vec4(y(), y(), z(), y())
-val Vector4fc.zyzy: Vector4fc
-  inline get() = vec4(z(), y(), z(), y())
-val Vector4fc.wyzy: Vector4fc
-  inline get() = vec4(w(), y(), z(), y())
-val Vector4fc.xzzy: Vector4fc
-  inline get() = vec4(x(), z(), z(), y())
-val Vector4fc.yzzy: Vector4fc
-  inline get() = vec4(y(), z(), z(), y())
-val Vector4fc.zzzy: Vector4fc
-  inline get() = vec4(z(), z(), z(), y())
-val Vector4fc.wzzy: Vector4fc
-  inline get() = vec4(w(), z(), z(), y())
-val Vector4fc.xwzy: Vector4fc
-  inline get() = vec4(x(), w(), z(), y())
-val Vector4fc.ywzy: Vector4fc
-  inline get() = vec4(y(), w(), z(), y())
-val Vector4fc.zwzy: Vector4fc
-  inline get() = vec4(z(), w(), z(), y())
-val Vector4fc.wwzy: Vector4fc
-  inline get() = vec4(w(), w(), z(), y())
-val Vector4fc.xxwy: Vector4fc
-  inline get() = vec4(x(), x(), w(), y())
-val Vector4fc.yxwy: Vector4fc
-  inline get() = vec4(y(), x(), w(), y())
-val Vector4fc.zxwy: Vector4fc
-  inline get() = vec4(z(), x(), w(), y())
-val Vector4fc.wxwy: Vector4fc
-  inline get() = vec4(w(), x(), w(), y())
-val Vector4fc.xywy: Vector4fc
-  inline get() = vec4(x(), y(), w(), y())
-val Vector4fc.yywy: Vector4fc
-  inline get() = vec4(y(), y(), w(), y())
-val Vector4fc.zywy: Vector4fc
-  inline get() = vec4(z(), y(), w(), y())
-val Vector4fc.wywy: Vector4fc
-  inline get() = vec4(w(), y(), w(), y())
-val Vector4fc.xzwy: Vector4fc
-  inline get() = vec4(x(), z(), w(), y())
-val Vector4fc.yzwy: Vector4fc
-  inline get() = vec4(y(), z(), w(), y())
-val Vector4fc.zzwy: Vector4fc
-  inline get() = vec4(z(), z(), w(), y())
-val Vector4fc.wzwy: Vector4fc
-  inline get() = vec4(w(), z(), w(), y())
-val Vector4fc.xwwy: Vector4fc
-  inline get() = vec4(x(), w(), w(), y())
-val Vector4fc.ywwy: Vector4fc
-  inline get() = vec4(y(), w(), w(), y())
-val Vector4fc.zwwy: Vector4fc
-  inline get() = vec4(z(), w(), w(), y())
-val Vector4fc.wwwy: Vector4fc
-  inline get() = vec4(w(), w(), w(), y())
-val Vector4fc.xxxz: Vector4fc
-  inline get() = vec4(x(), x(), x(), z())
-val Vector4fc.yxxz: Vector4fc
-  inline get() = vec4(y(), x(), x(), z())
-val Vector4fc.zxxz: Vector4fc
-  inline get() = vec4(z(), x(), x(), z())
-val Vector4fc.wxxz: Vector4fc
-  inline get() = vec4(w(), x(), x(), z())
-val Vector4fc.xyxz: Vector4fc
-  inline get() = vec4(x(), y(), x(), z())
-val Vector4fc.yyxz: Vector4fc
-  inline get() = vec4(y(), y(), x(), z())
-val Vector4fc.zyxz: Vector4fc
-  inline get() = vec4(z(), y(), x(), z())
-val Vector4fc.wyxz: Vector4fc
-  inline get() = vec4(w(), y(), x(), z())
-val Vector4fc.xzxz: Vector4fc
-  inline get() = vec4(x(), z(), x(), z())
-val Vector4fc.yzxz: Vector4fc
-  inline get() = vec4(y(), z(), x(), z())
-val Vector4fc.zzxz: Vector4fc
-  inline get() = vec4(z(), z(), x(), z())
-val Vector4fc.wzxz: Vector4fc
-  inline get() = vec4(w(), z(), x(), z())
-val Vector4fc.xwxz: Vector4fc
-  inline get() = vec4(x(), w(), x(), z())
-val Vector4fc.ywxz: Vector4fc
-  inline get() = vec4(y(), w(), x(), z())
-val Vector4fc.zwxz: Vector4fc
-  inline get() = vec4(z(), w(), x(), z())
-val Vector4fc.wwxz: Vector4fc
-  inline get() = vec4(w(), w(), x(), z())
-val Vector4fc.xxyz: Vector4fc
-  inline get() = vec4(x(), x(), y(), z())
-val Vector4fc.yxyz: Vector4fc
-  inline get() = vec4(y(), x(), y(), z())
-val Vector4fc.zxyz: Vector4fc
-  inline get() = vec4(z(), x(), y(), z())
-val Vector4fc.wxyz: Vector4fc
-  inline get() = vec4(w(), x(), y(), z())
-val Vector4fc.xyyz: Vector4fc
-  inline get() = vec4(x(), y(), y(), z())
-val Vector4fc.yyyz: Vector4fc
-  inline get() = vec4(y(), y(), y(), z())
-val Vector4fc.zyyz: Vector4fc
-  inline get() = vec4(z(), y(), y(), z())
-val Vector4fc.wyyz: Vector4fc
-  inline get() = vec4(w(), y(), y(), z())
-val Vector4fc.xzyz: Vector4fc
-  inline get() = vec4(x(), z(), y(), z())
-val Vector4fc.yzyz: Vector4fc
-  inline get() = vec4(y(), z(), y(), z())
-val Vector4fc.zzyz: Vector4fc
-  inline get() = vec4(z(), z(), y(), z())
-val Vector4fc.wzyz: Vector4fc
-  inline get() = vec4(w(), z(), y(), z())
-val Vector4fc.xwyz: Vector4fc
-  inline get() = vec4(x(), w(), y(), z())
-val Vector4fc.ywyz: Vector4fc
-  inline get() = vec4(y(), w(), y(), z())
-val Vector4fc.zwyz: Vector4fc
-  inline get() = vec4(z(), w(), y(), z())
-val Vector4fc.wwyz: Vector4fc
-  inline get() = vec4(w(), w(), y(), z())
-val Vector4fc.xxzz: Vector4fc
-  inline get() = vec4(x(), x(), z(), z())
-val Vector4fc.yxzz: Vector4fc
-  inline get() = vec4(y(), x(), z(), z())
-val Vector4fc.zxzz: Vector4fc
-  inline get() = vec4(z(), x(), z(), z())
-val Vector4fc.wxzz: Vector4fc
-  inline get() = vec4(w(), x(), z(), z())
-val Vector4fc.xyzz: Vector4fc
-  inline get() = vec4(x(), y(), z(), z())
-val Vector4fc.yyzz: Vector4fc
-  inline get() = vec4(y(), y(), z(), z())
-val Vector4fc.zyzz: Vector4fc
-  inline get() = vec4(z(), y(), z(), z())
-val Vector4fc.wyzz: Vector4fc
-  inline get() = vec4(w(), y(), z(), z())
-val Vector4fc.xzzz: Vector4fc
-  inline get() = vec4(x(), z(), z(), z())
-val Vector4fc.yzzz: Vector4fc
-  inline get() = vec4(y(), z(), z(), z())
-val Vector4fc.zzzz: Vector4fc
-  inline get() = vec4(z(), z(), z(), z())
-val Vector4fc.wzzz: Vector4fc
-  inline get() = vec4(w(), z(), z(), z())
-val Vector4fc.xwzz: Vector4fc
-  inline get() = vec4(x(), w(), z(), z())
-val Vector4fc.ywzz: Vector4fc
-  inline get() = vec4(y(), w(), z(), z())
-val Vector4fc.zwzz: Vector4fc
-  inline get() = vec4(z(), w(), z(), z())
-val Vector4fc.wwzz: Vector4fc
-  inline get() = vec4(w(), w(), z(), z())
-val Vector4fc.xxwz: Vector4fc
-  inline get() = vec4(x(), x(), w(), z())
-val Vector4fc.yxwz: Vector4fc
-  inline get() = vec4(y(), x(), w(), z())
-val Vector4fc.zxwz: Vector4fc
-  inline get() = vec4(z(), x(), w(), z())
-val Vector4fc.wxwz: Vector4fc
-  inline get() = vec4(w(), x(), w(), z())
-val Vector4fc.xywz: Vector4fc
-  inline get() = vec4(x(), y(), w(), z())
-val Vector4fc.yywz: Vector4fc
-  inline get() = vec4(y(), y(), w(), z())
-val Vector4fc.zywz: Vector4fc
-  inline get() = vec4(z(), y(), w(), z())
-val Vector4fc.wywz: Vector4fc
-  inline get() = vec4(w(), y(), w(), z())
-val Vector4fc.xzwz: Vector4fc
-  inline get() = vec4(x(), z(), w(), z())
-val Vector4fc.yzwz: Vector4fc
-  inline get() = vec4(y(), z(), w(), z())
-val Vector4fc.zzwz: Vector4fc
-  inline get() = vec4(z(), z(), w(), z())
-val Vector4fc.wzwz: Vector4fc
-  inline get() = vec4(w(), z(), w(), z())
-val Vector4fc.xwwz: Vector4fc
-  inline get() = vec4(x(), w(), w(), z())
-val Vector4fc.ywwz: Vector4fc
-  inline get() = vec4(y(), w(), w(), z())
-val Vector4fc.zwwz: Vector4fc
-  inline get() = vec4(z(), w(), w(), z())
-val Vector4fc.wwwz: Vector4fc
-  inline get() = vec4(w(), w(), w(), z())
-val Vector4fc.xxxw: Vector4fc
-  inline get() = vec4(x(), x(), x(), w())
-val Vector4fc.yxxw: Vector4fc
-  inline get() = vec4(y(), x(), x(), w())
-val Vector4fc.zxxw: Vector4fc
-  inline get() = vec4(z(), x(), x(), w())
-val Vector4fc.wxxw: Vector4fc
-  inline get() = vec4(w(), x(), x(), w())
-val Vector4fc.xyxw: Vector4fc
-  inline get() = vec4(x(), y(), x(), w())
-val Vector4fc.yyxw: Vector4fc
-  inline get() = vec4(y(), y(), x(), w())
-val Vector4fc.zyxw: Vector4fc
-  inline get() = vec4(z(), y(), x(), w())
-val Vector4fc.wyxw: Vector4fc
-  inline get() = vec4(w(), y(), x(), w())
-val Vector4fc.xzxw: Vector4fc
-  inline get() = vec4(x(), z(), x(), w())
-val Vector4fc.yzxw: Vector4fc
-  inline get() = vec4(y(), z(), x(), w())
-val Vector4fc.zzxw: Vector4fc
-  inline get() = vec4(z(), z(), x(), w())
-val Vector4fc.wzxw: Vector4fc
-  inline get() = vec4(w(), z(), x(), w())
-val Vector4fc.xwxw: Vector4fc
-  inline get() = vec4(x(), w(), x(), w())
-val Vector4fc.ywxw: Vector4fc
-  inline get() = vec4(y(), w(), x(), w())
-val Vector4fc.zwxw: Vector4fc
-  inline get() = vec4(z(), w(), x(), w())
-val Vector4fc.wwxw: Vector4fc
-  inline get() = vec4(w(), w(), x(), w())
-val Vector4fc.xxyw: Vector4fc
-  inline get() = vec4(x(), x(), y(), w())
-val Vector4fc.yxyw: Vector4fc
-  inline get() = vec4(y(), x(), y(), w())
-val Vector4fc.zxyw: Vector4fc
-  inline get() = vec4(z(), x(), y(), w())
-val Vector4fc.wxyw: Vector4fc
-  inline get() = vec4(w(), x(), y(), w())
-val Vector4fc.xyyw: Vector4fc
-  inline get() = vec4(x(), y(), y(), w())
-val Vector4fc.yyyw: Vector4fc
-  inline get() = vec4(y(), y(), y(), w())
-val Vector4fc.zyyw: Vector4fc
-  inline get() = vec4(z(), y(), y(), w())
-val Vector4fc.wyyw: Vector4fc
-  inline get() = vec4(w(), y(), y(), w())
-val Vector4fc.xzyw: Vector4fc
-  inline get() = vec4(x(), z(), y(), w())
-val Vector4fc.yzyw: Vector4fc
-  inline get() = vec4(y(), z(), y(), w())
-val Vector4fc.zzyw: Vector4fc
-  inline get() = vec4(z(), z(), y(), w())
-val Vector4fc.wzyw: Vector4fc
-  inline get() = vec4(w(), z(), y(), w())
-val Vector4fc.xwyw: Vector4fc
-  inline get() = vec4(x(), w(), y(), w())
-val Vector4fc.ywyw: Vector4fc
-  inline get() = vec4(y(), w(), y(), w())
-val Vector4fc.zwyw: Vector4fc
-  inline get() = vec4(z(), w(), y(), w())
-val Vector4fc.wwyw: Vector4fc
-  inline get() = vec4(w(), w(), y(), w())
-val Vector4fc.xxzw: Vector4fc
-  inline get() = vec4(x(), x(), z(), w())
-val Vector4fc.yxzw: Vector4fc
-  inline get() = vec4(y(), x(), z(), w())
-val Vector4fc.zxzw: Vector4fc
-  inline get() = vec4(z(), x(), z(), w())
-val Vector4fc.wxzw: Vector4fc
-  inline get() = vec4(w(), x(), z(), w())
-val Vector4fc.xyzw: Vector4fc
-  inline get() = vec4(x(), y(), z(), w())
-val Vector4fc.yyzw: Vector4fc
-  inline get() = vec4(y(), y(), z(), w())
-val Vector4fc.zyzw: Vector4fc
-  inline get() = vec4(z(), y(), z(), w())
-val Vector4fc.wyzw: Vector4fc
-  inline get() = vec4(w(), y(), z(), w())
-val Vector4fc.xzzw: Vector4fc
-  inline get() = vec4(x(), z(), z(), w())
-val Vector4fc.yzzw: Vector4fc
-  inline get() = vec4(y(), z(), z(), w())
-val Vector4fc.zzzw: Vector4fc
-  inline get() = vec4(z(), z(), z(), w())
-val Vector4fc.wzzw: Vector4fc
-  inline get() = vec4(w(), z(), z(), w())
-val Vector4fc.xwzw: Vector4fc
-  inline get() = vec4(x(), w(), z(), w())
-val Vector4fc.ywzw: Vector4fc
-  inline get() = vec4(y(), w(), z(), w())
-val Vector4fc.zwzw: Vector4fc
-  inline get() = vec4(z(), w(), z(), w())
-val Vector4fc.wwzw: Vector4fc
-  inline get() = vec4(w(), w(), z(), w())
-val Vector4fc.xxww: Vector4fc
-  inline get() = vec4(x(), x(), w(), w())
-val Vector4fc.yxww: Vector4fc
-  inline get() = vec4(y(), x(), w(), w())
-val Vector4fc.zxww: Vector4fc
-  inline get() = vec4(z(), x(), w(), w())
-val Vector4fc.wxww: Vector4fc
-  inline get() = vec4(w(), x(), w(), w())
-val Vector4fc.xyww: Vector4fc
-  inline get() = vec4(x(), y(), w(), w())
-val Vector4fc.yyww: Vector4fc
-  inline get() = vec4(y(), y(), w(), w())
-val Vector4fc.zyww: Vector4fc
-  inline get() = vec4(z(), y(), w(), w())
-val Vector4fc.wyww: Vector4fc
-  inline get() = vec4(w(), y(), w(), w())
-val Vector4fc.xzww: Vector4fc
-  inline get() = vec4(x(), z(), w(), w())
-val Vector4fc.yzww: Vector4fc
-  inline get() = vec4(y(), z(), w(), w())
-val Vector4fc.zzww: Vector4fc
-  inline get() = vec4(z(), z(), w(), w())
-val Vector4fc.wzww: Vector4fc
-  inline get() = vec4(w(), z(), w(), w())
-val Vector4fc.xwww: Vector4fc
-  inline get() = vec4(x(), w(), w(), w())
-val Vector4fc.ywww: Vector4fc
-  inline get() = vec4(y(), w(), w(), w())
-val Vector4fc.zwww: Vector4fc
-  inline get() = vec4(z(), w(), w(), w())
-val Vector4fc.wwww: Vector4fc
-  inline get() = vec4(w(), w(), w(), w())
+//val Float.x: Float
+//  get() = this
+//val Float.xx: Vec2
+//  get() = Vec2(x, x)
+//val Vec2.xx: Vec2
+//  get() = Vec2(x, x)
+//val Vec2.yx: Vec2
+//  get() = Vec2(y, x)
+//val Vec2.xy: Vec2
+//  get() = Vec2(x, y)
+//val Vec2.yy: Vec2
+//  get() = Vec2(y, y)
+//val Vec3.xx: Vec2
+//  get() = Vec2(x, x)
+//val Vec3.yx: Vec2
+//  get() = Vec2(y, x)
+//val Vec3.zx: Vec2
+//  get() = Vec2(z, x)
+val Vec3.xy: Vec2
+  get() = Vec2(x, y)
+//val Vec3.yy: Vec2
+//  get() = Vec2(y, y)
+val Vec3.zy: Vec2
+  get() = Vec2(z, y)
+val Vec3.xz: Vec2
+  get() = Vec2(x, z)
+//val Vec3.yz: Vec2
+//  get() = Vec2(y, z)
+//val Vec3.zz: Vec2
+//  get() = Vec2(z, z)
+//val Vec4.xx: Vec2
+//  get() = Vec2(x, x)
+//val Vec4.yx: Vec2
+//  get() = Vec2(y, x)
+//val Vec4.zx: Vec2
+//  get() = Vec2(z, x)
+//val Vec4.wx: Vec2
+//  get() = Vec2(w, x)
+//val Vec4.xy: Vec2
+//  get() = Vec2(x, y)
+//val Vec4.yy: Vec2
+//  get() = Vec2(y, y)
+//val Vec4.zy: Vec2
+//  get() = Vec2(z, y)
+//val Vec4.wy: Vec2
+//  get() = Vec2(w, y)
+//val Vec4.xz: Vec2
+//  get() = Vec2(x, z)
+//val Vec4.yz: Vec2
+//  get() = Vec2(y, z)
+//val Vec4.zz: Vec2
+//  get() = Vec2(z, z)
+//val Vec4.wz: Vec2
+//  get() = Vec2(w, z)
+//val Vec4.xw: Vec2
+//  get() = Vec2(x, w)
+//val Vec4.yw: Vec2
+//  get() = Vec2(y, w)
+//val Vec4.zw: Vec2
+//  get() = Vec2(z, w)
+//val Vec4.ww: Vec2
+//  get() = Vec2(w, w)
+//val Float.xxx: Vec3
+//  get() = Vec3(x, x, x)
+//val Vec2.xxx: Vec3
+//  get() = Vec3(x, x, x)
+//val Vec2.yxx: Vec3
+//  get() = Vec3(y, x, x)
+//val Vec2.xyx: Vec3
+//  get() = Vec3(x, y, x)
+//val Vec2.yyx: Vec3
+//  get() = Vec3(y, y, x)
+//val Vec2.xxy: Vec3
+//  get() = Vec3(x, x, y)
+//val Vec2.yxy: Vec3
+//  get() = Vec3(y, x, y)
+//val Vec2.xyy: Vec3
+//  get() = Vec3(x, y, y)
+//val Vec2.yyy: Vec3
+//  get() = Vec3(y, y, y)
+//val Vec3.xxx: Vec3
+//  get() = Vec3(x, x, x)
+//val Vec3.yxx: Vec3
+//  get() = Vec3(y, x, x)
+//val Vec3.zxx: Vec3
+//  get() = Vec3(z, x, x)
+//val Vec3.xyx: Vec3
+//  get() = Vec3(x, y, x)
+//val Vec3.yyx: Vec3
+//  get() = Vec3(y, y, x)
+//val Vec3.zyx: Vec3
+//  get() = Vec3(z, y, x)
+//val Vec3.xzx: Vec3
+//  get() = Vec3(x, z, x)
+//val Vec3.yzx: Vec3
+//  get() = Vec3(y, z, x)
+//val Vec3.zzx: Vec3
+//  get() = Vec3(z, z, x)
+//val Vec3.xxy: Vec3
+//  get() = Vec3(x, x, y)
+//val Vec3.yxy: Vec3
+//  get() = Vec3(y, x, y)
+//val Vec3.zxy: Vec3
+//  get() = Vec3(z, x, y)
+//val Vec3.xyy: Vec3
+//  get() = Vec3(x, y, y)
+//val Vec3.yyy: Vec3
+//  get() = Vec3(y, y, y)
+//val Vec3.zyy: Vec3
+//  get() = Vec3(z, y, y)
+//val Vec3.xzy: Vec3
+//  get() = Vec3(x, z, y)
+//val Vec3.yzy: Vec3
+//  get() = Vec3(y, z, y)
+//val Vec3.zzy: Vec3
+//  get() = Vec3(z, z, y)
+//val Vec3.xxz: Vec3
+//  get() = Vec3(x, x, z)
+//val Vec3.yxz: Vec3
+//  get() = Vec3(y, x, z)
+//val Vec3.zxz: Vec3
+//  get() = Vec3(z, x, z)
+//val Vec3.xyz: Vec3
+//  get() = Vec3(x, y, z)
+//val Vec3.yyz: Vec3
+//  get() = Vec3(y, y, z)
+//val Vec3.zyz: Vec3
+//  get() = Vec3(z, y, z)
+//val Vec3.xzz: Vec3
+//  get() = Vec3(x, z, z)
+//val Vec3.yzz: Vec3
+//  get() = Vec3(y, z, z)
+//val Vec3.zzz: Vec3
+//  get() = Vec3(z, z, z)
+//val Vec4.xxx: Vec3
+//  get() = Vec3(x, x, x)
+//val Vec4.yxx: Vec3
+//  get() = Vec3(y, x, x)
+//val Vec4.zxx: Vec3
+//  get() = Vec3(z, x, x)
+//val Vec4.wxx: Vec3
+//  get() = Vec3(w, x, x)
+//val Vec4.xyx: Vec3
+//  get() = Vec3(x, y, x)
+//val Vec4.yyx: Vec3
+//  get() = Vec3(y, y, x)
+//val Vec4.zyx: Vec3
+//  get() = Vec3(z, y, x)
+//val Vec4.wyx: Vec3
+//  get() = Vec3(w, y, x)
+//val Vec4.xzx: Vec3
+//  get() = Vec3(x, z, x)
+//val Vec4.yzx: Vec3
+//  get() = Vec3(y, z, x)
+//val Vec4.zzx: Vec3
+//  get() = Vec3(z, z, x)
+//val Vec4.wzx: Vec3
+//  get() = Vec3(w, z, x)
+//val Vec4.xwx: Vec3
+//  get() = Vec3(x, w, x)
+//val Vec4.ywx: Vec3
+//  get() = Vec3(y, w, x)
+//val Vec4.zwx: Vec3
+//  get() = Vec3(z, w, x)
+//val Vec4.wwx: Vec3
+//  get() = Vec3(w, w, x)
+//val Vec4.xxy: Vec3
+//  get() = Vec3(x, x, y)
+//val Vec4.yxy: Vec3
+//  get() = Vec3(y, x, y)
+//val Vec4.zxy: Vec3
+//  get() = Vec3(z, x, y)
+//val Vec4.wxy: Vec3
+//  get() = Vec3(w, x, y)
+//val Vec4.xyy: Vec3
+//  get() = Vec3(x, y, y)
+//val Vec4.yyy: Vec3
+//  get() = Vec3(y, y, y)
+//val Vec4.zyy: Vec3
+//  get() = Vec3(z, y, y)
+//val Vec4.wyy: Vec3
+//  get() = Vec3(w, y, y)
+//val Vec4.xzy: Vec3
+//  get() = Vec3(x, z, y)
+//val Vec4.yzy: Vec3
+//  get() = Vec3(y, z, y)
+//val Vec4.zzy: Vec3
+//  get() = Vec3(z, z, y)
+//val Vec4.wzy: Vec3
+//  get() = Vec3(w, z, y)
+//val Vec4.xwy: Vec3
+//  get() = Vec3(x, w, y)
+//val Vec4.ywy: Vec3
+//  get() = Vec3(y, w, y)
+//val Vec4.zwy: Vec3
+//  get() = Vec3(z, w, y)
+//val Vec4.wwy: Vec3
+//  get() = Vec3(w, w, y)
+//val Vec4.xxz: Vec3
+//  get() = Vec3(x, x, z)
+//val Vec4.yxz: Vec3
+//  get() = Vec3(y, x, z)
+//val Vec4.zxz: Vec3
+//  get() = Vec3(z, x, z)
+//val Vec4.wxz: Vec3
+//  get() = Vec3(w, x, z)
+//val Vec4.xyz: Vec3
+//  get() = Vec3(x, y, z)
+//val Vec4.yyz: Vec3
+//  get() = Vec3(y, y, z)
+//val Vec4.zyz: Vec3
+//  get() = Vec3(z, y, z)
+//val Vec4.wyz: Vec3
+//  get() = Vec3(w, y, z)
+//val Vec4.xzz: Vec3
+//  get() = Vec3(x, z, z)
+//val Vec4.yzz: Vec3
+//  get() = Vec3(y, z, z)
+//val Vec4.zzz: Vec3
+//  get() = Vec3(z, z, z)
+//val Vec4.wzz: Vec3
+//  get() = Vec3(w, z, z)
+//val Vec4.xwz: Vec3
+//  get() = Vec3(x, w, z)
+//val Vec4.ywz: Vec3
+//  get() = Vec3(y, w, z)
+//val Vec4.zwz: Vec3
+//  get() = Vec3(z, w, z)
+//val Vec4.wwz: Vec3
+//  get() = Vec3(w, w, z)
+//val Vec4.xxw: Vec3
+//  get() = Vec3(x, x, w)
+//val Vec4.yxw: Vec3
+//  get() = Vec3(y, x, w)
+//val Vec4.zxw: Vec3
+//  get() = Vec3(z, x, w)
+//val Vec4.wxw: Vec3
+//  get() = Vec3(w, x, w)
+//val Vec4.xyw: Vec3
+//  get() = Vec3(x, y, w)
+//val Vec4.yyw: Vec3
+//  get() = Vec3(y, y, w)
+//val Vec4.zyw: Vec3
+//  get() = Vec3(z, y, w)
+//val Vec4.wyw: Vec3
+//  get() = Vec3(w, y, w)
+//val Vec4.xzw: Vec3
+//  get() = Vec3(x, z, w)
+//val Vec4.yzw: Vec3
+//  get() = Vec3(y, z, w)
+//val Vec4.zzw: Vec3
+//  get() = Vec3(z, z, w)
+//val Vec4.wzw: Vec3
+//  get() = Vec3(w, z, w)
+//val Vec4.xww: Vec3
+//  get() = Vec3(x, w, w)
+//val Vec4.yww: Vec3
+//  get() = Vec3(y, w, w)
+//val Vec4.zww: Vec3
+//  get() = Vec3(z, w, w)
+//val Vec4.www: Vec3
+//  get() = Vec3(w, w, w)
+//val Float.xxxx: Vec4
+//  get() = Vec4(x, x, x, x)
+//val Vec2.xxxx: Vec4
+//  get() = Vec4(x, x, x, x)
+//val Vec2.yxxx: Vec4
+//  get() = Vec4(y, x, x, x)
+//val Vec2.xyxx: Vec4
+//  get() = Vec4(x, y, x, x)
+//val Vec2.yyxx: Vec4
+//  get() = Vec4(y, y, x, x)
+//val Vec2.xxyx: Vec4
+//  get() = Vec4(x, x, y, x)
+//val Vec2.yxyx: Vec4
+//  get() = Vec4(y, x, y, x)
+//val Vec2.xyyx: Vec4
+//  get() = Vec4(x, y, y, x)
+//val Vec2.yyyx: Vec4
+//  get() = Vec4(y, y, y, x)
+//val Vec2.xxxy: Vec4
+//  get() = Vec4(x, x, x, y)
+//val Vec2.yxxy: Vec4
+//  get() = Vec4(y, x, x, y)
+//val Vec2.xyxy: Vec4
+//  get() = Vec4(x, y, x, y)
+//val Vec2.yyxy: Vec4
+//  get() = Vec4(y, y, x, y)
+//val Vec2.xxyy: Vec4
+//  get() = Vec4(x, x, y, y)
+//val Vec2.yxyy: Vec4
+//  get() = Vec4(y, x, y, y)
+//val Vec2.xyyy: Vec4
+//  get() = Vec4(x, y, y, y)
+//val Vec2.yyyy: Vec4
+//  get() = Vec4(y, y, y, y)
+//val Vec3.xxxx: Vec4
+//  get() = Vec4(x, x, x, x)
+//val Vec3.yxxx: Vec4
+//  get() = Vec4(y, x, x, x)
+//val Vec3.zxxx: Vec4
+//  get() = Vec4(z, x, x, x)
+//val Vec3.xyxx: Vec4
+//  get() = Vec4(x, y, x, x)
+//val Vec3.yyxx: Vec4
+//  get() = Vec4(y, y, x, x)
+//val Vec3.zyxx: Vec4
+//  get() = Vec4(z, y, x, x)
+//val Vec3.xzxx: Vec4
+//  get() = Vec4(x, z, x, x)
+//val Vec3.yzxx: Vec4
+//  get() = Vec4(y, z, x, x)
+//val Vec3.zzxx: Vec4
+//  get() = Vec4(z, z, x, x)
+//val Vec3.xxyx: Vec4
+//  get() = Vec4(x, x, y, x)
+//val Vec3.yxyx: Vec4
+//  get() = Vec4(y, x, y, x)
+//val Vec3.zxyx: Vec4
+//  get() = Vec4(z, x, y, x)
+//val Vec3.xyyx: Vec4
+//  get() = Vec4(x, y, y, x)
+//val Vec3.yyyx: Vec4
+//  get() = Vec4(y, y, y, x)
+//val Vec3.zyyx: Vec4
+//  get() = Vec4(z, y, y, x)
+//val Vec3.xzyx: Vec4
+//  get() = Vec4(x, z, y, x)
+//val Vec3.yzyx: Vec4
+//  get() = Vec4(y, z, y, x)
+//val Vec3.zzyx: Vec4
+//  get() = Vec4(z, z, y, x)
+//val Vec3.xxzx: Vec4
+//  get() = Vec4(x, x, z, x)
+//val Vec3.yxzx: Vec4
+//  get() = Vec4(y, x, z, x)
+//val Vec3.zxzx: Vec4
+//  get() = Vec4(z, x, z, x)
+//val Vec3.xyzx: Vec4
+//  get() = Vec4(x, y, z, x)
+//val Vec3.yyzx: Vec4
+//  get() = Vec4(y, y, z, x)
+//val Vec3.zyzx: Vec4
+//  get() = Vec4(z, y, z, x)
+//val Vec3.xzzx: Vec4
+//  get() = Vec4(x, z, z, x)
+//val Vec3.yzzx: Vec4
+//  get() = Vec4(y, z, z, x)
+//val Vec3.zzzx: Vec4
+//  get() = Vec4(z, z, z, x)
+//val Vec3.xxxy: Vec4
+//  get() = Vec4(x, x, x, y)
+//val Vec3.yxxy: Vec4
+//  get() = Vec4(y, x, x, y)
+//val Vec3.zxxy: Vec4
+//  get() = Vec4(z, x, x, y)
+//val Vec3.xyxy: Vec4
+//  get() = Vec4(x, y, x, y)
+//val Vec3.yyxy: Vec4
+//  get() = Vec4(y, y, x, y)
+//val Vec3.zyxy: Vec4
+//  get() = Vec4(z, y, x, y)
+//val Vec3.xzxy: Vec4
+//  get() = Vec4(x, z, x, y)
+//val Vec3.yzxy: Vec4
+//  get() = Vec4(y, z, x, y)
+//val Vec3.zzxy: Vec4
+//  get() = Vec4(z, z, x, y)
+//val Vec3.xxyy: Vec4
+//  get() = Vec4(x, x, y, y)
+//val Vec3.yxyy: Vec4
+//  get() = Vec4(y, x, y, y)
+//val Vec3.zxyy: Vec4
+//  get() = Vec4(z, x, y, y)
+//val Vec3.xyyy: Vec4
+//  get() = Vec4(x, y, y, y)
+//val Vec3.yyyy: Vec4
+//  get() = Vec4(y, y, y, y)
+//val Vec3.zyyy: Vec4
+//  get() = Vec4(z, y, y, y)
+//val Vec3.xzyy: Vec4
+//  get() = Vec4(x, z, y, y)
+//val Vec3.yzyy: Vec4
+//  get() = Vec4(y, z, y, y)
+//val Vec3.zzyy: Vec4
+//  get() = Vec4(z, z, y, y)
+//val Vec3.xxzy: Vec4
+//  get() = Vec4(x, x, z, y)
+//val Vec3.yxzy: Vec4
+//  get() = Vec4(y, x, z, y)
+//val Vec3.zxzy: Vec4
+//  get() = Vec4(z, x, z, y)
+//val Vec3.xyzy: Vec4
+//  get() = Vec4(x, y, z, y)
+//val Vec3.yyzy: Vec4
+//  get() = Vec4(y, y, z, y)
+//val Vec3.zyzy: Vec4
+//  get() = Vec4(z, y, z, y)
+//val Vec3.xzzy: Vec4
+//  get() = Vec4(x, z, z, y)
+//val Vec3.yzzy: Vec4
+//  get() = Vec4(y, z, z, y)
+//val Vec3.zzzy: Vec4
+//  get() = Vec4(z, z, z, y)
+//val Vec3.xxxz: Vec4
+//  get() = Vec4(x, x, x, z)
+//val Vec3.yxxz: Vec4
+//  get() = Vec4(y, x, x, z)
+//val Vec3.zxxz: Vec4
+//  get() = Vec4(z, x, x, z)
+//val Vec3.xyxz: Vec4
+//  get() = Vec4(x, y, x, z)
+//val Vec3.yyxz: Vec4
+//  get() = Vec4(y, y, x, z)
+//val Vec3.zyxz: Vec4
+//  get() = Vec4(z, y, x, z)
+//val Vec3.xzxz: Vec4
+//  get() = Vec4(x, z, x, z)
+//val Vec3.yzxz: Vec4
+//  get() = Vec4(y, z, x, z)
+//val Vec3.zzxz: Vec4
+//  get() = Vec4(z, z, x, z)
+//val Vec3.xxyz: Vec4
+//  get() = Vec4(x, x, y, z)
+//val Vec3.yxyz: Vec4
+//  get() = Vec4(y, x, y, z)
+//val Vec3.zxyz: Vec4
+//  get() = Vec4(z, x, y, z)
+//val Vec3.xyyz: Vec4
+//  get() = Vec4(x, y, y, z)
+//val Vec3.yyyz: Vec4
+//  get() = Vec4(y, y, y, z)
+//val Vec3.zyyz: Vec4
+//  get() = Vec4(z, y, y, z)
+//val Vec3.xzyz: Vec4
+//  get() = Vec4(x, z, y, z)
+//val Vec3.yzyz: Vec4
+//  get() = Vec4(y, z, y, z)
+//val Vec3.zzyz: Vec4
+//  get() = Vec4(z, z, y, z)
+//val Vec3.xxzz: Vec4
+//  get() = Vec4(x, x, z, z)
+//val Vec3.yxzz: Vec4
+//  get() = Vec4(y, x, z, z)
+//val Vec3.zxzz: Vec4
+//  get() = Vec4(z, x, z, z)
+//val Vec3.xyzz: Vec4
+//  get() = Vec4(x, y, z, z)
+//val Vec3.yyzz: Vec4
+//  get() = Vec4(y, y, z, z)
+//val Vec3.zyzz: Vec4
+//  get() = Vec4(z, y, z, z)
+//val Vec3.xzzz: Vec4
+//  get() = Vec4(x, z, z, z)
+//val Vec3.yzzz: Vec4
+//  get() = Vec4(y, z, z, z)
+//val Vec3.zzzz: Vec4
+//  get() = Vec4(z, z, z, z)
+//val Vec4.xxxx: Vec4
+//  get() = Vec4(x, x, x, x)
+//val Vec4.yxxx: Vec4
+//  get() = Vec4(y, x, x, x)
+//val Vec4.zxxx: Vec4
+//  get() = Vec4(z, x, x, x)
+//val Vec4.wxxx: Vec4
+//  get() = Vec4(w, x, x, x)
+//val Vec4.xyxx: Vec4
+//  get() = Vec4(x, y, x, x)
+//val Vec4.yyxx: Vec4
+//  get() = Vec4(y, y, x, x)
+//val Vec4.zyxx: Vec4
+//  get() = Vec4(z, y, x, x)
+//val Vec4.wyxx: Vec4
+//  get() = Vec4(w, y, x, x)
+//val Vec4.xzxx: Vec4
+//  get() = Vec4(x, z, x, x)
+//val Vec4.yzxx: Vec4
+//  get() = Vec4(y, z, x, x)
+//val Vec4.zzxx: Vec4
+//  get() = Vec4(z, z, x, x)
+//val Vec4.wzxx: Vec4
+//  get() = Vec4(w, z, x, x)
+//val Vec4.xwxx: Vec4
+//  get() = Vec4(x, w, x, x)
+//val Vec4.ywxx: Vec4
+//  get() = Vec4(y, w, x, x)
+//val Vec4.zwxx: Vec4
+//  get() = Vec4(z, w, x, x)
+//val Vec4.wwxx: Vec4
+//  get() = Vec4(w, w, x, x)
+//val Vec4.xxyx: Vec4
+//  get() = Vec4(x, x, y, x)
+//val Vec4.yxyx: Vec4
+//  get() = Vec4(y, x, y, x)
+//val Vec4.zxyx: Vec4
+//  get() = Vec4(z, x, y, x)
+//val Vec4.wxyx: Vec4
+//  get() = Vec4(w, x, y, x)
+//val Vec4.xyyx: Vec4
+//  get() = Vec4(x, y, y, x)
+//val Vec4.yyyx: Vec4
+//  get() = Vec4(y, y, y, x)
+//val Vec4.zyyx: Vec4
+//  get() = Vec4(z, y, y, x)
+//val Vec4.wyyx: Vec4
+//  get() = Vec4(w, y, y, x)
+//val Vec4.xzyx: Vec4
+//  get() = Vec4(x, z, y, x)
+//val Vec4.yzyx: Vec4
+//  get() = Vec4(y, z, y, x)
+//val Vec4.zzyx: Vec4
+//  get() = Vec4(z, z, y, x)
+//val Vec4.wzyx: Vec4
+//  get() = Vec4(w, z, y, x)
+//val Vec4.xwyx: Vec4
+//  get() = Vec4(x, w, y, x)
+//val Vec4.ywyx: Vec4
+//  get() = Vec4(y, w, y, x)
+//val Vec4.zwyx: Vec4
+//  get() = Vec4(z, w, y, x)
+//val Vec4.wwyx: Vec4
+//  get() = Vec4(w, w, y, x)
+//val Vec4.xxzx: Vec4
+//  get() = Vec4(x, x, z, x)
+//val Vec4.yxzx: Vec4
+//  get() = Vec4(y, x, z, x)
+//val Vec4.zxzx: Vec4
+//  get() = Vec4(z, x, z, x)
+//val Vec4.wxzx: Vec4
+//  get() = Vec4(w, x, z, x)
+//val Vec4.xyzx: Vec4
+//  get() = Vec4(x, y, z, x)
+//val Vec4.yyzx: Vec4
+//  get() = Vec4(y, y, z, x)
+//val Vec4.zyzx: Vec4
+//  get() = Vec4(z, y, z, x)
+//val Vec4.wyzx: Vec4
+//  get() = Vec4(w, y, z, x)
+//val Vec4.xzzx: Vec4
+//  get() = Vec4(x, z, z, x)
+//val Vec4.yzzx: Vec4
+//  get() = Vec4(y, z, z, x)
+//val Vec4.zzzx: Vec4
+//  get() = Vec4(z, z, z, x)
+//val Vec4.wzzx: Vec4
+//  get() = Vec4(w, z, z, x)
+//val Vec4.xwzx: Vec4
+//  get() = Vec4(x, w, z, x)
+//val Vec4.ywzx: Vec4
+//  get() = Vec4(y, w, z, x)
+//val Vec4.zwzx: Vec4
+//  get() = Vec4(z, w, z, x)
+//val Vec4.wwzx: Vec4
+//  get() = Vec4(w, w, z, x)
+//val Vec4.xxwx: Vec4
+//  get() = Vec4(x, x, w, x)
+//val Vec4.yxwx: Vec4
+//  get() = Vec4(y, x, w, x)
+//val Vec4.zxwx: Vec4
+//  get() = Vec4(z, x, w, x)
+//val Vec4.wxwx: Vec4
+//  get() = Vec4(w, x, w, x)
+//val Vec4.xywx: Vec4
+//  get() = Vec4(x, y, w, x)
+//val Vec4.yywx: Vec4
+//  get() = Vec4(y, y, w, x)
+//val Vec4.zywx: Vec4
+//  get() = Vec4(z, y, w, x)
+//val Vec4.wywx: Vec4
+//  get() = Vec4(w, y, w, x)
+//val Vec4.xzwx: Vec4
+//  get() = Vec4(x, z, w, x)
+//val Vec4.yzwx: Vec4
+//  get() = Vec4(y, z, w, x)
+//val Vec4.zzwx: Vec4
+//  get() = Vec4(z, z, w, x)
+//val Vec4.wzwx: Vec4
+//  get() = Vec4(w, z, w, x)
+//val Vec4.xwwx: Vec4
+//  get() = Vec4(x, w, w, x)
+//val Vec4.ywwx: Vec4
+//  get() = Vec4(y, w, w, x)
+//val Vec4.zwwx: Vec4
+//  get() = Vec4(z, w, w, x)
+//val Vec4.wwwx: Vec4
+//  get() = Vec4(w, w, w, x)
+//val Vec4.xxxy: Vec4
+//  get() = Vec4(x, x, x, y)
+//val Vec4.yxxy: Vec4
+//  get() = Vec4(y, x, x, y)
+//val Vec4.zxxy: Vec4
+//  get() = Vec4(z, x, x, y)
+//val Vec4.wxxy: Vec4
+//  get() = Vec4(w, x, x, y)
+//val Vec4.xyxy: Vec4
+//  get() = Vec4(x, y, x, y)
+//val Vec4.yyxy: Vec4
+//  get() = Vec4(y, y, x, y)
+//val Vec4.zyxy: Vec4
+//  get() = Vec4(z, y, x, y)
+//val Vec4.wyxy: Vec4
+//  get() = Vec4(w, y, x, y)
+//val Vec4.xzxy: Vec4
+//  get() = Vec4(x, z, x, y)
+//val Vec4.yzxy: Vec4
+//  get() = Vec4(y, z, x, y)
+//val Vec4.zzxy: Vec4
+//  get() = Vec4(z, z, x, y)
+//val Vec4.wzxy: Vec4
+//  get() = Vec4(w, z, x, y)
+//val Vec4.xwxy: Vec4
+//  get() = Vec4(x, w, x, y)
+//val Vec4.ywxy: Vec4
+//  get() = Vec4(y, w, x, y)
+//val Vec4.zwxy: Vec4
+//  get() = Vec4(z, w, x, y)
+//val Vec4.wwxy: Vec4
+//  get() = Vec4(w, w, x, y)
+//val Vec4.xxyy: Vec4
+//  get() = Vec4(x, x, y, y)
+//val Vec4.yxyy: Vec4
+//  get() = Vec4(y, x, y, y)
+//val Vec4.zxyy: Vec4
+//  get() = Vec4(z, x, y, y)
+//val Vec4.wxyy: Vec4
+//  get() = Vec4(w, x, y, y)
+//val Vec4.xyyy: Vec4
+//  get() = Vec4(x, y, y, y)
+//val Vec4.yyyy: Vec4
+//  get() = Vec4(y, y, y, y)
+//val Vec4.zyyy: Vec4
+//  get() = Vec4(z, y, y, y)
+//val Vec4.wyyy: Vec4
+//  get() = Vec4(w, y, y, y)
+//val Vec4.xzyy: Vec4
+//  get() = Vec4(x, z, y, y)
+//val Vec4.yzyy: Vec4
+//  get() = Vec4(y, z, y, y)
+//val Vec4.zzyy: Vec4
+//  get() = Vec4(z, z, y, y)
+//val Vec4.wzyy: Vec4
+//  get() = Vec4(w, z, y, y)
+//val Vec4.xwyy: Vec4
+//  get() = Vec4(x, w, y, y)
+//val Vec4.ywyy: Vec4
+//  get() = Vec4(y, w, y, y)
+//val Vec4.zwyy: Vec4
+//  get() = Vec4(z, w, y, y)
+//val Vec4.wwyy: Vec4
+//  get() = Vec4(w, w, y, y)
+//val Vec4.xxzy: Vec4
+//  get() = Vec4(x, x, z, y)
+//val Vec4.yxzy: Vec4
+//  get() = Vec4(y, x, z, y)
+//val Vec4.zxzy: Vec4
+//  get() = Vec4(z, x, z, y)
+//val Vec4.wxzy: Vec4
+//  get() = Vec4(w, x, z, y)
+//val Vec4.xyzy: Vec4
+//  get() = Vec4(x, y, z, y)
+//val Vec4.yyzy: Vec4
+//  get() = Vec4(y, y, z, y)
+//val Vec4.zyzy: Vec4
+//  get() = Vec4(z, y, z, y)
+//val Vec4.wyzy: Vec4
+//  get() = Vec4(w, y, z, y)
+//val Vec4.xzzy: Vec4
+//  get() = Vec4(x, z, z, y)
+//val Vec4.yzzy: Vec4
+//  get() = Vec4(y, z, z, y)
+//val Vec4.zzzy: Vec4
+//  get() = Vec4(z, z, z, y)
+//val Vec4.wzzy: Vec4
+//  get() = Vec4(w, z, z, y)
+//val Vec4.xwzy: Vec4
+//  get() = Vec4(x, w, z, y)
+//val Vec4.ywzy: Vec4
+//  get() = Vec4(y, w, z, y)
+//val Vec4.zwzy: Vec4
+//  get() = Vec4(z, w, z, y)
+//val Vec4.wwzy: Vec4
+//  get() = Vec4(w, w, z, y)
+//val Vec4.xxwy: Vec4
+//  get() = Vec4(x, x, w, y)
+//val Vec4.yxwy: Vec4
+//  get() = Vec4(y, x, w, y)
+//val Vec4.zxwy: Vec4
+//  get() = Vec4(z, x, w, y)
+//val Vec4.wxwy: Vec4
+//  get() = Vec4(w, x, w, y)
+//val Vec4.xywy: Vec4
+//  get() = Vec4(x, y, w, y)
+//val Vec4.yywy: Vec4
+//  get() = Vec4(y, y, w, y)
+//val Vec4.zywy: Vec4
+//  get() = Vec4(z, y, w, y)
+//val Vec4.wywy: Vec4
+//  get() = Vec4(w, y, w, y)
+//val Vec4.xzwy: Vec4
+//  get() = Vec4(x, z, w, y)
+//val Vec4.yzwy: Vec4
+//  get() = Vec4(y, z, w, y)
+//val Vec4.zzwy: Vec4
+//  get() = Vec4(z, z, w, y)
+//val Vec4.wzwy: Vec4
+//  get() = Vec4(w, z, w, y)
+//val Vec4.xwwy: Vec4
+//  get() = Vec4(x, w, w, y)
+//val Vec4.ywwy: Vec4
+//  get() = Vec4(y, w, w, y)
+//val Vec4.zwwy: Vec4
+//  get() = Vec4(z, w, w, y)
+//val Vec4.wwwy: Vec4
+//  get() = Vec4(w, w, w, y)
+//val Vec4.xxxz: Vec4
+//  get() = Vec4(x, x, x, z)
+//val Vec4.yxxz: Vec4
+//  get() = Vec4(y, x, x, z)
+//val Vec4.zxxz: Vec4
+//  get() = Vec4(z, x, x, z)
+//val Vec4.wxxz: Vec4
+//  get() = Vec4(w, x, x, z)
+//val Vec4.xyxz: Vec4
+//  get() = Vec4(x, y, x, z)
+//val Vec4.yyxz: Vec4
+//  get() = Vec4(y, y, x, z)
+//val Vec4.zyxz: Vec4
+//  get() = Vec4(z, y, x, z)
+//val Vec4.wyxz: Vec4
+//  get() = Vec4(w, y, x, z)
+//val Vec4.xzxz: Vec4
+//  get() = Vec4(x, z, x, z)
+//val Vec4.yzxz: Vec4
+//  get() = Vec4(y, z, x, z)
+//val Vec4.zzxz: Vec4
+//  get() = Vec4(z, z, x, z)
+//val Vec4.wzxz: Vec4
+//  get() = Vec4(w, z, x, z)
+//val Vec4.xwxz: Vec4
+//  get() = Vec4(x, w, x, z)
+//val Vec4.ywxz: Vec4
+//  get() = Vec4(y, w, x, z)
+//val Vec4.zwxz: Vec4
+//  get() = Vec4(z, w, x, z)
+//val Vec4.wwxz: Vec4
+//  get() = Vec4(w, w, x, z)
+//val Vec4.xxyz: Vec4
+//  get() = Vec4(x, x, y, z)
+//val Vec4.yxyz: Vec4
+//  get() = Vec4(y, x, y, z)
+//val Vec4.zxyz: Vec4
+//  get() = Vec4(z, x, y, z)
+//val Vec4.wxyz: Vec4
+//  get() = Vec4(w, x, y, z)
+//val Vec4.xyyz: Vec4
+//  get() = Vec4(x, y, y, z)
+//val Vec4.yyyz: Vec4
+//  get() = Vec4(y, y, y, z)
+//val Vec4.zyyz: Vec4
+//  get() = Vec4(z, y, y, z)
+//val Vec4.wyyz: Vec4
+//  get() = Vec4(w, y, y, z)
+//val Vec4.xzyz: Vec4
+//  get() = Vec4(x, z, y, z)
+//val Vec4.yzyz: Vec4
+//  get() = Vec4(y, z, y, z)
+//val Vec4.zzyz: Vec4
+//  get() = Vec4(z, z, y, z)
+//val Vec4.wzyz: Vec4
+//  get() = Vec4(w, z, y, z)
+//val Vec4.xwyz: Vec4
+//  get() = Vec4(x, w, y, z)
+//val Vec4.ywyz: Vec4
+//  get() = Vec4(y, w, y, z)
+//val Vec4.zwyz: Vec4
+//  get() = Vec4(z, w, y, z)
+//val Vec4.wwyz: Vec4
+//  get() = Vec4(w, w, y, z)
+//val Vec4.xxzz: Vec4
+//  get() = Vec4(x, x, z, z)
+//val Vec4.yxzz: Vec4
+//  get() = Vec4(y, x, z, z)
+//val Vec4.zxzz: Vec4
+//  get() = Vec4(z, x, z, z)
+//val Vec4.wxzz: Vec4
+//  get() = Vec4(w, x, z, z)
+//val Vec4.xyzz: Vec4
+//  get() = Vec4(x, y, z, z)
+//val Vec4.yyzz: Vec4
+//  get() = Vec4(y, y, z, z)
+//val Vec4.zyzz: Vec4
+//  get() = Vec4(z, y, z, z)
+//val Vec4.wyzz: Vec4
+//  get() = Vec4(w, y, z, z)
+//val Vec4.xzzz: Vec4
+//  get() = Vec4(x, z, z, z)
+//val Vec4.yzzz: Vec4
+//  get() = Vec4(y, z, z, z)
+//val Vec4.zzzz: Vec4
+//  get() = Vec4(z, z, z, z)
+//val Vec4.wzzz: Vec4
+//  get() = Vec4(w, z, z, z)
+//val Vec4.xwzz: Vec4
+//  get() = Vec4(x, w, z, z)
+//val Vec4.ywzz: Vec4
+//  get() = Vec4(y, w, z, z)
+//val Vec4.zwzz: Vec4
+//  get() = Vec4(z, w, z, z)
+//val Vec4.wwzz: Vec4
+//  get() = Vec4(w, w, z, z)
+//val Vec4.xxwz: Vec4
+//  get() = Vec4(x, x, w, z)
+//val Vec4.yxwz: Vec4
+//  get() = Vec4(y, x, w, z)
+//val Vec4.zxwz: Vec4
+//  get() = Vec4(z, x, w, z)
+//val Vec4.wxwz: Vec4
+//  get() = Vec4(w, x, w, z)
+//val Vec4.xywz: Vec4
+//  get() = Vec4(x, y, w, z)
+//val Vec4.yywz: Vec4
+//  get() = Vec4(y, y, w, z)
+//val Vec4.zywz: Vec4
+//  get() = Vec4(z, y, w, z)
+//val Vec4.wywz: Vec4
+//  get() = Vec4(w, y, w, z)
+//val Vec4.xzwz: Vec4
+//  get() = Vec4(x, z, w, z)
+//val Vec4.yzwz: Vec4
+//  get() = Vec4(y, z, w, z)
+//val Vec4.zzwz: Vec4
+//  get() = Vec4(z, z, w, z)
+//val Vec4.wzwz: Vec4
+//  get() = Vec4(w, z, w, z)
+//val Vec4.xwwz: Vec4
+//  get() = Vec4(x, w, w, z)
+//val Vec4.ywwz: Vec4
+//  get() = Vec4(y, w, w, z)
+//val Vec4.zwwz: Vec4
+//  get() = Vec4(z, w, w, z)
+//val Vec4.wwwz: Vec4
+//  get() = Vec4(w, w, w, z)
+//val Vec4.xxxw: Vec4
+//  get() = Vec4(x, x, x, w)
+//val Vec4.yxxw: Vec4
+//  get() = Vec4(y, x, x, w)
+//val Vec4.zxxw: Vec4
+//  get() = Vec4(z, x, x, w)
+//val Vec4.wxxw: Vec4
+//  get() = Vec4(w, x, x, w)
+//val Vec4.xyxw: Vec4
+//  get() = Vec4(x, y, x, w)
+//val Vec4.yyxw: Vec4
+//  get() = Vec4(y, y, x, w)
+//val Vec4.zyxw: Vec4
+//  get() = Vec4(z, y, x, w)
+//val Vec4.wyxw: Vec4
+//  get() = Vec4(w, y, x, w)
+//val Vec4.xzxw: Vec4
+//  get() = Vec4(x, z, x, w)
+//val Vec4.yzxw: Vec4
+//  get() = Vec4(y, z, x, w)
+//val Vec4.zzxw: Vec4
+//  get() = Vec4(z, z, x, w)
+//val Vec4.wzxw: Vec4
+//  get() = Vec4(w, z, x, w)
+//val Vec4.xwxw: Vec4
+//  get() = Vec4(x, w, x, w)
+//val Vec4.ywxw: Vec4
+//  get() = Vec4(y, w, x, w)
+//val Vec4.zwxw: Vec4
+//  get() = Vec4(z, w, x, w)
+//val Vec4.wwxw: Vec4
+//  get() = Vec4(w, w, x, w)
+//val Vec4.xxyw: Vec4
+//  get() = Vec4(x, x, y, w)
+//val Vec4.yxyw: Vec4
+//  get() = Vec4(y, x, y, w)
+//val Vec4.zxyw: Vec4
+//  get() = Vec4(z, x, y, w)
+//val Vec4.wxyw: Vec4
+//  get() = Vec4(w, x, y, w)
+//val Vec4.xyyw: Vec4
+//  get() = Vec4(x, y, y, w)
+//val Vec4.yyyw: Vec4
+//  get() = Vec4(y, y, y, w)
+//val Vec4.zyyw: Vec4
+//  get() = Vec4(z, y, y, w)
+//val Vec4.wyyw: Vec4
+//  get() = Vec4(w, y, y, w)
+//val Vec4.xzyw: Vec4
+//  get() = Vec4(x, z, y, w)
+//val Vec4.yzyw: Vec4
+//  get() = Vec4(y, z, y, w)
+//val Vec4.zzyw: Vec4
+//  get() = Vec4(z, z, y, w)
+//val Vec4.wzyw: Vec4
+//  get() = Vec4(w, z, y, w)
+//val Vec4.xwyw: Vec4
+//  get() = Vec4(x, w, y, w)
+//val Vec4.ywyw: Vec4
+//  get() = Vec4(y, w, y, w)
+//val Vec4.zwyw: Vec4
+//  get() = Vec4(z, w, y, w)
+//val Vec4.wwyw: Vec4
+//  get() = Vec4(w, w, y, w)
+//val Vec4.xxzw: Vec4
+//  get() = Vec4(x, x, z, w)
+//val Vec4.yxzw: Vec4
+//  get() = Vec4(y, x, z, w)
+//val Vec4.zxzw: Vec4
+//  get() = Vec4(z, x, z, w)
+//val Vec4.wxzw: Vec4
+//  get() = Vec4(w, x, z, w)
+//val Vec4.xyzw: Vec4
+//  get() = Vec4(x, y, z, w)
+//val Vec4.yyzw: Vec4
+//  get() = Vec4(y, y, z, w)
+//val Vec4.zyzw: Vec4
+//  get() = Vec4(z, y, z, w)
+//val Vec4.wyzw: Vec4
+//  get() = Vec4(w, y, z, w)
+//val Vec4.xzzw: Vec4
+//  get() = Vec4(x, z, z, w)
+//val Vec4.yzzw: Vec4
+//  get() = Vec4(y, z, z, w)
+//val Vec4.zzzw: Vec4
+//  get() = Vec4(z, z, z, w)
+//val Vec4.wzzw: Vec4
+//  get() = Vec4(w, z, z, w)
+//val Vec4.xwzw: Vec4
+//  get() = Vec4(x, w, z, w)
+//val Vec4.ywzw: Vec4
+//  get() = Vec4(y, w, z, w)
+//val Vec4.zwzw: Vec4
+//  get() = Vec4(z, w, z, w)
+//val Vec4.wwzw: Vec4
+//  get() = Vec4(w, w, z, w)
+//val Vec4.xxww: Vec4
+//  get() = Vec4(x, x, w, w)
+//val Vec4.yxww: Vec4
+//  get() = Vec4(y, x, w, w)
+//val Vec4.zxww: Vec4
+//  get() = Vec4(z, x, w, w)
+//val Vec4.wxww: Vec4
+//  get() = Vec4(w, x, w, w)
+//val Vec4.xyww: Vec4
+//  get() = Vec4(x, y, w, w)
+//val Vec4.yyww: Vec4
+//  get() = Vec4(y, y, w, w)
+//val Vec4.zyww: Vec4
+//  get() = Vec4(z, y, w, w)
+//val Vec4.wyww: Vec4
+//  get() = Vec4(w, y, w, w)
+//val Vec4.xzww: Vec4
+//  get() = Vec4(x, z, w, w)
+//val Vec4.yzww: Vec4
+//  get() = Vec4(y, z, w, w)
+//val Vec4.zzww: Vec4
+//  get() = Vec4(z, z, w, w)
+//val Vec4.wzww: Vec4
+//  get() = Vec4(w, z, w, w)
+//val Vec4.xwww: Vec4
+//  get() = Vec4(x, w, w, w)
+//val Vec4.ywww: Vec4
+//  get() = Vec4(y, w, w, w)
+//val Vec4.zwww: Vec4
+//  get() = Vec4(z, w, w, w)
+//val Vec4.wwww: Vec4
+//  get() = Vec4(w, w, w, w)

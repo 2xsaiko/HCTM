@@ -43,10 +43,9 @@ allprojects {
             exclude group: 'net.fabricmc.fabric-api'
         }
 
-
         modImplementation group: 'net.dblsaiko', name: 'libaddict', version: libaddict_version
 
-        implementation group: "org.joml", name: "joml", version: "1.9.14"
+        modImplementation group: "net.dblsaiko.qcommon.croco", name: "croco", version: "1.1.1-7"
     }
 
     configurations {
