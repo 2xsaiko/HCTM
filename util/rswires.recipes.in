@@ -1,3 +1,14 @@
+# recipe definitions for rswires
+
+# shaped recipe:
+# add <recipe name> <item output> <item count> <ingredient row 1> [ingredient row 2] [ingredient row 3]
+
+# shapeless recipe:
+# sl_add <recipe name> <item output> <item count> <ingredient list>
+
+# blast furnace recipe:
+# bfurnace_add <recipe name> <item output> <ingredient>
+
 s='minecraft:string'
 p='minecraft:paper'
 r='minecraft:redstone'

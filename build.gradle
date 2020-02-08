@@ -45,7 +45,7 @@ allprojects {
 
         modImplementation group: 'net.dblsaiko', name: 'libaddict', version: libaddict_version
 
-        modImplementation group: "net.dblsaiko.qcommon.croco", name: "croco", version: "1.1.1-7"
+        modImplementation group: "net.dblsaiko.qcommon.croco", name: "croco", version: croco_version
     }
 
     configurations {

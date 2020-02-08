@@ -335,7 +335,7 @@ object WireUtils {
       .map { (a, _) -> Pair(a, block.boxes.getValue(a)) }
       .map { (a, s) -> Pair(a, s.rayTrace(from, to, pos)) }
       .filter { it.second != null }
-      .minBy { (_, bhr) -> bhr!!.pos.distanceTo(from) }
+      .minBy { (_, hitResult) -> hitResult!!.pos.squaredDistanceTo(from) }
       as Pair<Direction, BlockHitResult>?
   }
 
