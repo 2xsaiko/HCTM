@@ -1,13 +1,12 @@
 {
   "type": "minecraft:crafting_shaped",
-  "pattern": [%PATTERN
-],
+  "pattern": [%PATTERN],
   "key": {
     %KEYS
-},
-"result": {
-"item": "%OUTPUT",
-"count": %COUNT
-}
+  },
+  "result": {
+    "item": "%OUTPUT",
+    "count": %COUNT
+  }
 }
 
