@@ -71,7 +71,6 @@ private fun getRotationFor0(face: Direction, rotation: Int): Mat4 {
     Direction.SOUTH -> m1.rotate(0.0f, 1.0f, 0.0f, 180.0f).rotate(1.0f, 0.0f, 0.0f, -90.0f).rotate(0.0f, 1.0f, 0.0f, 90.0f)
     Direction.WEST -> m1.rotate(0.0f, 0.0f, 1.0f, 90.0f)
     Direction.EAST -> m1.rotate(0.0f, 1.0f, 0.0f, 180.0f).rotate(0.0f, 0.0f, 1.0f, 90.0f)
-    else -> m1
   }
     .rotate(0.0f, 1.0f, 0.0f, rotation * 90.0f)
     .translate(-0.5f, -0.5f, -0.5f)

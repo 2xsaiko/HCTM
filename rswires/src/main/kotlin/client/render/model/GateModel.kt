@@ -5,6 +5,7 @@ import net.dblsaiko.rswires.common.block.GateProperties
 import net.dblsaiko.rswires.common.util.getRotationFor
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext
+import net.fabricmc.fabric.impl.client.indigo.renderer.helper.ColorHelper
 import net.fabricmc.fabric.impl.client.indigo.renderer.mesh.MutableQuadViewImpl
 import net.minecraft.block.BlockState
 import net.minecraft.client.render.model.*
@@ -50,28 +51,12 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
 
       context.pushTransform { quad ->
         quad as MutableQuadViewImpl
+        ColorHelper.applyDiffuseShading(quad, true)
         for (idx in 0..3) {
           val newPos = mat.mul(Vec3(quad.posByIndex(idx, 0), quad.posByIndex(idx, 1), quad.posByIndex(idx, 2)))
           quad.pos(idx, newPos.x, newPos.y, newPos.z)
         }
-        // val vec3 = rotationMat.mul(quad.faceNormal().let { Vec3(it.x, it.y, it.z) })
-
-        // for (idx in 0..3) {
-        //   // always (0,0,0) ???
-        //   // val vec3 = Vec3(quad.normalX(idx), quad.normalY(idx), quad.normalZ(idx))
-        //   val newNormal = rotationMat.mul(vec3)
-        //   // FIXME this seems to have no effect
-        //   quad.normal(idx, newNormal.x, newNormal.y, newNormal.z)
-        // }
-
-        // val lightFace = rotationMat.mul(Vec3.from(quad.lightFace().vector)).let { Direction.getFacing(it.x, it.y, it.z) }
-        // val lm = lightmapMap.getValue(lightFace)
-        //
-        // println("${quad.lightmap(0)} ${quad.lightmap(1)} ${quad.lightmap(2)} ${quad.lightmap(3)} -> $lm")
-        //
-        // quad.lightFace(lightFace)
-        // quad.nominalFace(lightFace)
-        // quad.lightmap(lm, lm, lm, lm)
+        ColorHelper.applyDiffuseShading(quad, false)
 
         quad.cullFace()?.also { quad.cullFace(rotationMat.mul(Vec3.from(it.vector)).let { Direction.getFacing(it.x, it.y, it.z) }) }
         true

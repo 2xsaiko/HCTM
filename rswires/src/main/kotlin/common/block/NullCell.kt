@@ -51,7 +51,6 @@ class NullCellBlock(settings: Block.Settings) : GateBlock(settings) {
     return SelectionBoxes.getValue(state[Properties.FACING])
   }
 
-  // FIXME return correct cull shape
   override fun getCullingShape(state: BlockState, view: BlockView, pos: BlockPos): VoxelShape {
     return CullBox.getValue(state[Properties.FACING])[state[GateProperties.Rotation]]
   }
