@@ -2,15 +2,12 @@ package net.dblsaiko.rswires.client.render.model
 
 import com.mojang.datafixers.util.Pair
 import net.dblsaiko.rswires.common.block.GateProperties
+import net.dblsaiko.rswires.common.util.getRotationFor
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext
 import net.fabricmc.fabric.impl.client.indigo.renderer.mesh.MutableQuadViewImpl
 import net.minecraft.block.BlockState
-import net.minecraft.client.render.model.BakedModel
-import net.minecraft.client.render.model.BakedQuad
-import net.minecraft.client.render.model.ModelBakeSettings
-import net.minecraft.client.render.model.ModelLoader
-import net.minecraft.client.render.model.UnbakedModel
+import net.minecraft.client.render.model.*
 import net.minecraft.client.render.model.json.ModelItemPropertyOverrideList
 import net.minecraft.client.render.model.json.ModelTransformation
 import net.minecraft.client.texture.Sprite
@@ -20,15 +17,9 @@ import net.minecraft.state.property.Properties
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
-import net.minecraft.util.math.Direction.DOWN
-import net.minecraft.util.math.Direction.EAST
-import net.minecraft.util.math.Direction.NORTH
-import net.minecraft.util.math.Direction.SOUTH
-import net.minecraft.util.math.Direction.UP
-import net.minecraft.util.math.Direction.WEST
+import net.minecraft.util.math.Direction.*
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.BlockRenderView
-import therealfarfetchd.qcommon.croco.Mat4
 import therealfarfetchd.qcommon.croco.Vec3
 import java.util.*
 import java.util.function.Function
@@ -55,7 +46,7 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
     override fun emitBlockQuads(blockView: BlockRenderView, state: BlockState, pos: BlockPos, randomSupplier: Supplier<Random>, context: RenderContext) {
       val side = state[Properties.FACING]
       val rotation = state[GateProperties.Rotation]
-      val (mat, rotationMat) = matrixMap.getValue(side)[rotation]
+      val (mat, rotationMat) = getRotationFor(side, rotation)
 
       context.pushTransform { quad ->
         quad as MutableQuadViewImpl
@@ -130,31 +121,6 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
     }
 
     companion object {
-      val matrixMap = Direction.values().asIterable().associateWith { face ->
-        Array(4) { rotation ->
-          val matrix = getRotationFor(face, rotation)
-          val rotMatrix = matrix.toArray().also { it[3] = 0.0f; it[7] = 0.0f; it[11] = 0.0f }.let { Mat4.fromArray(it) }
-          matrix to rotMatrix
-        }
-      }.let(::EnumMap)
-
-      fun getRotationFor(face: Direction, rotation: Int): Mat4 {
-        val m1 = Mat4.IDENTITY
-          .translate(0.5f, 0.5f, 0.5f)
-
-        return when (face) {
-          DOWN -> m1
-          UP -> m1.rotate(1.0f, 0.0f, 0.0f, 180.0f).rotate(0.0f, 1.0f, 0.0f, 180.0f)
-          NORTH -> m1.rotate(1.0f, 0.0f, 0.0f, -90.0f).rotate(0.0f, 1.0f, 0.0f, 90.0f)
-          SOUTH -> m1.rotate(0.0f, 1.0f, 0.0f, 180.0f).rotate(1.0f, 0.0f, 0.0f, -90.0f).rotate(0.0f, 1.0f, 0.0f, 90.0f)
-          WEST -> m1.rotate(0.0f, 0.0f, 1.0f, 90.0f)
-          EAST -> m1.rotate(0.0f, 1.0f, 0.0f, 180.0f).rotate(0.0f, 0.0f, 1.0f, 90.0f)
-          else -> m1
-        }
-          .rotate(0.0f, 1.0f, 0.0f, rotation * 90.0f)
-          .translate(-0.5f, -0.5f, -0.5f)
-      }
-
       // copied from BakedQuadFactory
 
       val lightmapMap = Direction.values().asIterable().associateWith(::getLightmapCoordinate).let(::EnumMap)

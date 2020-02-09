@@ -14,7 +14,7 @@ object Packets {
     val DebugNetResponse = Identifier(ModID, "debug_net_recv")
 
     fun register() {
-      ClientSidePacketRegistry.INSTANCE.register(Client.DebugNetResponse, ::onDebugNetUpdateResponse)
+      ClientSidePacketRegistry.INSTANCE.register(DebugNetResponse, ::onDebugNetUpdateResponse)
     }
 
   }
@@ -24,7 +24,7 @@ object Packets {
     val DebugNetRequest = Identifier(ModID, "debug_net_req")
 
     fun register() {
-      ServerSidePacketRegistry.INSTANCE.register(Server.DebugNetRequest, ::onDebugNetUpdateRequest)
+      ServerSidePacketRegistry.INSTANCE.register(DebugNetRequest, ::onDebugNetUpdateRequest)
     }
 
   }

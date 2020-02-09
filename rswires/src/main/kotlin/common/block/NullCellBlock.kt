@@ -1,13 +1,9 @@
 package net.dblsaiko.rswires.common.block
 
 import net.dblsaiko.hctm.common.block.WireUtils
-import net.dblsaiko.hctm.common.wire.ConnectionDiscoverers
-import net.dblsaiko.hctm.common.wire.ConnectionFilter
-import net.dblsaiko.hctm.common.wire.NetNode
-import net.dblsaiko.hctm.common.wire.NodeView
-import net.dblsaiko.hctm.common.wire.PartExt
-import net.dblsaiko.hctm.common.wire.WirePartExtType
-import net.dblsaiko.hctm.common.wire.find
+import net.dblsaiko.hctm.common.wire.*
+import net.dblsaiko.rswires.common.util.adjustRotation
+import net.dblsaiko.rswires.common.util.rotate
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.entity.EntityContext
@@ -20,8 +16,10 @@ import net.minecraft.state.property.Properties
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
 import net.minecraft.util.shape.VoxelShape
+import net.minecraft.util.shape.VoxelShapes
 import net.minecraft.world.BlockView
 import net.minecraft.world.World
+import java.util.*
 
 class NullCellBlock(settings: Block.Settings) : GateBlock(settings) {
 
@@ -55,11 +53,19 @@ class NullCellBlock(settings: Block.Settings) : GateBlock(settings) {
 
   // FIXME return correct cull shape
   override fun getCullingShape(state: BlockState, view: BlockView, pos: BlockPos): VoxelShape {
-    return super.getCullingShape(state, view, pos)
+    return CullBox.getValue(state[Properties.FACING])[state[GateProperties.Rotation]]
   }
 
   companion object {
     val SelectionBoxes = WireUtils.generateShapes(12 / 16.0)
+
+    val CullBox = VoxelShapes.union(
+      VoxelShapes.cuboid(0.0, 0.0, 0.0, 1.0, 2 / 16.0, 1.0),
+      VoxelShapes.cuboid(7 / 16.0, 0.0, 0.0, 9 / 16.0, 12 / 16.0, 1.0),
+      VoxelShapes.cuboid(0.0, 0.0, 7 / 16.0, 1.0, 3 / 16.0, 9 / 16.0)
+    ).let { box ->
+      Direction.values().asIterable().associateWith { face -> Array(4) { rotation -> box.rotate(face, rotation) } }
+    }.let(::EnumMap)
   }
 
 }
@@ -95,7 +101,7 @@ data class NullCellPartExt(override val side: Direction, val top: Boolean) : Par
       self.data.pos.subtract(other.data.pos)
         .let { Direction.fromVector(it.x, it.y, it.z) }
         ?.let { it.axis == axis }
-      ?: false
+        ?: false
     }, self, world, pos, nv)
   }
 

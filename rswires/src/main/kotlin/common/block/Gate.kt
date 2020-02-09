@@ -1,9 +1,9 @@
 package net.dblsaiko.rswires.common.block
 
 import net.dblsaiko.hctm.common.block.WireUtils
-import net.dblsaiko.hctm.common.util.ext.rotateClockwise
 import net.dblsaiko.hctm.common.wire.BlockPartProvider
 import net.dblsaiko.hctm.common.wire.getWireNetworkState
+import net.dblsaiko.rswires.common.util.reverseAdjustRotation
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.entity.EntityContext
@@ -15,11 +15,7 @@ import net.minecraft.state.property.IntProperty
 import net.minecraft.state.property.Properties
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
-import net.minecraft.util.math.Direction.Axis.X
-import net.minecraft.util.math.Direction.Axis.Y
-import net.minecraft.util.math.Direction.Axis.Z
-import net.minecraft.util.math.Direction.DOWN
-import net.minecraft.util.math.Direction.WEST
+import net.minecraft.util.math.Direction.Axis.*
 import net.minecraft.util.shape.VoxelShape
 import net.minecraft.world.BlockView
 import net.minecraft.world.IWorld
@@ -84,35 +80,6 @@ abstract class GateBlock(settings: Block.Settings) : Block(settings), BlockPartP
 
 object GateProperties {
 
-  val Rotation = IntProperty.of("rotation", 0, 4)
+  val Rotation = IntProperty.of("rotation", 0, 3)
 
-}
-
-fun adjustRotation(side: Direction, rotation: Int, targetOut: Int): Direction {
-  var start = when (side.axis) {
-    X, Z -> DOWN
-    Y -> WEST
-  }
-
-  repeat((rotation + targetOut) % 4) {
-    start = start.rotateClockwise(side.axis)
-  }
-
-  return start
-}
-
-fun reverseAdjustRotation(side: Direction, edge: Direction): Int {
-  var start = when (side.axis) {
-    X, Z -> DOWN
-    Y -> WEST
-  }
-
-  var r = 0
-
-  while (start != edge) {
-    start = start.rotateClockwise(side.axis)
-    r += 1
-  }
-
-  return r
 }
