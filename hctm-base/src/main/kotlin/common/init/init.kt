@@ -10,16 +10,23 @@ import net.minecraft.util.Identifier
 object Packets {
 
   object Client {
+
     val DebugNetResponse = Identifier(ModID, "debug_net_recv")
+
+    fun register() {
+      ClientSidePacketRegistry.INSTANCE.register(Client.DebugNetResponse, ::onDebugNetUpdateResponse)
+    }
+
   }
 
   object Server {
-    val DebugNetRequest = Identifier(ModID, "debug_net_req")
-  }
 
-  init {
-    ClientSidePacketRegistry.INSTANCE.register(Client.DebugNetResponse, ::onDebugNetUpdateResponse)
-    ServerSidePacketRegistry.INSTANCE.register(Server.DebugNetRequest, ::onDebugNetUpdateRequest)
+    val DebugNetRequest = Identifier(ModID, "debug_net_req")
+
+    fun register() {
+      ServerSidePacketRegistry.INSTANCE.register(Server.DebugNetRequest, ::onDebugNetUpdateRequest)
+    }
+
   }
 
 }
