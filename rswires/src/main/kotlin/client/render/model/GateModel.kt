@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair
 import net.dblsaiko.rswires.common.block.GateProperties
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext
+import net.fabricmc.fabric.impl.client.indigo.renderer.mesh.MutableQuadViewImpl
 import net.minecraft.block.BlockState
 import net.minecraft.client.render.model.BakedModel
 import net.minecraft.client.render.model.BakedQuad
@@ -25,6 +26,7 @@ import net.minecraft.util.math.Direction.NORTH
 import net.minecraft.util.math.Direction.SOUTH
 import net.minecraft.util.math.Direction.UP
 import net.minecraft.util.math.Direction.WEST
+import net.minecraft.util.math.MathHelper
 import net.minecraft.world.BlockRenderView
 import therealfarfetchd.qcommon.croco.Mat4
 import therealfarfetchd.qcommon.croco.Vec3
@@ -56,22 +58,31 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
       val (mat, rotationMat) = matrixMap.getValue(side)[rotation]
 
       context.pushTransform { quad ->
+        quad as MutableQuadViewImpl
         for (idx in 0..3) {
           val newPos = mat.mul(Vec3(quad.posByIndex(idx, 0), quad.posByIndex(idx, 1), quad.posByIndex(idx, 2)))
           quad.pos(idx, newPos.x, newPos.y, newPos.z)
         }
-        val vec3 = quad.faceNormal().let { Vec3(it.x, it.y, it.z) }
-        for (idx in 0..3) {
-          // always (0,0,0) ???
-          // val vec3 = Vec3(quad.normalX(idx), quad.normalY(idx), quad.normalZ(idx))
-          val newNormal = rotationMat.mul(vec3)
-          // FIXME this seems to have no effect
-          quad.normal(idx, newNormal.x, newNormal.y, newNormal.z)
-        }
-        // FIXME this seems to have no effect
-        quad.cullFace()?.also {
-          quad.cullFace(rotationMat.mul(Vec3.from(it.vector)).let { Direction.getFacing(it.x, it.y, it.z) })
-        }
+        // val vec3 = rotationMat.mul(quad.faceNormal().let { Vec3(it.x, it.y, it.z) })
+
+        // for (idx in 0..3) {
+        //   // always (0,0,0) ???
+        //   // val vec3 = Vec3(quad.normalX(idx), quad.normalY(idx), quad.normalZ(idx))
+        //   val newNormal = rotationMat.mul(vec3)
+        //   // FIXME this seems to have no effect
+        //   quad.normal(idx, newNormal.x, newNormal.y, newNormal.z)
+        // }
+
+        // val lightFace = rotationMat.mul(Vec3.from(quad.lightFace().vector)).let { Direction.getFacing(it.x, it.y, it.z) }
+        // val lm = lightmapMap.getValue(lightFace)
+        //
+        // println("${quad.lightmap(0)} ${quad.lightmap(1)} ${quad.lightmap(2)} ${quad.lightmap(3)} -> $lm")
+        //
+        // quad.lightFace(lightFace)
+        // quad.nominalFace(lightFace)
+        // quad.lightmap(lm, lm, lm, lm)
+
+        quad.cullFace()?.also { quad.cullFace(rotationMat.mul(Vec3.from(it.vector)).let { Direction.getFacing(it.x, it.y, it.z) }) }
         true
       }
       context.fallbackConsumer().accept(wrapped)
@@ -125,7 +136,7 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
           val rotMatrix = matrix.toArray().also { it[3] = 0.0f; it[7] = 0.0f; it[11] = 0.0f }.let { Mat4.fromArray(it) }
           matrix to rotMatrix
         }
-      }
+      }.let(::EnumMap)
 
       fun getRotationFor(face: Direction, rotation: Int): Mat4 {
         val m1 = Mat4.IDENTITY
@@ -142,6 +153,26 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
         }
           .rotate(0.0f, 1.0f, 0.0f, rotation * 90.0f)
           .translate(-0.5f, -0.5f, -0.5f)
+      }
+
+      // copied from BakedQuadFactory
+
+      val lightmapMap = Direction.values().asIterable().associateWith(::getLightmapCoordinate).let(::EnumMap)
+
+      private fun getLightmapCoordinate(direction: Direction): Int {
+        val f = getRelativeDirectionalBrightness(direction)
+        val i = MathHelper.clamp((f * 255.0f).toInt(), 0, 255)
+        return -16777216 or (i shl 16) or (i shl 8) or i
+      }
+
+      private fun getRelativeDirectionalBrightness(direction: Direction): Float {
+        return when (direction) {
+          DOWN -> 0.5f
+          UP -> 1.0f
+          NORTH, SOUTH -> 0.8f
+          WEST, EAST -> 0.6f
+          else -> 1.0f
+        }
       }
 
     }

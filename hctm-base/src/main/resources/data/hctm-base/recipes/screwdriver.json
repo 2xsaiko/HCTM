@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["  i", "di ", "Pd "],
+  "key": {
+    "d": { "item": "minecraft:blue_dye" }, "i": { "item": "minecraft:iron_ingot" }, "P": { "tag": "minecraft:planks" }
+  },
+  "result": {
+    "item": "hctm-base:screwdriver",
+    "count": 1
+  }
+}
+

@@ -53,6 +53,11 @@ class NullCellBlock(settings: Block.Settings) : GateBlock(settings) {
     return SelectionBoxes.getValue(state[Properties.FACING])
   }
 
+  // FIXME return correct cull shape
+  override fun getCullingShape(state: BlockState, view: BlockView, pos: BlockPos): VoxelShape {
+    return super.getCullingShape(state, view, pos)
+  }
+
   companion object {
     val SelectionBoxes = WireUtils.generateShapes(12 / 16.0)
   }

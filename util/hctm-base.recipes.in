@@ -1,0 +1,20 @@
+# recipe definitions for rswires
+
+# shaped recipe:
+# add <recipe name> <item output> <item count> <ingredient row 1> [ingredient row 2] [ingredient row 3]
+
+# shapeless recipe:
+# sl_add <recipe name> <item output> <item count> <ingredient list>
+
+# blast furnace recipe:
+# bfurnace_add <recipe name> <item output> <ingredient>
+
+i='minecraft:iron_ingot'
+d='minecraft:blue_dye'
+P='#minecraft:planks'
+
+add screwdriver \
+  screwdriver 1 \
+  '  i' \
+  'di ' \
+  'Pd '
