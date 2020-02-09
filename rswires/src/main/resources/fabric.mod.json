@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "rswires",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "name": "RSWires",
   "description": "Improved redstone, or something.",
   "authors": ["2xsaiko"],
@@ -20,7 +20,7 @@
     "fabricloader": ">=0.4.0",
     "fabric": "*",
     "fabric-language-kotlin": ">=1.3.30",
-    "hctm-base": ">=1.0.0",
+    "hctm-base": ">=2.0.1",
     "libaddict": ">=0.1.2"
   },
   "suggests": {

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "hctm-base",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "name": "HCTM Base",
   "description": "Common library for HCTM",
   "authors": ["2xsaiko"],
@@ -13,7 +13,8 @@
   "icon": "assets/hctm-base/icon.png",
   "environment": "*",
   "entrypoints": {
-    "main": [{ "value": "net.dblsaiko.hctm.HCTM", "adapter": "kotlin" }]
+    "main": [{ "value": "net.dblsaiko.hctm.HCTM", "adapter": "kotlin" }],
+    "client": [{ "value": "net.dblsaiko.hctm.client.HCTMClient", "adapter": "kotlin" }]
   },
   "mixins": ["hctm.mixins.json"],
   "depends": {
