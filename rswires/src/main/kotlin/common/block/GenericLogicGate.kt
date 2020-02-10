@@ -134,11 +134,11 @@ data class LogicGatePartExt(override val side: Direction, val gateSide: GateSide
 
   override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
     val rotation = world.getBlockState(pos)[GateProperties.Rotation]
-    val axis = adjustRotation(side, rotation, gateSide.direction()).axis
+    val direction = adjustRotation(side, rotation, gateSide.direction())
     return find(ConnectionDiscoverers.Wire, RedstoneCarrierFilter and ConnectionFilter { self, other ->
       self.data.pos.subtract(other.data.pos)
         .let { Direction.fromVector(it.x, it.y, it.z) }
-        ?.let { it.axis == axis }
+        ?.let { it == direction }
         ?: false
     }, self, world, pos, nv)
   }
