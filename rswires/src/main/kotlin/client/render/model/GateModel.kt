@@ -51,7 +51,6 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
       context.pushTransform { quad ->
         val lightFace = quad.lightFace()
         run {
-          println("$lightFace -> ")
           val shadingFactor = ColorHelper.diffuseShade(lightFace)
           for (idx in 0..3) {
             val color = ColorHelper.multiplyRGB(quad.spriteColor(idx, 0), (1 / shadingFactor))
@@ -66,7 +65,6 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
 
         run {
           val lightFace = rotationMat.mul(Vec3.from(lightFace.vector)).let { Direction.getFacing(it.x, it.y, it.z) }
-          println(lightFace)
           val shadingFactor = ColorHelper.diffuseShade(lightFace)
           for (idx in 0..3) {
             val color = ColorHelper.multiplyRGB(quad.spriteColor(idx, 0), shadingFactor)
