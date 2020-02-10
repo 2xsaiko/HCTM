@@ -30,9 +30,7 @@ allprojects {
         mappings group: "net.fabricmc", name: "yarn", version: mappings_version, classifier: "v2"
         modImplementation group: "net.fabricmc", name: "fabric-loader", version: loader_version
 
-        // TODO revert when FabricMC/Fabric#500 is merged
-        //modImplementation group: "net.fabricmc.fabric-api", name: "fabric-api", version: fabric_api_version
-        modImplementation group: 'net.fabricmc.fabric-api', name: 'fabric-api', version: '0.4.29+local-patch-1'
+        modImplementation group: "net.fabricmc.fabric-api", name: "fabric-api", version: fabric_api_version
 
         implementation(group: "net.fabricmc", name: "fabric-language-kotlin", version: fabric_kotlin_version) {
             exclude module: 'fabric-loader'

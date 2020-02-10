@@ -6,7 +6,6 @@ import net.dblsaiko.rswires.common.util.getRotationFor
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext
 import net.fabricmc.fabric.impl.client.indigo.renderer.helper.ColorHelper
-import net.fabricmc.fabric.impl.client.indigo.renderer.mesh.MutableQuadViewImpl
 import net.minecraft.block.BlockState
 import net.minecraft.client.render.model.*
 import net.minecraft.client.render.model.json.ModelItemPropertyOverrideList
@@ -50,13 +49,30 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
       val (mat, rotationMat) = getRotationFor(side, rotation)
 
       context.pushTransform { quad ->
-        quad as MutableQuadViewImpl
-        ColorHelper.applyDiffuseShading(quad, true)
+        val lightFace = quad.lightFace()
+        run {
+          println("$lightFace -> ")
+          val shadingFactor = ColorHelper.diffuseShade(lightFace)
+          for (idx in 0..3) {
+            val color = ColorHelper.multiplyRGB(quad.spriteColor(idx, 0), (1 / shadingFactor))
+            quad.spriteColor(idx, 0, color)
+          }
+        }
+
         for (idx in 0..3) {
           val newPos = mat.mul(Vec3(quad.posByIndex(idx, 0), quad.posByIndex(idx, 1), quad.posByIndex(idx, 2)))
           quad.pos(idx, newPos.x, newPos.y, newPos.z)
         }
-        ColorHelper.applyDiffuseShading(quad, false)
+
+        run {
+          val lightFace = rotationMat.mul(Vec3.from(lightFace.vector)).let { Direction.getFacing(it.x, it.y, it.z) }
+          println(lightFace)
+          val shadingFactor = ColorHelper.diffuseShade(lightFace)
+          for (idx in 0..3) {
+            val color = ColorHelper.multiplyRGB(quad.spriteColor(idx, 0), shadingFactor)
+            quad.spriteColor(idx, 0, color)
+          }
+        }
 
         quad.cullFace()?.also { quad.cullFace(rotationMat.mul(Vec3.from(it.vector)).let { Direction.getFacing(it.x, it.y, it.z) }) }
         true
