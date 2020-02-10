@@ -1,4 +1,4 @@
-# recipe definitions for rswires
+# recipe definitions for hctm-base
 
 # shaped recipe:
 # add <recipe name> <item output> <item count> <ingredient row 1> [ingredient row 2] [ingredient row 3]

@@ -1,7 +1,13 @@
 package net.dblsaiko.rswires.common.block
 
 import net.dblsaiko.hctm.common.block.WireUtils
-import net.dblsaiko.hctm.common.wire.*
+import net.dblsaiko.hctm.common.wire.ConnectionDiscoverers
+import net.dblsaiko.hctm.common.wire.ConnectionFilter
+import net.dblsaiko.hctm.common.wire.NetNode
+import net.dblsaiko.hctm.common.wire.NodeView
+import net.dblsaiko.hctm.common.wire.PartExt
+import net.dblsaiko.hctm.common.wire.WirePartExtType
+import net.dblsaiko.hctm.common.wire.find
 import net.dblsaiko.rswires.common.util.adjustRotation
 import net.dblsaiko.rswires.common.util.rotate
 import net.minecraft.block.Block
@@ -37,14 +43,16 @@ class NullCellBlock(settings: Block.Settings) : GateBlock(settings) {
 
   override fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt> {
     val side = getSide(state)
-    return setOf(NullCellPartExt(side, false), NullCellPartExt(side, true))
+    val rotation = state[GateProperties.Rotation]
+    return setOf(NullCellPartExt(side, rotation, false), NullCellPartExt(side, rotation, true))
   }
 
   override fun createExtFromTag(tag: Tag): PartExt? {
     val data = (tag as? ByteTag)?.int ?: return null
     val top = data and 1 != 0
-    val side = Direction.byId(data shr 1)
-    return NullCellPartExt(side, top)
+    val side = Direction.byId(data shr 1 and 0b111)
+    val rotation = data shr 4
+    return NullCellPartExt(side, rotation, top)
   }
 
   override fun getOutlineShape(state: BlockState, view: BlockView, pos: BlockPos, ePos: EntityContext): VoxelShape {
@@ -74,7 +82,7 @@ object NullCellProperties {
   val TopPowered = BooleanProperty.of("top_powered")
 }
 
-data class NullCellPartExt(override val side: Direction, val top: Boolean) : PartExt, WirePartExtType, PartRedstoneCarrier {
+data class NullCellPartExt(override val side: Direction, val rotation: Int, val top: Boolean) : PartExt, WirePartExtType, PartRedstoneCarrier {
   override val type = RedstoneWireType.RedAlloy
 
   override fun getState(world: World, self: NetNode): Boolean {
@@ -94,23 +102,25 @@ data class NullCellPartExt(override val side: Direction, val top: Boolean) : Par
   }
 
   override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
-    val rotation = world.getBlockState(pos)[GateProperties.Rotation]
     val axis = adjustRotation(side, rotation, if (top) 1 else 0).axis
     return find(ConnectionDiscoverers.Wire, RedstoneCarrierFilter and ConnectionFilter { self, other ->
       self.data.pos.subtract(other.data.pos)
         .let { Direction.fromVector(it.x, it.y, it.z) }
         ?.let { it.axis == axis }
-        ?: false
+      ?: false
     }, self, world, pos, nv)
   }
 
   override fun canConnectAt(world: BlockView, pos: BlockPos, edge: Direction): Boolean {
-    val rotation = world.getBlockState(pos)[GateProperties.Rotation]
     val axis = adjustRotation(side, rotation, if (top) 1 else 0).axis
     return edge.axis == axis
   }
 
+  override fun onChanged(self: NetNode, world: ServerWorld, pos: BlockPos) {
+    RedstoneWireUtils.scheduleUpdate(world, pos)
+  }
+
   override fun toTag(): Tag {
-    return ByteTag.of(((if (top) 1 else 0) or (side.id shl 1)).toByte())
+    return ByteTag.of(((if (top) 1 else 0) or (side.id shl 1) or (rotation shl 4)).toByte())
   }
 }

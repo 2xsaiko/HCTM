@@ -1,7 +1,13 @@
 package net.dblsaiko.rswires.common.block
 
 import net.dblsaiko.hctm.common.block.WireUtils
-import net.dblsaiko.hctm.common.wire.*
+import net.dblsaiko.hctm.common.wire.ConnectionDiscoverers
+import net.dblsaiko.hctm.common.wire.ConnectionFilter
+import net.dblsaiko.hctm.common.wire.NetNode
+import net.dblsaiko.hctm.common.wire.NodeView
+import net.dblsaiko.hctm.common.wire.PartExt
+import net.dblsaiko.hctm.common.wire.WirePartExtType
+import net.dblsaiko.hctm.common.wire.find
 import net.dblsaiko.rswires.common.util.adjustRotation
 import net.dblsaiko.rswires.common.util.rotate
 import net.minecraft.block.Block
@@ -39,14 +45,14 @@ class GenericLogicGateBlock(settings: Block.Settings) : GateBlock(settings) {
 
   override fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt> {
     val side = getSide(state)
-    return setOf(NullCellPartExt(side, false), NullCellPartExt(side, true))
+    return setOf(NullCellPartExt(side, 0, false), NullCellPartExt(side, 0, true))
   }
 
   override fun createExtFromTag(tag: Tag): PartExt? {
     val data = (tag as? ByteTag)?.int ?: return null
     val top = data and 1 != 0
     val side = Direction.byId(data shr 1)
-    return NullCellPartExt(side, top)
+    return NullCellPartExt(side, 0, top)
   }
 
   override fun getOutlineShape(state: BlockState, view: BlockView, pos: BlockPos, ePos: EntityContext): VoxelShape {
@@ -112,16 +118,16 @@ data class LogicGatePartExt(override val side: Direction, val gateSide: GateSide
   override val type = RedstoneWireType.RedAlloy
 
   override fun getState(world: World, self: NetNode): Boolean {
-//    val pos = self.data.pos
-//    val prop = if (top) NullCellProperties.TopPowered else NullCellProperties.BottomPowered
-//    return world.getBlockState(pos)[prop]
+    //    val pos = self.data.pos
+    //    val prop = if (top) NullCellProperties.TopPowered else NullCellProperties.BottomPowered
+    //    return world.getBlockState(pos)[prop]
     return false
   }
 
   override fun setState(world: World, self: NetNode, state: Boolean) {
-//    val pos = self.data.pos
-//    val prop = if (top) NullCellProperties.TopPowered else NullCellProperties.BottomPowered
-//    world.setBlockState(pos, world.getBlockState(pos).with(prop, state))
+    //    val pos = self.data.pos
+    //    val prop = if (top) NullCellProperties.TopPowered else NullCellProperties.BottomPowered
+    //    world.setBlockState(pos, world.getBlockState(pos).with(prop, state))
   }
 
   override fun getInput(world: World, self: NetNode): Boolean {
@@ -139,7 +145,7 @@ data class LogicGatePartExt(override val side: Direction, val gateSide: GateSide
       self.data.pos.subtract(other.data.pos)
         .let { Direction.fromVector(it.x, it.y, it.z) }
         ?.let { it == direction }
-        ?: false
+      ?: false
     }, self, world, pos, nv)
   }
 
