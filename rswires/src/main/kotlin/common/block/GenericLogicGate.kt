@@ -8,6 +8,10 @@ import net.dblsaiko.hctm.common.wire.NodeView
 import net.dblsaiko.hctm.common.wire.PartExt
 import net.dblsaiko.hctm.common.wire.WirePartExtType
 import net.dblsaiko.hctm.common.wire.find
+import net.dblsaiko.rswires.common.block.GateSide.BACK
+import net.dblsaiko.rswires.common.block.GateSide.FRONT
+import net.dblsaiko.rswires.common.block.GateSide.LEFT
+import net.dblsaiko.rswires.common.block.GateSide.RIGHT
 import net.dblsaiko.rswires.common.util.adjustRotation
 import net.dblsaiko.rswires.common.util.rotate
 import net.minecraft.block.Block
@@ -17,7 +21,6 @@ import net.minecraft.nbt.ByteTag
 import net.minecraft.nbt.Tag
 import net.minecraft.server.world.ServerWorld
 import net.minecraft.state.StateManager.Builder
-import net.minecraft.state.property.BooleanProperty
 import net.minecraft.state.property.EnumProperty
 import net.minecraft.state.property.Properties
 import net.minecraft.util.StringIdentifiable
@@ -33,26 +36,37 @@ class GenericLogicGateBlock(settings: Block.Settings) : GateBlock(settings) {
 
   init {
     defaultState = defaultState
-      .with(NullCellProperties.BottomPowered, false)
-      .with(NullCellProperties.TopPowered, false)
+      .with(LogicGateProperties.OutputPowered, GateOutputState.OFF)
+      .with(LogicGateProperties.LeftPowered, GateInputState.OFF)
+      .with(LogicGateProperties.BackPowered, GateInputState.OFF)
+      .with(LogicGateProperties.RightPowered, GateInputState.OFF)
   }
 
   override fun appendProperties(builder: Builder<Block, BlockState>) {
     super.appendProperties(builder)
-    builder.add(NullCellProperties.BottomPowered)
-    builder.add(NullCellProperties.TopPowered)
+    builder.add(LogicGateProperties.OutputPowered)
+    builder.add(LogicGateProperties.LeftPowered)
+    builder.add(LogicGateProperties.BackPowered)
+    builder.add(LogicGateProperties.RightPowered)
   }
 
   override fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt> {
     val side = getSide(state)
-    return setOf(NullCellPartExt(side, 0, false), NullCellPartExt(side, 0, true))
+    val rotation = state[GateProperties.Rotation]
+    return setOf(
+      LogicGatePartExt(side, rotation, GateSide.FRONT),
+      LogicGatePartExt(side, (rotation + 1) % 4, GateSide.LEFT),
+      LogicGatePartExt(side, (rotation + 2) % 4, GateSide.BACK),
+      LogicGatePartExt(side, (rotation + 3) % 4, GateSide.RIGHT)
+    )
   }
 
   override fun createExtFromTag(tag: Tag): PartExt? {
     val data = (tag as? ByteTag)?.int ?: return null
-    val top = data and 1 != 0
-    val side = Direction.byId(data shr 1)
-    return NullCellPartExt(side, 0, top)
+    val gateSide = GateSide.fromEdge(data and 0b11, 0)
+    val side = Direction.byId(data shr 2 and 0b111)
+    val rotation = data shr 6
+    return LogicGatePartExt(side, rotation, gateSide)
   }
 
   override fun getOutlineShape(state: BlockState, view: BlockView, pos: BlockPos, ePos: EntityContext): VoxelShape {
@@ -78,10 +92,24 @@ class GenericLogicGateBlock(settings: Block.Settings) : GateBlock(settings) {
 }
 
 object LogicGateProperties {
-  val OutputPowered = BooleanProperty.of("output")
+  val OutputPowered = EnumProperty.of("output", GateOutputState::class.java)
   val LeftPowered = EnumProperty.of("left", GateInputState::class.java)
   val BackPowered = EnumProperty.of("back", GateInputState::class.java)
   val RightPowered = EnumProperty.of("right", GateInputState::class.java)
+}
+
+enum class GateOutputState : StringIdentifiable {
+  OFF,
+  ON,
+  INPUT;
+
+  override fun asString(): String {
+    return when (this) {
+      OFF -> "off"
+      ON -> "on"
+      INPUT -> "input"
+    }
+  }
 }
 
 enum class GateInputState : StringIdentifiable {
@@ -112,16 +140,31 @@ enum class GateSide {
       RIGHT -> 3
     }
   }
+
+  companion object {
+    fun fromEdge(rotation: Int, targetOut: Int): GateSide {
+      return when ((rotation + targetOut) % 4) {
+        0 -> FRONT
+        1 -> LEFT
+        2 -> BACK
+        3 -> RIGHT
+        else -> error("unreachable")
+      }
+    }
+  }
+
 }
 
-data class LogicGatePartExt(override val side: Direction, val gateSide: GateSide) : PartExt, WirePartExtType, PartRedstoneCarrier {
+data class LogicGatePartExt(override val side: Direction, val rotation: Int, val gateSide: GateSide) : PartExt, WirePartExtType, PartRedstoneCarrier {
   override val type = RedstoneWireType.RedAlloy
 
   override fun getState(world: World, self: NetNode): Boolean {
-    //    val pos = self.data.pos
-    //    val prop = if (top) NullCellProperties.TopPowered else NullCellProperties.BottomPowered
-    //    return world.getBlockState(pos)[prop]
-    return false
+    return when (gateSide) {
+      FRONT -> TODO()
+      LEFT -> TODO()
+      BACK -> TODO()
+      RIGHT -> TODO()
+    }
   }
 
   override fun setState(world: World, self: NetNode, state: Boolean) {
@@ -131,9 +174,9 @@ data class LogicGatePartExt(override val side: Direction, val gateSide: GateSide
   }
 
   override fun getInput(world: World, self: NetNode): Boolean {
-    if (gateSide == GateSide.FRONT) {
-      return world.getBlockState(self.data.pos)[LogicGateProperties.OutputPowered]
-    }
+    //    if (gateSide == GateSide.FRONT) {
+    //      return world.getBlockState(self.data.pos)[LogicGateProperties.OutputPowered]
+    //    }
 
     return false
   }
@@ -156,6 +199,7 @@ data class LogicGatePartExt(override val side: Direction, val gateSide: GateSide
   }
 
   override fun toTag(): Tag {
-    return ByteTag.of(((gateSide.direction()) or (side.id shl 2)).toByte())
+    return ByteTag.of(((gateSide.direction()) or (side.id shl 2) or (rotation shl 6)).toByte())
   }
+
 }
