@@ -17,6 +17,7 @@ import net.dblsaiko.hctm.common.block.ConnectionType.EXTERNAL
 import net.dblsaiko.hctm.common.block.ConnectionType.INTERNAL
 import net.dblsaiko.hctm.common.block.WireRepr
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh
+import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel
 import net.fabricmc.fabric.api.renderer.v1.model.ModelHelper
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext
@@ -49,6 +50,12 @@ class WireModel(
   }
 
   fun emitQuads(state: Set<WireRepr>, context: RenderContext) {
+    context.pushTransform { quad ->
+      quad.spriteBake(0, particle, MutableQuadView.BAKE_NORMALIZED)
+
+      true
+    }
+
     val meshConsumer = context.meshConsumer()
 
     for ((side, conns) in state) {
@@ -92,6 +99,7 @@ class WireModel(
         meshConsumer.accept(s.exts.getValue(Pair(edge, getExtVariant(edge))))
       }
     }
+    context.popTransform()
   }
 
   @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")

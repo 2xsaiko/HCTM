@@ -42,6 +42,7 @@ import net.minecraft.util.math.Vec2f
 import therealfarfetchd.qcommon.croco.Mat4
 import therealfarfetchd.qcommon.croco.Vec2
 import therealfarfetchd.qcommon.croco.Vec3
+import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Function
 import kotlin.math.atan2
 
@@ -49,7 +50,8 @@ class UnbakedWireModel(
   val texture: Identifier,
   val cableWidth: Float,
   val cableHeight: Float,
-  textureSize: Float
+  val textureSize: Float,
+  val cache: ConcurrentHashMap<CacheKey, WireModelParts>
 ) : UnbakedModel {
 
   private val armLength: Float = (1 - cableWidth) / 2
@@ -101,13 +103,15 @@ class UnbakedWireModel(
   val finder = renderer.materialFinder()
 
   override fun bake(ml: ModelLoader, getTexture: Function<SpriteIdentifier, Sprite>, settings: ModelBakeSettings, p3: Identifier): BakedModel? {
-    finder.clear()
-    val standard = finder.find()
-    finder.disableAo(0, true)
-    val corner = finder.find()
-
     val sid = SpriteIdentifier(SpriteAtlasTexture.BLOCK_ATLAS_TEX, texture)
-    val parts = generateParts(RenderData(Materials(standard, corner), getTexture.apply(sid)))
+    val parts = cache.computeIfAbsent(CacheKey(cableWidth, cableHeight, textureSize)) {
+      finder.clear()
+      val standard = finder.find()
+      finder.disableAo(0, true)
+      val corner = finder.find()
+
+      generateParts(RenderData(Materials(standard, corner)))
+    }
 
     return WireModel(getTexture.apply(sid), parts)
   }
@@ -153,7 +157,7 @@ class UnbakedWireModel(
       Vec3(1 - armLength, cableHeight, 1 - armLength),
       down = UvCoords(bottomUv, cableWidth / scaleFactor, cableWidth / scaleFactor),
       up = UvCoords(topUv, cableWidth / scaleFactor, cableWidth / scaleFactor)
-    ).transform(getExtGenInfo(side, Direction.from(axis, POSITIVE)).first).into(builder.emitter, d.texture, d.materials.standard)
+    ).transform(getExtGenInfo(side, Direction.from(axis, POSITIVE)).first).into(builder.emitter, d.materials.standard)
     return builder.build()
   }
 
@@ -204,7 +208,7 @@ class UnbakedWireModel(
         south = uvFront?.let { UvCoords(uvFront, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U) },
         west = UvCoords(uvSide1, cableHeight / scaleFactor, baseLength / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U),
         east = UvCoords(uvSide2, cableHeight / scaleFactor, baseLength / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U)
-      ).transform(mat).into(builder.emitter, d.texture, d.materials.standard)
+      ).transform(mat).into(builder.emitter, d.materials.standard)
 
       when (variant) {
         Internal -> {
@@ -214,7 +218,7 @@ class UnbakedWireModel(
             up = UvCoords(cableFrontUv, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90),
             west = UvCoords(icornerSide1Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_ROTATE_180),
             east = UvCoords(icornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_ROTATE_180)
-          ).transform(mat).into(builder.emitter, d.texture, d.materials.standard)
+          ).transform(mat).into(builder.emitter, d.materials.standard)
         }
         Corner -> {
           finder.disableAo(0, true)
@@ -225,7 +229,7 @@ class UnbakedWireModel(
             south = UvCoords(cornerTop2Uv, cableWidth / scaleFactor, cableHeight / scaleFactor),
             west = UvCoords(cornerSide1Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_FLIP_V),
             east = UvCoords(cornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_FLIP_V)
-          ).transform(mat).into(builder.emitter, d.texture, d.materials.corner)
+          ).transform(mat).into(builder.emitter, d.materials.corner)
           finder.clear()
         }
         Unconnected, UnconnectedCrossing -> {
@@ -238,7 +242,7 @@ class UnbakedWireModel(
             Vec3(armLength, 0f, armLength),
             Vec3(1 - armLength, cableHeight, 1 - armLength),
             south = coords
-          ).transform(mat).into(builder.emitter, d.texture, d.materials.standard)
+          ).transform(mat).into(builder.emitter, d.materials.standard)
         }
         else -> {
         }
@@ -274,7 +278,7 @@ class UnbakedWireModel(
         north = uvFront?.let { UvCoords(uvFront, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U) },
         west = UvCoords(uvSide1, cableHeight / scaleFactor, baseLength / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U),
         east = UvCoords(uvSide2, cableHeight / scaleFactor, baseLength / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U)
-      ).transform(mat).into(builder.emitter, d.texture, d.materials.standard)
+      ).transform(mat).into(builder.emitter, d.materials.standard)
 
       when (variant) {
         Internal -> {
@@ -284,7 +288,7 @@ class UnbakedWireModel(
             up = UvCoords(cableBackUv, cableHeight / scaleFactor, cableWidth / scaleFactor, MutableQuadView.BAKE_ROTATE_90 + MutableQuadView.BAKE_FLIP_U),
             west = UvCoords(icornerSide1Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_FLIP_V),
             east = UvCoords(icornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_FLIP_V)
-          ).transform(mat).into(builder.emitter, d.texture, d.materials.standard)
+          ).transform(mat).into(builder.emitter, d.materials.standard)
         }
         Corner -> {
           box(
@@ -294,7 +298,7 @@ class UnbakedWireModel(
             north = UvCoords(cornerTop1Uv, cableWidth / scaleFactor, cableHeight / scaleFactor),
             west = UvCoords(cornerSide1Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_ROTATE_180),
             east = UvCoords(cornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_ROTATE_180)
-          ).transform(mat).into(builder.emitter, d.texture, d.materials.corner)
+          ).transform(mat).into(builder.emitter, d.materials.corner)
         }
         Unconnected, UnconnectedCrossing -> {
           val coords = UvCoords(
@@ -306,7 +310,7 @@ class UnbakedWireModel(
             Vec3(armLength, 0f, armLength),
             Vec3(1 - armLength, cableHeight, 1 - armLength),
             north = coords
-          ).transform(mat).into(builder.emitter, d.texture, d.materials.standard)
+          ).transform(mat).into(builder.emitter, d.materials.standard)
         }
         else -> {
         }
@@ -324,7 +328,7 @@ class UnbakedWireModel(
 
 }
 
-private data class RenderData(val materials: Materials, val texture: Sprite)
+private data class RenderData(val materials: Materials)
 
 private data class Materials(val standard: RenderMaterial, val corner: RenderMaterial)
 
@@ -359,13 +363,12 @@ private data class Quad(val v1: Vertex, val v2: Vertex, val v3: Vertex, val v4: 
     return Quad(v1, v2, v3, v4)
   }
 
-  fun into(qe: QuadEmitter, t: Sprite, mat: RenderMaterial) {
+  fun into(qe: QuadEmitter, mat: RenderMaterial) {
     qe.spriteColor(0, -1, -1, -1, -1)
     for ((i, q) in listOf(v1, v2, v3, v4).withIndex()) {
       qe.pos(i, q.x, q.y, q.z)
       qe.sprite(i, 0, q.u, q.v)
     }
-    qe.spriteBake(0, t, MutableQuadView.BAKE_NORMALIZED)
     qe.material(mat)
     qe.emit()
   }
@@ -447,7 +450,7 @@ private fun getExtGenInfo(side: Direction, edge: Direction): Pair<Mat4, AxisDire
   return Pair(mat, dir)
 }
 
-private fun Collection<Quad>.into(qe: QuadEmitter, t: Sprite, mat: RenderMaterial) = forEach { it.into(qe, t, mat) }
+private fun Collection<Quad>.into(qe: QuadEmitter, mat: RenderMaterial) = forEach { it.into(qe, mat) }
 
 private fun Collection<Quad>.transform(mat: Mat4) = map { it.transform(mat) }
 
