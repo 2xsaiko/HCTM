@@ -1,0 +1,4 @@
+include eo_uy/blocks.str
+include eo_uy/items.str
+
+itemGroup.rswires.all: RSDratoj
