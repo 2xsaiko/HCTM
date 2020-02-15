@@ -1,0 +1,36 @@
+block.rswires.red_alloy_wire: Drato de Ruĝa Alojo
+
+block.rswires.white_insulated_wire:       Blanka Izolita Drato
+block.rswires.orange_insulated_wire:      Oranĝa Izolita Drato
+block.rswires.magenta_insulated_wire:     Magenta Izolita Drato
+block.rswires.light_blue_insulated_wire:  Helblua Izolita Drato
+block.rswires.yellow_insulated_wire:      Flava Izolita Drato
+block.rswires.lime_insulated_wire:        Kalko Izolita Drato
+block.rswires.pink_insulated_wire:        Rozkolora Izolita Drato
+block.rswires.gray_insulated_wire:        Griza Izolita Drato
+block.rswires.light_gray_insulated_wire:  Helgriza Izolita Drato
+block.rswires.cyan_insulated_wire:        Ciano Izolita Drato
+block.rswires.purple_insulated_wire:      Purpura Izolita Drato
+block.rswires.blue_insulated_wire:        Blua Izolita Drato
+block.rswires.brown_insulated_wire:       Bruna Izolita Drato
+block.rswires.green_insulated_wire:       Verda Izolita Drato
+block.rswires.red_insulated_wire:         Ruĝa Izolita Drato
+block.rswires.black_insulated_wire:       Nigra Izolita Drato
+
+block.rswires.bundled_cable:            Ŝtopita Kablo
+block.rswires.white_bundled_cable:      Blanka Ŝtopita Kablo
+block.rswires.orange_bundled_cable:     Oranĝa Ŝtopita Kablo
+block.rswires.magenta_bundled_cable:    Magenta Ŝtopita Kablo
+block.rswires.light_blue_bundled_cable: Helblua Ŝtopita Kablo
+block.rswires.yellow_bundled_cable:     Flava Ŝtopita Kablo
+block.rswires.lime_bundled_cable:       Kalko Ŝtopita Kablo
+block.rswires.pink_bundled_cable:       Rozkolora Ŝtopita Kablo
+block.rswires.gray_bundled_cable:       Griza Ŝtopita Kablo
+block.rswires.light_gray_bundled_cable: Helgriza Ŝtopita Kablo
+block.rswires.cyan_bundled_cable:       Ciano Ŝtopita Kablo
+block.rswires.purple_bundled_cable:     Purpura Ŝtopita Kablo
+block.rswires.blue_bundled_cable:       Blua Ŝtopita Kablo
+block.rswires.brown_bundled_cable:      Bruna Ŝtopita Kablo
+block.rswires.green_bundled_cable:      Verda Ŝtopita Kablo
+block.rswires.red_bundled_cable:        Ruĝa Ŝtopita Kablo
+block.rswires.black_bundled_cable:      Nigra Ŝtopita Kablo
