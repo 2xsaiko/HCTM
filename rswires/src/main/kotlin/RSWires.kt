@@ -8,7 +8,7 @@ import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.world.WorldTickCallback
 import net.minecraft.server.world.ServerWorld
 
-const val ModID = "rswires"
+const val MOD_ID = "rswires"
 
 object RSWires : ModInitializer {
   var wiresGivePower = true

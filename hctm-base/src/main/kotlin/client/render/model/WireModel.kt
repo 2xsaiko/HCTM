@@ -1,20 +1,8 @@
 package net.dblsaiko.hctm.client.render.model
 
-import net.dblsaiko.hctm.client.render.model.CenterVariant.Crossing
-import net.dblsaiko.hctm.client.render.model.CenterVariant.Standalone
-import net.dblsaiko.hctm.client.render.model.CenterVariant.Straight1
-import net.dblsaiko.hctm.client.render.model.CenterVariant.Straight2
-import net.dblsaiko.hctm.client.render.model.ExtVariant.Corner
-import net.dblsaiko.hctm.client.render.model.ExtVariant.External
-import net.dblsaiko.hctm.client.render.model.ExtVariant.Internal
-import net.dblsaiko.hctm.client.render.model.ExtVariant.Terminal
-import net.dblsaiko.hctm.client.render.model.ExtVariant.Unconnected
-import net.dblsaiko.hctm.client.render.model.ExtVariant.UnconnectedCrossing
 import net.dblsaiko.hctm.common.block.BaseWireBlockEntity
 import net.dblsaiko.hctm.common.block.Connection
-import net.dblsaiko.hctm.common.block.ConnectionType.CORNER
-import net.dblsaiko.hctm.common.block.ConnectionType.EXTERNAL
-import net.dblsaiko.hctm.common.block.ConnectionType.INTERNAL
+import net.dblsaiko.hctm.common.block.ConnectionType
 import net.dblsaiko.hctm.common.block.WireRepr
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh
 import net.fabricmc.fabric.api.renderer.v1.mesh.MutableQuadView
@@ -62,33 +50,33 @@ class WireModel(
       val s = parts.sides.getValue(side)
 
       val cv = when (conns.size) {
-        0 -> Standalone
+        0 -> CenterVariant.STANDALONE
         1 -> getCenterVariant(side, conns.first().edge)
         2 -> {
           val (first, second) = conns.toList()
           getCenterVariant(side, first.edge, second.edge)
         }
-        else -> Crossing
+        else -> CenterVariant.CROSSING
       }
 
       fun getExtVariant(edge: Direction) =
         when (conns.firstOrNull { it.edge == edge }?.type) {
-          INTERNAL -> Internal
-          EXTERNAL -> External
-          CORNER -> Corner
+          ConnectionType.INTERNAL -> ExtVariant.INTERNAL
+          ConnectionType.EXTERNAL -> ExtVariant.EXTERNAL
+          ConnectionType.CORNER -> ExtVariant.CORNER
           null -> when (cv) {
-            Crossing -> UnconnectedCrossing
-            Straight1, Straight2 -> {
-              if (conns.size == 2) Unconnected
+            CenterVariant.CROSSING -> ExtVariant.UNCONNECTED_CROSSING
+            CenterVariant.STRAIGHT_1, CenterVariant.STRAIGHT_2 -> {
+              if (conns.size == 2) ExtVariant.UNCONNECTED
               else {
-                if (conns.first().edge.axis == edge.axis) Terminal
-                else Unconnected
+                if (conns.first().edge.axis == edge.axis) ExtVariant.TERMINAL
+                else ExtVariant.UNCONNECTED
               }
             }
-            Standalone -> {
+            CenterVariant.STANDALONE -> {
               when (Pair(side.axis, edge.axis)) {
-                Pair(X, Z), Pair(Z, X), Pair(Y, X) -> Terminal
-                else -> Unconnected
+                Pair(X, Z), Pair(Z, X), Pair(Y, X) -> ExtVariant.TERMINAL
+                else -> ExtVariant.UNCONNECTED
               }
             }
           }
@@ -106,23 +94,23 @@ class WireModel(
   private fun getCenterVariant(side: Direction, edge: Direction): CenterVariant = when (side.axis) {
     X -> when (edge.axis) {
       X -> error("unreachable")
-      Y -> Straight2
-      Z -> Straight1
+      Y -> CenterVariant.STRAIGHT_2
+      Z -> CenterVariant.STRAIGHT_1
     }
     Y -> when (edge.axis) {
-      X -> Straight1
+      X -> CenterVariant.STRAIGHT_1
       Y -> error("unreachable")
-      Z -> Straight2
+      Z -> CenterVariant.STRAIGHT_2
     }
     Z -> when (edge.axis) {
-      X -> Straight1
-      Y -> Straight2
+      X -> CenterVariant.STRAIGHT_1
+      Y -> CenterVariant.STRAIGHT_2
       Z -> error("unreachable")
     }
   }
 
   private fun getCenterVariant(side: Direction, edge1: Direction, edge2: Direction): CenterVariant =
-    if (edge1.axis == edge2.axis) getCenterVariant(side, edge1) else Crossing
+    if (edge1.axis == edge2.axis) getCenterVariant(side, edge1) else CenterVariant.CROSSING
 
   override fun getQuads(state: BlockState?, face: Direction?, rnd: Random): List<BakedQuad> {
     return emptyList()
@@ -137,10 +125,10 @@ class WireModel(
       WireRepr(
         side = Direction.DOWN,
         connections = setOf(
-          Connection(edge = Direction.NORTH, type = EXTERNAL),
-          Connection(edge = Direction.SOUTH, type = EXTERNAL),
-          Connection(edge = Direction.WEST, type = EXTERNAL),
-          Connection(edge = Direction.EAST, type = EXTERNAL)
+          Connection(edge = Direction.NORTH, type = ConnectionType.EXTERNAL),
+          Connection(edge = Direction.SOUTH, type = ConnectionType.EXTERNAL),
+          Connection(edge = Direction.WEST, type = ConnectionType.EXTERNAL),
+          Connection(edge = Direction.EAST, type = ConnectionType.EXTERNAL)
         )
       )
     )

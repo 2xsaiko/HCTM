@@ -5,7 +5,7 @@ import net.minecraft.util.math.Direction
 import kotlin.reflect.KClass
 
 object ConnectionDiscoverers {
-  val Wire = connectionDiscoverer<WirePartExtType, Direction> {
+  val WIRE = connectionDiscoverer<WirePartExtType, Direction> {
     // wires in same block
     connectionRule {
       forOutputs { Direction.values().filter { it.axis != self.data.ext.side.axis } }
@@ -53,7 +53,7 @@ object ConnectionDiscoverers {
 
   private val edges = Direction.values().flatMap { side -> Direction.values().filter { edge -> edge.axis != side.axis }.map { edge -> Edge(side, edge) } }
 
-  val FullBlock = connectionDiscoverer<FullBlockPartExtType, Edge> {
+  val FULL_BLOCK = connectionDiscoverer<FullBlockPartExtType, Edge> {
     connectionRule {
       forOutputs { edges }
       connect {

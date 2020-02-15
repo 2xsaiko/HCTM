@@ -54,18 +54,18 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
 
   init {
     defaultState =
-      BaseWireProperties.PlacedWires.values.fold(defaultState) { state, prop -> state.with(prop, false) }
+      BaseWireProperties.PLACED_WIRES.values.fold(defaultState) { state, prop -> state.with(prop, false) }
   }
 
   override fun appendProperties(b: Builder<Block, BlockState>) {
     super.appendProperties(b)
-    for (prop in BaseWireProperties.PlacedWires.values) {
+    for (prop in BaseWireProperties.PLACED_WIRES.values) {
       b.add(prop)
     }
   }
 
   override fun getPlacementState(ctx: ItemPlacementContext): BlockState? {
-    return super.getPlacementState(ctx)?.with(BaseWireProperties.PlacedWires.getValue(ctx.side.opposite), true)
+    return super.getPlacementState(ctx)?.with(BaseWireProperties.PLACED_WIRES.getValue(ctx.side.opposite), true)
   }
 
   override fun canPlaceAt(state: BlockState, world: WorldView, pos: BlockPos): Boolean {
@@ -73,7 +73,7 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
   }
 
   private fun getShape(state: BlockState): VoxelShape {
-    return BaseWireProperties.PlacedWires.entries
+    return BaseWireProperties.PLACED_WIRES.entries
       .filter { (_, prop) -> state[prop] }
       .map { (a, _) -> boxes.getValue(a) }
       .fold(VoxelShapes.empty(), VoxelShapes::union)
@@ -101,9 +101,9 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
   }
 
   private fun breakPart(state: BlockState, pos: BlockPos, world: World, player: PlayerEntity, side: Direction, blockEntity: BlockEntity?): Boolean {
-    if (!state[BaseWireProperties.PlacedWires.getValue(side)]) return false
+    if (!state[BaseWireProperties.PLACED_WIRES.getValue(side)]) return false
 
-    val result = world.setBlockState(pos, state.with(BaseWireProperties.PlacedWires.getValue(side), false))
+    val result = world.setBlockState(pos, state.with(BaseWireProperties.PLACED_WIRES.getValue(side), false))
 
     if (result) {
       onBreak(world, pos, getStateForSide(state, side), player) // particle
@@ -143,7 +143,7 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
 
   private fun getStateForSide(oldState: BlockState, vararg side: Direction): BlockState =
     if (side.isEmpty()) Blocks.AIR.defaultState else
-      Direction.values().fold(oldState) { state, s -> state.with(BaseWireProperties.PlacedWires.getValue(s), s in side) }
+      Direction.values().fold(oldState) { state, s -> state.with(BaseWireProperties.PLACED_WIRES.getValue(s), s in side) }
 
   override fun getStateForNeighborUpdate(state: BlockState, side: Direction, state1: BlockState, world: IWorld, pos: BlockPos, pos1: BlockPos): BlockState {
     return getStateForSide(state, *WireUtils.getOccupiedSides(state).filter { it != side || getStateForSide(state, it).canPlaceAt(world, pos) }.toTypedArray())
@@ -263,7 +263,7 @@ open class BaseWireItem(block: BaseWireBlock, settings: Item.Settings) : BlockIt
     val v1 = WireUtils.getOccupiedSides(state)
     val v2 = WireUtils.getOccupiedSides(new)
     if ((v1 + v2).size != v1.size + v2.size) return null
-    return v2.fold(state) { s, side -> s.with(BaseWireProperties.PlacedWires.getValue(side), true) }
+    return v2.fold(state) { s, side -> s.with(BaseWireProperties.PLACED_WIRES.getValue(side), true) }
   }
 
   private fun placePart(ctx: ItemPlacementContext, state: BlockState): Boolean {
@@ -305,7 +305,7 @@ open class BaseWireItem(block: BaseWireBlock, settings: Item.Settings) : BlockIt
 }
 
 object BaseWireProperties {
-  val PlacedWires = mapOf(
+  val PLACED_WIRES = mapOf(
     UP to Properties.UP,
     DOWN to Properties.DOWN,
     NORTH to Properties.NORTH,
@@ -330,7 +330,7 @@ object WireUtils {
   fun rayTrace(state: BlockState, pos: BlockPos, from: Vec3d, to: Vec3d): Pair<Direction, BlockHitResult>? {
     val block = state.block as BaseWireBlock
 
-    return BaseWireProperties.PlacedWires.entries.asSequence()
+    return BaseWireProperties.PLACED_WIRES.entries.asSequence()
       .filter { (_, prop) -> state[prop] }
       .map { (a, _) -> Pair(a, block.boxes.getValue(a)) }
       .map { (a, s) -> Pair(a, s.rayTrace(from, to, pos)) }
@@ -355,7 +355,7 @@ object WireUtils {
   }
 
   fun getOccupiedSides(state: BlockState): Set<Direction> {
-    return BaseWireProperties.PlacedWires.entries
+    return BaseWireProperties.PLACED_WIRES.entries
       .filter { (_, prop) -> state[prop] }
       .map { it.key }
       .toSet()

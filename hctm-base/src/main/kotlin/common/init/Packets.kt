@@ -1,6 +1,6 @@
 package net.dblsaiko.hctm.common.init
 
-import net.dblsaiko.hctm.ModID
+import net.dblsaiko.hctm.MOD_ID
 import net.dblsaiko.hctm.client.packet.onDebugNetUpdateResponse
 import net.dblsaiko.hctm.common.packet.onDebugNetUpdateRequest
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry
@@ -11,20 +11,20 @@ object Packets {
 
   object Client {
 
-    val DebugNetResponse = Identifier(ModID, "debug_net_recv")
+    val DEBUG_NET_RESPONSE = Identifier(MOD_ID, "debug_net_recv")
 
     fun register() {
-      ClientSidePacketRegistry.INSTANCE.register(DebugNetResponse, ::onDebugNetUpdateResponse)
+      ClientSidePacketRegistry.INSTANCE.register(DEBUG_NET_RESPONSE, ::onDebugNetUpdateResponse)
     }
 
   }
 
   object Server {
 
-    val DebugNetRequest = Identifier(ModID, "debug_net_req")
+    val DEBUG_NET_REQUEST = Identifier(MOD_ID, "debug_net_req")
 
     fun register() {
-      ServerSidePacketRegistry.INSTANCE.register(DebugNetRequest, ::onDebugNetUpdateRequest)
+      ServerSidePacketRegistry.INSTANCE.register(DEBUG_NET_REQUEST, ::onDebugNetUpdateRequest)
     }
 
   }

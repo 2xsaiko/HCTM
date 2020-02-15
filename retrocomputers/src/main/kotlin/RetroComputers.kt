@@ -16,7 +16,7 @@ import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.util.Identifier
 
-const val ModID = "retrocomputers"
+const val MOD_ID = "retrocomputers"
 
 object RetroComputers : ModInitializer {
 
@@ -34,15 +34,15 @@ object RetroComputers : ModInitializer {
     Packets
     Resources
 
-    FabricItemGroupBuilder.create(Identifier(ModID, "all"))
-      .icon { Items.Computer.makeStack() }
+    FabricItemGroupBuilder.create(Identifier(MOD_ID, "all"))
+      .icon { Items.COMPUTER.makeStack() }
       .appendItems {
-        it += Items.Computer.makeStack()
-        it += Items.Terminal.makeStack()
-        it += Items.DiskDrive.makeStack()
-        it += Items.RibbonCable.makeStack()
-        it += Items.UserDisk.makeStack()
-        it += Items.SysDisks.map { it.makeStack() }
+        it += Items.COMPUTER.makeStack()
+        it += Items.TERMINAL.makeStack()
+        it += Items.DISK_DRIVE.makeStack()
+        it += Items.RIBBON_CABLE.makeStack()
+        it += Items.USER_DISK.makeStack()
+        it += Items.SYS_DISKS.map { it.makeStack() }
       }.build()
   }
 

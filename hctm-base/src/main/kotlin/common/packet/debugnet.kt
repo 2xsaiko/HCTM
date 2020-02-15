@@ -20,5 +20,5 @@ fun onDebugNetUpdateRequest(context: PacketContext, buffer: PacketByteBuf) {
   val out = PacketByteBuf(Unpooled.buffer())
   out.writeString(dim.toString())
   out.writeCompoundTag(tag)
-  ServerSidePacketRegistry.INSTANCE.sendToPlayer(context.player, Packets.Client.DebugNetResponse, out)
+  ServerSidePacketRegistry.INSTANCE.sendToPlayer(context.player, Packets.Client.DEBUG_NET_RESPONSE, out)
 }

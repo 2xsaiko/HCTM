@@ -7,7 +7,11 @@ import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext
 import net.fabricmc.fabric.impl.client.indigo.renderer.helper.ColorHelper
 import net.minecraft.block.BlockState
-import net.minecraft.client.render.model.*
+import net.minecraft.client.render.model.BakedModel
+import net.minecraft.client.render.model.BakedQuad
+import net.minecraft.client.render.model.ModelBakeSettings
+import net.minecraft.client.render.model.ModelLoader
+import net.minecraft.client.render.model.UnbakedModel
 import net.minecraft.client.render.model.json.ModelItemPropertyOverrideList
 import net.minecraft.client.render.model.json.ModelTransformation
 import net.minecraft.client.texture.Sprite
@@ -17,7 +21,12 @@ import net.minecraft.state.property.Properties
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
-import net.minecraft.util.math.Direction.*
+import net.minecraft.util.math.Direction.DOWN
+import net.minecraft.util.math.Direction.EAST
+import net.minecraft.util.math.Direction.NORTH
+import net.minecraft.util.math.Direction.SOUTH
+import net.minecraft.util.math.Direction.UP
+import net.minecraft.util.math.Direction.WEST
 import net.minecraft.util.math.MathHelper
 import net.minecraft.world.BlockRenderView
 import therealfarfetchd.qcommon.croco.Vec3
@@ -45,7 +54,7 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
 
     override fun emitBlockQuads(blockView: BlockRenderView, state: BlockState, pos: BlockPos, randomSupplier: Supplier<Random>, context: RenderContext) {
       val side = state[Properties.FACING]
-      val rotation = state[GateProperties.Rotation]
+      val rotation = state[GateProperties.ROTATION]
       val (mat, rotationMat) = getRotationFor(side, rotation)
 
       context.pushTransform { quad ->

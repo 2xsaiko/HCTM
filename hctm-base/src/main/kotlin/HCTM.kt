@@ -6,7 +6,7 @@ import net.dblsaiko.hctm.common.wire.getWireNetworkState
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.server.ServerTickCallback
 
-const val ModID = "hctm-base"
+const val MOD_ID = "hctm-base"
 
 object HCTM : ModInitializer {
 

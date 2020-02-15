@@ -31,19 +31,19 @@ class NullCellBlock(settings: Block.Settings) : GateBlock(settings) {
 
   init {
     defaultState = defaultState
-      .with(NullCellProperties.BottomPowered, false)
-      .with(NullCellProperties.TopPowered, false)
+      .with(NullCellProperties.BOTTOM_POWERED, false)
+      .with(NullCellProperties.TOP_POWERED, false)
   }
 
   override fun appendProperties(builder: Builder<Block, BlockState>) {
     super.appendProperties(builder)
-    builder.add(NullCellProperties.BottomPowered)
-    builder.add(NullCellProperties.TopPowered)
+    builder.add(NullCellProperties.BOTTOM_POWERED)
+    builder.add(NullCellProperties.TOP_POWERED)
   }
 
   override fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt> {
     val side = getSide(state)
-    val rotation = state[GateProperties.Rotation]
+    val rotation = state[GateProperties.ROTATION]
     return setOf(NullCellPartExt(side, rotation, false), NullCellPartExt(side, rotation, true))
   }
 
@@ -56,17 +56,17 @@ class NullCellBlock(settings: Block.Settings) : GateBlock(settings) {
   }
 
   override fun getOutlineShape(state: BlockState, view: BlockView, pos: BlockPos, ePos: EntityContext): VoxelShape {
-    return SelectionBoxes.getValue(state[Properties.FACING])
+    return SELECTION_BOXES.getValue(state[Properties.FACING])
   }
 
   override fun getCullingShape(state: BlockState, view: BlockView, pos: BlockPos): VoxelShape {
-    return CullBox.getValue(state[Properties.FACING])[state[GateProperties.Rotation]]
+    return CULL_BOX.getValue(state[Properties.FACING])[state[GateProperties.ROTATION]]
   }
 
   companion object {
-    val SelectionBoxes = WireUtils.generateShapes(12 / 16.0)
+    val SELECTION_BOXES = WireUtils.generateShapes(12 / 16.0)
 
-    val CullBox = VoxelShapes.union(
+    val CULL_BOX = VoxelShapes.union(
       VoxelShapes.cuboid(0.0, 0.0, 0.0, 1.0, 2 / 16.0, 1.0),
       VoxelShapes.cuboid(7 / 16.0, 0.0, 0.0, 9 / 16.0, 12 / 16.0, 1.0),
       VoxelShapes.cuboid(0.0, 0.0, 7 / 16.0, 1.0, 3 / 16.0, 9 / 16.0)
@@ -78,8 +78,8 @@ class NullCellBlock(settings: Block.Settings) : GateBlock(settings) {
 }
 
 object NullCellProperties {
-  val BottomPowered = BooleanProperty.of("bottom_powered")
-  val TopPowered = BooleanProperty.of("top_powered")
+  val BOTTOM_POWERED = BooleanProperty.of("bottom_powered")
+  val TOP_POWERED = BooleanProperty.of("top_powered")
 }
 
 data class NullCellPartExt(override val side: Direction, val rotation: Int, val top: Boolean) : PartExt, WirePartExtType, PartRedstoneCarrier {
@@ -87,13 +87,13 @@ data class NullCellPartExt(override val side: Direction, val rotation: Int, val 
 
   override fun getState(world: World, self: NetNode): Boolean {
     val pos = self.data.pos
-    val prop = if (top) NullCellProperties.TopPowered else NullCellProperties.BottomPowered
+    val prop = if (top) NullCellProperties.TOP_POWERED else NullCellProperties.BOTTOM_POWERED
     return world.getBlockState(pos)[prop]
   }
 
   override fun setState(world: World, self: NetNode, state: Boolean) {
     val pos = self.data.pos
-    val prop = if (top) NullCellProperties.TopPowered else NullCellProperties.BottomPowered
+    val prop = if (top) NullCellProperties.TOP_POWERED else NullCellProperties.BOTTOM_POWERED
     world.setBlockState(pos, world.getBlockState(pos).with(prop, state))
   }
 
@@ -103,7 +103,7 @@ data class NullCellPartExt(override val side: Direction, val rotation: Int, val 
 
   override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
     val axis = adjustRotation(side, rotation, if (top) 1 else 0).axis
-    return find(ConnectionDiscoverers.Wire, RedstoneCarrierFilter and ConnectionFilter { self, other ->
+    return find(ConnectionDiscoverers.WIRE, RedstoneCarrierFilter and ConnectionFilter { self, other ->
       self.data.pos.subtract(other.data.pos)
         .let { Direction.fromVector(it.x, it.y, it.z) }
         ?.let { it.axis == axis }

@@ -1,15 +1,15 @@
 package net.dblsaiko.hctm.client.render.model
 
-import net.dblsaiko.hctm.client.render.model.CenterVariant.Crossing
-import net.dblsaiko.hctm.client.render.model.CenterVariant.Standalone
-import net.dblsaiko.hctm.client.render.model.CenterVariant.Straight1
-import net.dblsaiko.hctm.client.render.model.CenterVariant.Straight2
-import net.dblsaiko.hctm.client.render.model.ExtVariant.Corner
-import net.dblsaiko.hctm.client.render.model.ExtVariant.External
-import net.dblsaiko.hctm.client.render.model.ExtVariant.Internal
-import net.dblsaiko.hctm.client.render.model.ExtVariant.Terminal
-import net.dblsaiko.hctm.client.render.model.ExtVariant.Unconnected
-import net.dblsaiko.hctm.client.render.model.ExtVariant.UnconnectedCrossing
+import net.dblsaiko.hctm.client.render.model.CenterVariant.CROSSING
+import net.dblsaiko.hctm.client.render.model.CenterVariant.STANDALONE
+import net.dblsaiko.hctm.client.render.model.CenterVariant.STRAIGHT_1
+import net.dblsaiko.hctm.client.render.model.CenterVariant.STRAIGHT_2
+import net.dblsaiko.hctm.client.render.model.ExtVariant.CORNER
+import net.dblsaiko.hctm.client.render.model.ExtVariant.EXTERNAL
+import net.dblsaiko.hctm.client.render.model.ExtVariant.INTERNAL
+import net.dblsaiko.hctm.client.render.model.ExtVariant.TERMINAL
+import net.dblsaiko.hctm.client.render.model.ExtVariant.UNCONNECTED
+import net.dblsaiko.hctm.client.render.model.ExtVariant.UNCONNECTED_CROSSING
 import net.dblsaiko.hctm.common.util.ext.rotateClockwise
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial
@@ -135,12 +135,12 @@ class UnbakedWireModel(
 
   private fun generateCenter(d: RenderData, side: Direction, variant: CenterVariant): Mesh {
     val axis = when (variant) {
-      Straight1, Standalone, Crossing -> when (side.axis) {
+      STRAIGHT_1, STANDALONE, CROSSING -> when (side.axis) {
         X -> Z
         Y -> X
         Z -> X
       }
-      Straight2 -> when (side.axis) {
+      STRAIGHT_2 -> when (side.axis) {
         X -> Y
         Y -> Z
         Z -> Y
@@ -148,8 +148,8 @@ class UnbakedWireModel(
     }
 
     val (topUv, bottomUv) = when (variant) {
-      Crossing -> Pair(centerTopCUv, centerTopCUv)
-      Straight1, Straight2, Standalone -> Pair(centerTopUv, centerBottomUv)
+      CROSSING -> Pair(centerTopCUv, centerTopCUv)
+      STRAIGHT_1, STRAIGHT_2, STANDALONE -> Pair(centerTopUv, centerBottomUv)
     }
 
     box(
@@ -163,12 +163,12 @@ class UnbakedWireModel(
 
   private fun generateExt(d: RenderData, side: Direction, edge: Direction, variant: ExtVariant): Mesh {
     val baseLength = when (variant) {
-      External -> armLength
-      Internal -> armInnerLength
-      Corner -> armLength
-      Unconnected -> 0f
-      UnconnectedCrossing -> 0f
-      Terminal -> armLength - 0.25f
+      EXTERNAL -> armLength
+      INTERNAL -> armInnerLength
+      CORNER -> armLength
+      UNCONNECTED -> 0f
+      UNCONNECTED_CROSSING -> 0f
+      TERMINAL -> armLength - 0.25f
     }
 
     val origin = Vec2f(armLength, armLength - baseLength)
@@ -179,26 +179,26 @@ class UnbakedWireModel(
 
     if (dir == POSITIVE) {
       val uvTop = when (variant) {
-        External, Unconnected, UnconnectedCrossing -> arm1TopUv
-        Internal -> innerTop1Uv
-        Corner -> arm1TopUv
-        Terminal -> center8Top1Uv
+        EXTERNAL, UNCONNECTED, UNCONNECTED_CROSSING -> arm1TopUv
+        INTERNAL -> innerTop1Uv
+        CORNER -> arm1TopUv
+        TERMINAL -> center8Top1Uv
       }
 
       val uvBottom = when (variant) {
-        External, Unconnected, UnconnectedCrossing -> arm1BottomUv
-        Internal -> innerBottom1Uv
-        Corner -> arm1BottomUv
-        Terminal -> center8Bottom1Uv
+        EXTERNAL, UNCONNECTED, UNCONNECTED_CROSSING -> arm1BottomUv
+        INTERNAL -> innerBottom1Uv
+        CORNER -> arm1BottomUv
+        TERMINAL -> center8Bottom1Uv
       }
 
       val (uvSide1, uvSide2) = when (variant) {
-        External, Corner, Unconnected, UnconnectedCrossing -> Pair(arm1Side1Uv, arm1Side2Uv)
-        Internal -> Pair(innerArm1Side1Uv, innerArm1Side2Uv)
-        Terminal -> Pair(center8Arm1Side1Uv, center8Arm1Side2Uv)
+        EXTERNAL, CORNER, UNCONNECTED, UNCONNECTED_CROSSING -> Pair(arm1Side1Uv, arm1Side2Uv)
+        INTERNAL -> Pair(innerArm1Side1Uv, innerArm1Side2Uv)
+        TERMINAL -> Pair(center8Arm1Side1Uv, center8Arm1Side2Uv)
       }
 
-      val uvFront = cableFrontUv.takeIf { variant in setOf(External, Terminal) }
+      val uvFront = cableFrontUv.takeIf { variant in setOf(EXTERNAL, TERMINAL) }
 
       box(
         Vec3(armLength, 0f, 1 - armLength),
@@ -211,7 +211,7 @@ class UnbakedWireModel(
       ).transform(mat).into(builder.emitter, d.materials.standard)
 
       when (variant) {
-        Internal -> {
+        INTERNAL -> {
           box(
             Vec3(armLength, 0f, 1 - cableHeight),
             Vec3(1 - armLength, cableHeight, 1f),
@@ -220,7 +220,7 @@ class UnbakedWireModel(
             east = UvCoords(icornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_ROTATE_180)
           ).transform(mat).into(builder.emitter, d.materials.standard)
         }
-        Corner -> {
+        CORNER -> {
           finder.disableAo(0, true)
           box(
             Vec3(armLength, 0f, 1f),
@@ -232,7 +232,7 @@ class UnbakedWireModel(
           ).transform(mat).into(builder.emitter, d.materials.corner)
           finder.clear()
         }
-        Unconnected, UnconnectedCrossing -> {
+        UNCONNECTED, UNCONNECTED_CROSSING -> {
           val coords = UvCoords(
             if (!swapUnconnectedSides) centerSide1Uv else centerSide2Uv,
             cableHeight / scaleFactor, cableWidth / scaleFactor,
@@ -249,26 +249,26 @@ class UnbakedWireModel(
       }
     } else {
       val uvTop = when (variant) {
-        External, Unconnected, UnconnectedCrossing -> arm2TopUv
-        Internal -> innerTop2Uv
-        Corner -> arm2TopUv
-        Terminal -> center8Top2Uv
+        EXTERNAL, UNCONNECTED, UNCONNECTED_CROSSING -> arm2TopUv
+        INTERNAL -> innerTop2Uv
+        CORNER -> arm2TopUv
+        TERMINAL -> center8Top2Uv
       }
 
       val uvBottom = when (variant) {
-        External, Unconnected, UnconnectedCrossing -> arm2BottomUv
-        Internal -> innerBottom2Uv
-        Corner -> arm2BottomUv
-        Terminal -> center8Bottom2Uv
+        EXTERNAL, UNCONNECTED, UNCONNECTED_CROSSING -> arm2BottomUv
+        INTERNAL -> innerBottom2Uv
+        CORNER -> arm2BottomUv
+        TERMINAL -> center8Bottom2Uv
       }
 
       val (uvSide1, uvSide2) = when (variant) {
-        External, Corner, Unconnected, UnconnectedCrossing -> Pair(arm2Side1Uv, arm2Side2Uv)
-        Internal -> Pair(innerArm2Side1Uv, innerArm2Side2Uv)
-        Terminal -> Pair(center8Arm2Side1Uv, center8Arm2Side2Uv)
+        EXTERNAL, CORNER, UNCONNECTED, UNCONNECTED_CROSSING -> Pair(arm2Side1Uv, arm2Side2Uv)
+        INTERNAL -> Pair(innerArm2Side1Uv, innerArm2Side2Uv)
+        TERMINAL -> Pair(center8Arm2Side1Uv, center8Arm2Side2Uv)
       }
 
-      val uvFront = cableBackUv.takeIf { variant in setOf(External, Terminal) }
+      val uvFront = cableBackUv.takeIf { variant in setOf(EXTERNAL, TERMINAL) }
 
       box(
         Vec3(origin.x, 0f, armLength - baseLength),
@@ -281,7 +281,7 @@ class UnbakedWireModel(
       ).transform(mat).into(builder.emitter, d.materials.standard)
 
       when (variant) {
-        Internal -> {
+        INTERNAL -> {
           box(
             Vec3(armLength, 0f, 0f),
             Vec3(1 - armLength, cableHeight, cableHeight),
@@ -290,7 +290,7 @@ class UnbakedWireModel(
             east = UvCoords(icornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_FLIP_V)
           ).transform(mat).into(builder.emitter, d.materials.standard)
         }
-        Corner -> {
+        CORNER -> {
           box(
             Vec3(armLength, 0f, -cableHeight),
             Vec3(1 - armLength, cableHeight, 0f),
@@ -300,7 +300,7 @@ class UnbakedWireModel(
             east = UvCoords(cornerSide2Uv, cableHeight / scaleFactor, cableHeight / scaleFactor, MutableQuadView.BAKE_ROTATE_180)
           ).transform(mat).into(builder.emitter, d.materials.corner)
         }
-        Unconnected, UnconnectedCrossing -> {
+        UNCONNECTED, UNCONNECTED_CROSSING -> {
           val coords = UvCoords(
             if (!swapUnconnectedSides) centerSide2Uv else centerSide1Uv,
             cableHeight / scaleFactor, cableWidth / scaleFactor,
@@ -455,17 +455,17 @@ private fun Collection<Quad>.into(qe: QuadEmitter, mat: RenderMaterial) = forEac
 private fun Collection<Quad>.transform(mat: Mat4) = map { it.transform(mat) }
 
 enum class CenterVariant {
-  Crossing,
-  Straight1, // X axis
-  Straight2, // Z axis
-  Standalone,
+  CROSSING,
+  STRAIGHT_1, // X axis
+  STRAIGHT_2, // Z axis
+  STANDALONE,
 }
 
 enum class ExtVariant {
-  External,
-  Internal,
-  Corner,
-  Unconnected,
-  UnconnectedCrossing,
-  Terminal,
+  EXTERNAL,
+  INTERNAL,
+  CORNER,
+  UNCONNECTED,
+  UNCONNECTED_CROSSING,
+  TERMINAL,
 }

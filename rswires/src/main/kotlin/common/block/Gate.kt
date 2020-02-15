@@ -34,7 +34,7 @@ abstract class GateBlock(settings: Block.Settings) : Block(settings), BlockPartP
   override fun appendProperties(builder: Builder<Block, BlockState>) {
     super.appendProperties(builder)
     builder.add(Properties.FACING)
-    builder.add(GateProperties.Rotation)
+    builder.add(GateProperties.ROTATION)
   }
 
   override fun method_9517(state: BlockState, world: IWorld, pos: BlockPos, flags: Int) {
@@ -55,7 +55,7 @@ abstract class GateBlock(settings: Block.Settings) : Block(settings), BlockPartP
     } ?: 0
     return defaultState
       .with(Properties.FACING, facing)
-      .with(GateProperties.Rotation, rotation)
+      .with(GateProperties.ROTATION, rotation)
   }
 
   fun getSide(state: BlockState) = state[Properties.FACING]
@@ -74,29 +74,29 @@ abstract class GateBlock(settings: Block.Settings) : Block(settings), BlockPartP
   }
 
   override fun onUse(state: BlockState, world: World, pos: BlockPos, player: PlayerEntity, hand: Hand, hit: BlockHitResult): ActionResult {
-    if (player.getStackInHand(hand).item == Items.Screwdriver) {
-      world.setBlockState(pos, world.getBlockState(pos).cycle(GateProperties.Rotation))
+    if (player.getStackInHand(hand).item == Items.SCREWDRIVER) {
+      world.setBlockState(pos, world.getBlockState(pos).cycle(GateProperties.ROTATION))
       return SUCCESS
     }
     return PASS
   }
 
   override fun getCollisionShape(state: BlockState, view: BlockView, pos: BlockPos, ePos: EntityContext): VoxelShape {
-    return Collision.getValue(state[Properties.FACING])
+    return COLLISION.getValue(state[Properties.FACING])
   }
 
   override fun getOutlineShape(state: BlockState, view: BlockView, pos: BlockPos, ePos: EntityContext): VoxelShape {
-    return Collision.getValue(state[Properties.FACING])
+    return COLLISION.getValue(state[Properties.FACING])
   }
 
   companion object {
-    val Collision = WireUtils.generateShapes(2 / 16.0)
+    val COLLISION = WireUtils.generateShapes(2 / 16.0)
   }
 
 }
 
 object GateProperties {
 
-  val Rotation = IntProperty.of("rotation", 0, 3)
+  val ROTATION = IntProperty.of("rotation", 0, 3)
 
 }

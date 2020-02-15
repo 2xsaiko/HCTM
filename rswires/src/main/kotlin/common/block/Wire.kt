@@ -38,12 +38,12 @@ import kotlin.experimental.or
 abstract class BaseRedstoneWireBlock(settings: Block.Settings, height: Float) : SingleBaseWireBlock(settings, height) {
 
   init {
-    defaultState = defaultState.with(WireProperties.Powered, false)
+    defaultState = defaultState.with(WireProperties.POWERED, false)
   }
 
   override fun appendProperties(b: Builder<Block, BlockState>) {
     super.appendProperties(b)
-    b.add(WireProperties.Powered)
+    b.add(WireProperties.POWERED)
   }
 
   override fun emitsRedstonePower(state: BlockState?): Boolean {
@@ -54,7 +54,7 @@ abstract class BaseRedstoneWireBlock(settings: Block.Settings, height: Float) : 
     if (world is ServerWorld) {
       WireUtils.updateClient(world, pos) // redstone connections
       RSWires.wiresGivePower = false
-      if (isReceivingPower(state, world, pos) != state[WireProperties.Powered]) {
+      if (isReceivingPower(state, world, pos) != state[WireProperties.POWERED]) {
         RedstoneWireUtils.scheduleUpdate(world, pos)
       }
       RSWires.wiresGivePower = true
@@ -82,22 +82,22 @@ class RedAlloyWireBlock(settings: Block.Settings) : BaseRedstoneWireBlock(settin
   override fun getStrongRedstonePower(state: BlockState, view: BlockView, pos: BlockPos, facing: Direction): Int {
     return if (
       RSWires.wiresGivePower &&
-      state[WireProperties.Powered] &&
-      state[BaseWireProperties.PlacedWires[facing]]
+      state[WireProperties.POWERED] &&
+      state[BaseWireProperties.PLACED_WIRES[facing]]
     ) 15 else 0
   }
 
   override fun getWeakRedstonePower(state: BlockState, view: BlockView, pos: BlockPos, facing: Direction): Int {
     return if (
       RSWires.wiresGivePower &&
-      state[WireProperties.Powered] &&
-      (BaseWireProperties.PlacedWires - facing.opposite).any { state[it.value] }
+      state[WireProperties.POWERED] &&
+      (BaseWireProperties.PLACED_WIRES - facing.opposite).any { state[it.value] }
     ) 15 else 0
   }
 
   override fun createPartExtFromSide(side: Direction) = RedAlloyWirePartExt(side)
 
-  override fun createBlockEntity(view: BlockView) = BaseWireBlockEntity(BlockEntityTypes.RedAlloyWire)
+  override fun createBlockEntity(view: BlockView) = BaseWireBlockEntity(BlockEntityTypes.RED_ALLOY_WIRE)
 
   override fun isReceivingPower(state: BlockState, world: World, pos: BlockPos) =
     RedstoneWireUtils.isReceivingPower(state, world, pos, true)
@@ -108,7 +108,7 @@ class InsulatedWireBlock(settings: Block.Settings, val color: DyeColor) : BaseRe
 
   override fun createPartExtFromSide(side: Direction) = InsulatedWirePartExt(side, color)
 
-  override fun createBlockEntity(view: BlockView) = BaseWireBlockEntity(BlockEntityTypes.InsulatedWire)
+  override fun createBlockEntity(view: BlockView) = BaseWireBlockEntity(BlockEntityTypes.INSULATED_WIRE)
 
   override fun getStrongRedstonePower(state: BlockState, view: BlockView, pos: BlockPos, facing: Direction): Int {
     return 0
@@ -117,8 +117,8 @@ class InsulatedWireBlock(settings: Block.Settings, val color: DyeColor) : BaseRe
   override fun getWeakRedstonePower(state: BlockState, view: BlockView, pos: BlockPos, facing: Direction): Int {
     return if (
       RSWires.wiresGivePower &&
-      state[WireProperties.Powered] &&
-      (BaseWireProperties.PlacedWires - facing.opposite).any { state[it.value] }
+      state[WireProperties.POWERED] &&
+      (BaseWireProperties.PLACED_WIRES - facing.opposite).any { state[it.value] }
     ) 15 else 0
   }
 
@@ -141,7 +141,7 @@ class BundledCableBlock(settings: Block.Settings, val color: DyeColor?) : BaseWi
     return DyeColor.values().map { BundledCablePartExt(side, color, it) }.toSet()
   }
 
-  override fun createBlockEntity(view: BlockView) = BaseWireBlockEntity(BlockEntityTypes.BundledCable)
+  override fun createBlockEntity(view: BlockView) = BaseWireBlockEntity(BlockEntityTypes.BUNDLED_CABLE)
 
 }
 
@@ -150,12 +150,12 @@ data class RedAlloyWirePartExt(override val side: Direction) : PartExt, WirePart
 
   override fun getState(world: World, self: NetNode): Boolean {
     val pos = self.data.pos
-    return world.getBlockState(pos)[WireProperties.Powered]
+    return world.getBlockState(pos)[WireProperties.POWERED]
   }
 
   override fun setState(world: World, self: NetNode, state: Boolean) {
     val pos = self.data.pos
-    world.setBlockState(pos, world.getBlockState(pos).with(WireProperties.Powered, state))
+    world.setBlockState(pos, world.getBlockState(pos).with(WireProperties.POWERED, state))
   }
 
   override fun getInput(world: World, self: NetNode): Boolean {
@@ -164,7 +164,7 @@ data class RedAlloyWirePartExt(override val side: Direction) : PartExt, WirePart
   }
 
   override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
-    return find(ConnectionDiscoverers.Wire, RedstoneCarrierFilter, self, world, pos, nv)
+    return find(ConnectionDiscoverers.WIRE, RedstoneCarrierFilter, self, world, pos, nv)
   }
 
   override fun onChanged(self: NetNode, world: ServerWorld, pos: BlockPos) {
@@ -182,12 +182,12 @@ data class InsulatedWirePartExt(override val side: Direction, val color: DyeColo
 
   override fun getState(world: World, self: NetNode): Boolean {
     val pos = self.data.pos
-    return world.getBlockState(pos)[WireProperties.Powered]
+    return world.getBlockState(pos)[WireProperties.POWERED]
   }
 
   override fun setState(world: World, self: NetNode, state: Boolean) {
     val pos = self.data.pos
-    world.setBlockState(pos, world.getBlockState(pos).with(WireProperties.Powered, state))
+    world.setBlockState(pos, world.getBlockState(pos).with(WireProperties.POWERED, state))
   }
 
   override fun getInput(world: World, self: NetNode): Boolean {
@@ -196,7 +196,7 @@ data class InsulatedWirePartExt(override val side: Direction, val color: DyeColo
   }
 
   override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
-    return find(ConnectionDiscoverers.Wire, RedstoneCarrierFilter, self, world, pos, nv)
+    return find(ConnectionDiscoverers.WIRE, RedstoneCarrierFilter, self, world, pos, nv)
   }
 
   override fun onChanged(self: NetNode, world: ServerWorld, pos: BlockPos) {
@@ -223,7 +223,7 @@ data class BundledCablePartExt(override val side: Direction, val color: DyeColor
   }
 
   override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
-    return find(ConnectionDiscoverers.Wire, RedstoneCarrierFilter, self, world, pos, nv)
+    return find(ConnectionDiscoverers.WIRE, RedstoneCarrierFilter, self, world, pos, nv)
   }
 
   override fun onChanged(self: NetNode, world: ServerWorld, pos: BlockPos) {
@@ -269,7 +269,7 @@ object RedstoneCarrierFilter : ConnectionFilter {
 }
 
 object WireProperties {
-  val Powered = Properties.POWERED
+  val POWERED = Properties.POWERED
 }
 
 object RedstoneWireUtils {

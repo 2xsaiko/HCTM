@@ -36,23 +36,23 @@ class GenericLogicGateBlock(settings: Block.Settings) : GateBlock(settings) {
 
   init {
     defaultState = defaultState
-      .with(LogicGateProperties.OutputPowered, GateOutputState.OFF)
-      .with(LogicGateProperties.LeftPowered, GateInputState.OFF)
-      .with(LogicGateProperties.BackPowered, GateInputState.OFF)
-      .with(LogicGateProperties.RightPowered, GateInputState.OFF)
+      .with(LogicGateProperties.OUTPUT_POWERED, GateOutputState.OFF)
+      .with(LogicGateProperties.LEFT_POWERED, GateInputState.OFF)
+      .with(LogicGateProperties.BACK_POWERED, GateInputState.OFF)
+      .with(LogicGateProperties.RIGHT_POWERED, GateInputState.OFF)
   }
 
   override fun appendProperties(builder: Builder<Block, BlockState>) {
     super.appendProperties(builder)
-    builder.add(LogicGateProperties.OutputPowered)
-    builder.add(LogicGateProperties.LeftPowered)
-    builder.add(LogicGateProperties.BackPowered)
-    builder.add(LogicGateProperties.RightPowered)
+    builder.add(LogicGateProperties.OUTPUT_POWERED)
+    builder.add(LogicGateProperties.LEFT_POWERED)
+    builder.add(LogicGateProperties.BACK_POWERED)
+    builder.add(LogicGateProperties.RIGHT_POWERED)
   }
 
   override fun getPartsInBlock(world: World, pos: BlockPos, state: BlockState): Set<PartExt> {
     val side = getSide(state)
-    val rotation = state[GateProperties.Rotation]
+    val rotation = state[GateProperties.ROTATION]
     return setOf(
       LogicGatePartExt(side, rotation, GateSide.FRONT),
       LogicGatePartExt(side, (rotation + 1) % 4, GateSide.LEFT),
@@ -70,17 +70,17 @@ class GenericLogicGateBlock(settings: Block.Settings) : GateBlock(settings) {
   }
 
   override fun getOutlineShape(state: BlockState, view: BlockView, pos: BlockPos, ePos: EntityContext): VoxelShape {
-    return SelectionBoxes.getValue(state[Properties.FACING])
+    return SELECTION_BOXES.getValue(state[Properties.FACING])
   }
 
   override fun getCullingShape(state: BlockState, view: BlockView, pos: BlockPos): VoxelShape {
-    return CullBox.getValue(state[Properties.FACING])[state[GateProperties.Rotation]]
+    return CULL_BOX.getValue(state[Properties.FACING])[state[GateProperties.ROTATION]]
   }
 
   companion object {
-    val SelectionBoxes = WireUtils.generateShapes(12 / 16.0)
+    val SELECTION_BOXES = WireUtils.generateShapes(12 / 16.0)
 
-    val CullBox = VoxelShapes.union(
+    val CULL_BOX = VoxelShapes.union(
       VoxelShapes.cuboid(0.0, 0.0, 0.0, 1.0, 2 / 16.0, 1.0),
       VoxelShapes.cuboid(7 / 16.0, 0.0, 0.0, 9 / 16.0, 12 / 16.0, 1.0),
       VoxelShapes.cuboid(0.0, 0.0, 7 / 16.0, 1.0, 3 / 16.0, 9 / 16.0)
@@ -92,10 +92,10 @@ class GenericLogicGateBlock(settings: Block.Settings) : GateBlock(settings) {
 }
 
 object LogicGateProperties {
-  val OutputPowered = EnumProperty.of("output", GateOutputState::class.java)
-  val LeftPowered = EnumProperty.of("left", GateInputState::class.java)
-  val BackPowered = EnumProperty.of("back", GateInputState::class.java)
-  val RightPowered = EnumProperty.of("right", GateInputState::class.java)
+  val OUTPUT_POWERED = EnumProperty.of("output", GateOutputState::class.java)!!
+  val LEFT_POWERED = EnumProperty.of("left", GateInputState::class.java)!!
+  val BACK_POWERED = EnumProperty.of("back", GateInputState::class.java)!!
+  val RIGHT_POWERED = EnumProperty.of("right", GateInputState::class.java)!!
 }
 
 enum class GateOutputState : StringIdentifiable {
@@ -182,9 +182,9 @@ data class LogicGatePartExt(override val side: Direction, val rotation: Int, val
   }
 
   override fun tryConnect(self: NetNode, world: ServerWorld, pos: BlockPos, nv: NodeView): Set<NetNode> {
-    val rotation = world.getBlockState(pos)[GateProperties.Rotation]
+    val rotation = world.getBlockState(pos)[GateProperties.ROTATION]
     val direction = adjustRotation(side, rotation, gateSide.direction())
-    return find(ConnectionDiscoverers.Wire, RedstoneCarrierFilter and ConnectionFilter { self, other ->
+    return find(ConnectionDiscoverers.WIRE, RedstoneCarrierFilter and ConnectionFilter { self, other ->
       self.data.pos.subtract(other.data.pos)
         .let { Direction.fromVector(it.x, it.y, it.z) }
         ?.let { it == direction }
@@ -193,7 +193,7 @@ data class LogicGatePartExt(override val side: Direction, val rotation: Int, val
   }
 
   override fun canConnectAt(world: BlockView, pos: BlockPos, edge: Direction): Boolean {
-    val rotation = world.getBlockState(pos)[GateProperties.Rotation]
+    val rotation = world.getBlockState(pos)[GateProperties.ROTATION]
     val axis = adjustRotation(side, rotation, gateSide.direction()).axis
     return edge.axis == axis
   }

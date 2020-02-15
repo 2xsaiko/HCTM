@@ -1,6 +1,6 @@
 package net.dblsaiko.hctm.common.init
 
-import net.dblsaiko.hctm.ModID
+import net.dblsaiko.hctm.MOD_ID
 import net.dblsaiko.hctm.common.util.ext.makeStack
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder
 import net.minecraft.item.ItemGroup
@@ -8,8 +8,8 @@ import net.minecraft.util.Identifier
 
 object ItemGroups {
 
-  val All: ItemGroup = FabricItemGroupBuilder.create(Identifier(ModID, "all"))
-    .icon { Items.Screwdriver.makeStack() }
+  val ALL: ItemGroup = FabricItemGroupBuilder.create(Identifier(MOD_ID, "all"))
+    .icon { Items.SCREWDRIVER.makeStack() }
     .build()
 
 }

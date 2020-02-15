@@ -2,7 +2,7 @@ package net.dblsaiko.rswires.common.init
 
 import net.dblsaiko.hctm.common.util.delegatedNotNull
 import net.dblsaiko.hctm.common.util.flatten
-import net.dblsaiko.rswires.ModID
+import net.dblsaiko.rswires.MOD_ID
 import net.dblsaiko.rswires.common.block.BundledCableBlock
 import net.dblsaiko.rswires.common.block.InsulatedWireBlock
 import net.dblsaiko.rswires.common.block.NullCellBlock
@@ -19,27 +19,27 @@ object Blocks {
 
   private val tasks = mutableListOf<() -> Unit>()
 
-  private val wireSettings = FabricBlockSettings.of(Material.STONE)
+  private val WIRE_SETTINGS = FabricBlockSettings.of(Material.STONE)
     .breakByHand(true)
     .noCollision()
     .strength(0.05f, 0.05f)
     .build()
 
-  private val gateSettings = FabricBlockSettings.of(Material.STONE)
+  private val GATE_SETTINGS = FabricBlockSettings.of(Material.STONE)
     .breakByHand(true)
     .strength(0.05f, 0.05f)
     .build()
 
-  val RedAlloyWire by create("red_alloy_wire", RedAlloyWireBlock(wireSettings))
-  val InsulatedWires by DyeColor.values().associate { it to create("${it.getName()}_insulated_wire", InsulatedWireBlock(wireSettings, it)) }.flatten()
-  val UncoloredBundledCable by create("bundled_cable", BundledCableBlock(wireSettings, null))
-  val ColoredBundledCables by DyeColor.values().associate { it to create("${it.getName()}_bundled_cable", BundledCableBlock(wireSettings, it)) }.flatten()
+  val RED_ALLOY_WIRE by create("red_alloy_wire", RedAlloyWireBlock(WIRE_SETTINGS))
+  val INSULATED_WIRES by DyeColor.values().associate { it to create("${it.getName()}_insulated_wire", InsulatedWireBlock(WIRE_SETTINGS, it)) }.flatten()
+  val UNCOLORED_BUNDLED_CABLE by create("bundled_cable", BundledCableBlock(WIRE_SETTINGS, null))
+  val COLORED_BUNDLED_CABLES by DyeColor.values().associate { it to create("${it.getName()}_bundled_cable", BundledCableBlock(WIRE_SETTINGS, it)) }.flatten()
 
-  val NullCell by create("null_cell", NullCellBlock(gateSettings))
+  val NULL_CELL by create("null_cell", NullCellBlock(GATE_SETTINGS))
 
   private fun <T : Block> create(name: String, block: T): ReadOnlyProperty<Blocks, T> {
     var regBlock: T? = null
-    tasks += { regBlock = Registry.register(Registry.BLOCK, Identifier(ModID, name), block) }
+    tasks += { regBlock = Registry.register(Registry.BLOCK, Identifier(MOD_ID, name), block) }
     return delegatedNotNull { regBlock }
   }
 

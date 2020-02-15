@@ -33,7 +33,7 @@ class ComputerBlock : BaseBlock() {
 
 }
 
-class ComputerEntity : BaseBlockEntity(BlockEntityTypes.Computer), ProcessorHost, Tickable {
+class ComputerEntity : BaseBlockEntity(BlockEntityTypes.COMPUTER), ProcessorHost, Tickable {
 
   val mem = ByteArray(8192)
   val cpu = Processor(this) // TODO we don't need this on the client
