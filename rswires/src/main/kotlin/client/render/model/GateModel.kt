@@ -1,6 +1,5 @@
 package net.dblsaiko.rswires.client.render.model
 
-import com.mojang.datafixers.util.Pair
 import net.dblsaiko.rswires.common.block.GateProperties
 import net.dblsaiko.rswires.common.util.getRotationFor
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel
@@ -12,8 +11,6 @@ import net.minecraft.client.render.model.BakedQuad
 import net.minecraft.client.render.model.ModelBakeSettings
 import net.minecraft.client.render.model.ModelLoader
 import net.minecraft.client.render.model.UnbakedModel
-import net.minecraft.client.render.model.json.ModelItemPropertyOverrideList
-import net.minecraft.client.render.model.json.ModelTransformation
 import net.minecraft.client.texture.Sprite
 import net.minecraft.client.util.SpriteIdentifier
 import net.minecraft.item.ItemStack
@@ -34,7 +31,7 @@ import java.util.*
 import java.util.function.Function
 import java.util.function.Supplier
 
-class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
+class GateModel(val wrapped: UnbakedModel) : UnbakedModel by wrapped {
 
   val map = IdentityHashMap<BakedModel, Baked>()
 
@@ -42,15 +39,7 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
     return map.computeIfAbsent(wrapped.bake(loader, textureGetter, rotationContainer, modelId) ?: return null, ::Baked)
   }
 
-  override fun getModelDependencies(): Collection<Identifier> {
-    return wrapped.modelDependencies
-  }
-
-  override fun getTextureDependencies(unbakedModelGetter: Function<Identifier, UnbakedModel>, unresolvedTextureReferences: Set<Pair<String, String>>): Collection<SpriteIdentifier> {
-    return wrapped.getTextureDependencies(unbakedModelGetter, unresolvedTextureReferences)
-  }
-
-  class Baked(val wrapped: BakedModel) : FabricBakedModel, BakedModel {
+  class Baked(val wrapped: BakedModel) : FabricBakedModel, BakedModel by wrapped {
 
     override fun emitBlockQuads(blockView: BlockRenderView, state: BlockState, pos: BlockPos, randomSupplier: Supplier<Random>, context: RenderContext) {
       val side = state[Properties.FACING]
@@ -96,36 +85,8 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel {
       return false
     }
 
-    override fun getItemPropertyOverrides(): ModelItemPropertyOverrideList {
-      return wrapped.itemPropertyOverrides
-    }
-
     override fun getQuads(state: BlockState?, face: Direction?, random: Random): List<BakedQuad> {
       return emptyList()
-    }
-
-    override fun getSprite(): Sprite {
-      return wrapped.sprite
-    }
-
-    override fun useAmbientOcclusion(): Boolean {
-      return wrapped.useAmbientOcclusion()
-    }
-
-    override fun hasDepth(): Boolean {
-      return wrapped.hasDepth()
-    }
-
-    override fun getTransformation(): ModelTransformation {
-      return wrapped.transformation
-    }
-
-    override fun isSideLit(): Boolean {
-      return wrapped.isSideLit
-    }
-
-    override fun isBuiltin(): Boolean {
-      return wrapped.isBuiltin
     }
 
     companion object {
