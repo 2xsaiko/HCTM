@@ -18,13 +18,6 @@ import net.minecraft.state.property.Properties
 import net.minecraft.util.Identifier
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Direction
-import net.minecraft.util.math.Direction.DOWN
-import net.minecraft.util.math.Direction.EAST
-import net.minecraft.util.math.Direction.NORTH
-import net.minecraft.util.math.Direction.SOUTH
-import net.minecraft.util.math.Direction.UP
-import net.minecraft.util.math.Direction.WEST
-import net.minecraft.util.math.MathHelper
 import net.minecraft.world.BlockRenderView
 import therealfarfetchd.qcommon.croco.Vec3
 import java.util.*
@@ -87,29 +80,6 @@ class GateModel(val wrapped: UnbakedModel) : UnbakedModel by wrapped {
 
     override fun getQuads(state: BlockState?, face: Direction?, random: Random): List<BakedQuad> {
       return emptyList()
-    }
-
-    companion object {
-      // copied from BakedQuadFactory
-
-      val lightmapMap = Direction.values().asIterable().associateWith(::getLightmapCoordinate).let(::EnumMap)
-
-      private fun getLightmapCoordinate(direction: Direction): Int {
-        val f = getRelativeDirectionalBrightness(direction)
-        val i = MathHelper.clamp((f * 255.0f).toInt(), 0, 255)
-        return -16777216 or (i shl 16) or (i shl 8) or i
-      }
-
-      private fun getRelativeDirectionalBrightness(direction: Direction): Float {
-        return when (direction) {
-          DOWN -> 0.5f
-          UP -> 1.0f
-          NORTH, SOUTH -> 0.8f
-          WEST, EAST -> 0.6f
-          else -> 1.0f
-        }
-      }
-
     }
 
   }
