@@ -66,7 +66,7 @@ class WireNetworkController(var changeListener: () -> Unit = {}, internal val wo
 
     for (ext in new) {
       val net = createNetwork()
-      val node = net.createNode(pos, ext)
+      val node = net.createNode(pos.toImmutable(), ext)
       updateNodeConnections(world, node)
     }
   }
