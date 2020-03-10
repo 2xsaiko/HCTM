@@ -37,6 +37,7 @@ allprojects {
 
         modRuntime(group: 'net.dblsaiko.qcommon.cfg', name: 'cfg', version: cfg_version) {
             exclude group: 'net.fabricmc.fabric-api'
+            exclude module: 'cfg-keys'
         }
 
         modImplementation(group: 'net.dblsaiko.qcommon.cfg', name: 'cfg-core', version: cfg_core_version) {
@@ -208,7 +209,9 @@ repositories {
 
 dependencies {
     modRuntime group: 'net.dblsaiko', name: 'winwonders', version: '0.1.2-4'
-    modRuntime group: 'io.github.prospector', name: 'modmenu', version: '1.8.5+build.23'
+    modRuntime(group: 'io.github.prospector', name: 'modmenu', version: '1.8.5+build.23') {
+        exclude module: 'fabric-api'
+    }
 
     afterEvaluate {
         subprojects.each {
