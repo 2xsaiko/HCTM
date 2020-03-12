@@ -1,20 +1,8 @@
 package net.dblsaiko.rswires.common.block
 
-import net.dblsaiko.hctm.common.block.BaseWireBlock
-import net.dblsaiko.hctm.common.block.BaseWireBlockEntity
-import net.dblsaiko.hctm.common.block.BaseWireProperties
-import net.dblsaiko.hctm.common.block.ConnectionType
-import net.dblsaiko.hctm.common.block.SingleBaseWireBlock
-import net.dblsaiko.hctm.common.block.WireUtils
-import net.dblsaiko.hctm.common.wire.ConnectionDiscoverers
-import net.dblsaiko.hctm.common.wire.ConnectionFilter
-import net.dblsaiko.hctm.common.wire.NetNode
-import net.dblsaiko.hctm.common.wire.Network
-import net.dblsaiko.hctm.common.wire.NodeView
-import net.dblsaiko.hctm.common.wire.PartExt
-import net.dblsaiko.hctm.common.wire.WirePartExtType
-import net.dblsaiko.hctm.common.wire.find
-import net.dblsaiko.hctm.common.wire.getWireNetworkState
+import net.dblsaiko.hctm.common.api.BlockBundledCableIo
+import net.dblsaiko.hctm.common.block.*
+import net.dblsaiko.hctm.common.wire.*
 import net.dblsaiko.rswires.RSWires
 import net.dblsaiko.rswires.common.init.BlockEntityTypes
 import net.minecraft.block.Block
@@ -139,6 +127,17 @@ class BundledCableBlock(settings: Block.Settings, val color: DyeColor?) : BaseWi
 
   override fun createPartExtsFromSide(side: Direction): Set<PartExt> {
     return DyeColor.values().map { BundledCablePartExt(side, color, it) }.toSet()
+  }
+
+  override fun overrideConnection(world: World, pos: BlockPos, state: BlockState, side: Direction, edge: Direction, current: ConnectionType?): ConnectionType? {
+    if (current == null) {
+      val blockState = world.getBlockState(pos.offset(edge))
+      val block = blockState.block
+      if (block !is BaseWireBlock && block is BlockBundledCableIo && block.canBundledConnectTo(blockState, world, pos.offset(edge), edge, side)) {
+        return ConnectionType.EXTERNAL
+      }
+    }
+    return super.overrideConnection(world, pos, state, side, edge, current)
   }
 
   override fun createBlockEntity(view: BlockView) = BaseWireBlockEntity(BlockEntityTypes.BundledCable)
