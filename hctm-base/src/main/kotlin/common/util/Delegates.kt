@@ -16,3 +16,11 @@ fun <K, R, T> Map<K, ReadOnlyProperty<R, T>>.flatten(): ReadOnlyProperty<R, Map<
     }
   }
 }
+
+fun <R, T> Iterable<ReadOnlyProperty<R, T>>.flatten(): ReadOnlyProperty<R, List<T>> {
+  return object : ReadOnlyProperty<R, List<T>> {
+    override fun getValue(thisRef: R, property: KProperty<*>): List<T> {
+      return this@flatten.map { it.getValue(thisRef, property) }
+    }
+  }
+}
