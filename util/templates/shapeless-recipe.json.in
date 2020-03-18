@@ -1,7 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
-  "ingredients": [%INGREDIENTS
-],
+  "ingredients": [%INGREDIENTS],
   "result": {
     "item": "%OUTPUT",
     "count": %COUNT
