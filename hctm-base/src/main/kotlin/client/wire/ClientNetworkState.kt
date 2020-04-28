@@ -5,7 +5,7 @@ import net.dblsaiko.hctm.common.init.Packets
 import net.dblsaiko.hctm.common.wire.WireNetworkController
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.util.PacketByteBuf
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.registry.Registry
 import net.minecraft.world.World
 import net.minecraft.world.dimension.DimensionType

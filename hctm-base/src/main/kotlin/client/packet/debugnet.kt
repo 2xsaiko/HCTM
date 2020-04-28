@@ -2,8 +2,8 @@ package net.dblsaiko.hctm.client.packet
 
 import net.dblsaiko.hctm.client.wire.ClientNetworkState
 import net.fabricmc.fabric.api.network.PacketContext
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.util.Identifier
-import net.minecraft.util.PacketByteBuf
 import net.minecraft.world.dimension.DimensionType
 
 fun onDebugNetUpdateResponse(context: PacketContext, buffer: PacketByteBuf) {

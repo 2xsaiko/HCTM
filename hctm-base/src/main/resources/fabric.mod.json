@@ -25,6 +25,7 @@
     "fabric": "*",
     "fabric-language-kotlin": ">=1.3.30",
     "qcommon-cfg-core": ">=2.0.0",
+    "qcommon-croco": ">=2.1.0",
     "libaddict": ">=0.1.2"
   }
 }

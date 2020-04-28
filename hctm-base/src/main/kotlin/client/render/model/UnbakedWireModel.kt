@@ -11,6 +11,9 @@ import net.dblsaiko.hctm.client.render.model.ExtVariant.Terminal
 import net.dblsaiko.hctm.client.render.model.ExtVariant.Unconnected
 import net.dblsaiko.hctm.client.render.model.ExtVariant.UnconnectedCrossing
 import net.dblsaiko.hctm.common.util.ext.rotateClockwise
+import net.dblsaiko.qcommon.croco.Mat4
+import net.dblsaiko.qcommon.croco.Vec2
+import net.dblsaiko.qcommon.croco.Vec3
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial
 import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh
@@ -39,9 +42,6 @@ import net.minecraft.util.math.Direction.SOUTH
 import net.minecraft.util.math.Direction.UP
 import net.minecraft.util.math.Direction.WEST
 import net.minecraft.util.math.Vec2f
-import therealfarfetchd.qcommon.croco.Mat4
-import therealfarfetchd.qcommon.croco.Vec2
-import therealfarfetchd.qcommon.croco.Vec3
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Function
 import kotlin.math.atan2

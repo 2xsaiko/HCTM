@@ -3,5 +3,5 @@ version = base_version
 dependencies {
     include group: 'net.dblsaiko', name: 'libaddict', version: libaddict_version
     include group: 'net.dblsaiko.qcommon.cfg', name: 'cfg-core', version: cfg_core_version
-    include group: "net.dblsaiko.qcommon.croco", name: "croco", version: "1.1.1-7"
+    include group: "net.dblsaiko.qcommon.croco", name: "croco", version: croco_version
 }

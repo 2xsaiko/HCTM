@@ -1,10 +1,24 @@
 package net.dblsaiko.rswires.common.block
 
 import net.dblsaiko.hctm.common.api.BlockBundledCableIo
-import net.dblsaiko.hctm.common.block.*
-import net.dblsaiko.hctm.common.wire.*
+import net.dblsaiko.hctm.common.block.BaseWireBlock
+import net.dblsaiko.hctm.common.block.BaseWireBlockEntity
+import net.dblsaiko.hctm.common.block.BaseWireProperties
+import net.dblsaiko.hctm.common.block.ConnectionType
+import net.dblsaiko.hctm.common.block.SingleBaseWireBlock
+import net.dblsaiko.hctm.common.block.WireUtils
+import net.dblsaiko.hctm.common.wire.ConnectionDiscoverers
+import net.dblsaiko.hctm.common.wire.ConnectionFilter
+import net.dblsaiko.hctm.common.wire.NetNode
+import net.dblsaiko.hctm.common.wire.Network
+import net.dblsaiko.hctm.common.wire.NodeView
+import net.dblsaiko.hctm.common.wire.PartExt
+import net.dblsaiko.hctm.common.wire.WirePartExtType
+import net.dblsaiko.hctm.common.wire.find
+import net.dblsaiko.hctm.common.wire.getWireNetworkState
 import net.dblsaiko.rswires.RSWires
 import net.dblsaiko.rswires.common.init.BlockEntityTypes
+import net.minecraft.block.AbstractBlock
 import net.minecraft.block.Block
 import net.minecraft.block.BlockState
 import net.minecraft.block.Blocks
@@ -23,7 +37,7 @@ import java.util.*
 import kotlin.experimental.and
 import kotlin.experimental.or
 
-abstract class BaseRedstoneWireBlock(settings: Block.Settings, height: Float) : SingleBaseWireBlock(settings, height) {
+abstract class BaseRedstoneWireBlock(settings: AbstractBlock.Settings, height: Float) : SingleBaseWireBlock(settings, height) {
 
   init {
     defaultState = defaultState.with(WireProperties.Powered, false)
@@ -65,7 +79,7 @@ abstract class BaseRedstoneWireBlock(settings: Block.Settings, height: Float) : 
 
 }
 
-class RedAlloyWireBlock(settings: Block.Settings) : BaseRedstoneWireBlock(settings, 2 / 16f) {
+class RedAlloyWireBlock(settings: AbstractBlock.Settings) : BaseRedstoneWireBlock(settings, 2 / 16f) {
 
   override fun getStrongRedstonePower(state: BlockState, view: BlockView, pos: BlockPos, facing: Direction): Int {
     return if (
@@ -92,7 +106,7 @@ class RedAlloyWireBlock(settings: Block.Settings) : BaseRedstoneWireBlock(settin
 
 }
 
-class InsulatedWireBlock(settings: Block.Settings, val color: DyeColor) : BaseRedstoneWireBlock(settings, 3 / 16f) {
+class InsulatedWireBlock(settings: AbstractBlock.Settings, val color: DyeColor) : BaseRedstoneWireBlock(settings, 3 / 16f) {
 
   override fun createPartExtFromSide(side: Direction) = InsulatedWirePartExt(side, color)
 
@@ -115,7 +129,7 @@ class InsulatedWireBlock(settings: Block.Settings, val color: DyeColor) : BaseRe
 
 }
 
-class BundledCableBlock(settings: Block.Settings, val color: DyeColor?) : BaseWireBlock(settings, 4 / 16f) {
+class BundledCableBlock(settings: AbstractBlock.Settings, val color: DyeColor?) : BaseWireBlock(settings, 4 / 16f) {
 
   override fun createExtFromTag(tag: Tag): PartExt? {
     val data = (tag as? ByteTag)?.byte ?: return null
@@ -310,7 +324,7 @@ object RedstoneWireUtils {
                if (world.getBlockState(otherPos).block == Blocks.REDSTONE_WIRE) 0
                else {
                  val state = world.getBlockState(otherPos)
-                 if (state.isSimpleFullBlock(world, otherPos)) state.getStrongRedstonePower(world, otherPos, it)
+                 if (state.isSolidBlock(world, otherPos)) state.getStrongRedstonePower(world, otherPos, it)
                  else state.getWeakRedstonePower(world, otherPos, it)
                }
              }

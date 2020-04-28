@@ -1,12 +1,12 @@
 package net.dblsaiko.hctm.mixin;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.ShapeContext;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityContext;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 
@@ -35,7 +35,7 @@ public abstract class MixinWorldRenderer {
         if (!(blockState_1.getBlock() instanceof BlockAdvancedShape)) return;
         BlockAdvancedShape bas = (BlockAdvancedShape) blockState_1.getBlock();
 
-        drawShapeOutline(matrixStack_1, vertexConsumer_1, blockState_1.getOutlineShape(this.world, blockPos_1, EntityContext.of(entity_1)), (double) blockPos_1.getX() - double_1, (double) blockPos_1.getY() - double_2, (double) blockPos_1.getZ() - double_3, 0.0F, 0.0F, 0.0F, 0.4F);
+        drawShapeOutline(matrixStack_1, vertexConsumer_1, blockState_1.getOutlineShape(this.world, blockPos_1, ShapeContext.of(entity_1)), (double) blockPos_1.getX() - double_1, (double) blockPos_1.getY() - double_2, (double) blockPos_1.getZ() - double_3, 0.0F, 0.0F, 0.0F, 0.4F);
         ci.cancel();
     }
 

@@ -297,11 +297,7 @@ class Network(val controller: WireNetworkController, val id: UUID) {
 
   companion object {
     fun fromTag(controller: WireNetworkController, tag: CompoundTag): Network? {
-      val id = if (tag.containsUuidOld("id")) {
-        tag.getUuidOld("id")
-      } else {
-        tag.getUuidNew("id")
-      }
+      val id = tag.getUuidNew("id")
       val network = Network(controller, id)
       val sNodes = tag.getList("nodes", NbtType.COMPOUND)
       val sLinks = tag.getList("links", NbtType.COMPOUND)

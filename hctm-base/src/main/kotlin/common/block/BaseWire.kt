@@ -9,14 +9,15 @@ import net.dblsaiko.hctm.common.wire.PartExt
 import net.dblsaiko.hctm.common.wire.WirePartExtType
 import net.dblsaiko.hctm.common.wire.getWireNetworkState
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable
-import net.minecraft.advancement.criterion.Criterions
+import net.minecraft.advancement.criterion.Criteria
+import net.minecraft.block.AbstractBlock
 import net.minecraft.block.Block
 import net.minecraft.block.BlockEntityProvider
 import net.minecraft.block.BlockState
+import net.minecraft.block.ShapeContext
 import net.minecraft.block.WallMountedBlock
 import net.minecraft.block.entity.BlockEntity
 import net.minecraft.block.entity.BlockEntityType
-import net.minecraft.entity.EntityContext
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.BlockItem
 import net.minecraft.item.Item
@@ -48,7 +49,7 @@ import net.minecraft.world.World
 import net.minecraft.world.WorldView
 import net.minecraft.block.Blocks as MCBlocks
 
-abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Block(settings), BlockCustomBreak, BlockPartProvider, BlockEntityProvider {
+abstract class BaseWireBlock(settings: AbstractBlock.Settings, val height: Float) : Block(settings), BlockCustomBreak, BlockPartProvider, BlockEntityProvider {
 
   init {
     defaultState =
@@ -76,7 +77,7 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
       .fold(VoxelShapes.empty(), VoxelShapes::union)
   }
 
-  override fun getOutlineShape(state: BlockState, view: BlockView, pos: BlockPos, ec: EntityContext?): VoxelShape {
+  override fun getOutlineShape(state: BlockState, world: BlockView, pos: BlockPos, context: ShapeContext): VoxelShape {
     return getShape(state)
   }
 
@@ -110,7 +111,7 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
     return result
   }
 
-  override fun method_9517(state: BlockState, world: IWorld, pos: BlockPos, flags: Int) {
+  override fun prepare(state: BlockState, world: IWorld, pos: BlockPos, flags: Int) {
     if (!world.isClient && world is ServerWorld)
       world.getWireNetworkState().controller.onBlockChanged(world, pos, state)
   }
@@ -157,7 +158,7 @@ abstract class BaseWireBlock(settings: Block.Settings, val height: Float) : Bloc
 
 }
 
-abstract class SingleBaseWireBlock(settings: Block.Settings, height: Float) : BaseWireBlock(settings, height) {
+abstract class SingleBaseWireBlock(settings: AbstractBlock.Settings, height: Float) : BaseWireBlock(settings, height) {
 
   override fun createExtFromTag(tag: Tag): PartExt? {
     return (tag as? ByteTag)
@@ -182,8 +183,8 @@ open class BaseWireBlockEntity(type: BlockEntityType<out BlockEntity>) : BlockEn
     return super.toTag(tag)
   }
 
-  override fun fromTag(tag: CompoundTag) {
-    super.fromTag(tag)
+  override fun fromTag(state: BlockState, tag: CompoundTag) {
+    super.fromTag(state, tag)
     deserConnections(tag.getLong("c"))
   }
 
@@ -289,7 +290,7 @@ open class BaseWireItem(block: BaseWireBlock, settings: Item.Settings) : BlockIt
     if (block === state.block) {
       block.onPlaced(world, pos, placedState, player, stack)
       if (player is ServerPlayerEntity) {
-        Criterions.PLACED_BLOCK.trigger((player as ServerPlayerEntity?)!!, pos, stack)
+        Criteria.PLACED_BLOCK.trigger((player as ServerPlayerEntity?)!!, pos, stack)
       }
     }
 

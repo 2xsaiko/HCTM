@@ -1,7 +1,7 @@
 package net.dblsaiko.hctm.client.render.model
 
-import therealfarfetchd.qcommon.croco.Vec2
-import therealfarfetchd.qcommon.croco.Vec3
+import net.dblsaiko.qcommon.croco.Vec2
+import net.dblsaiko.qcommon.croco.Vec3
 
 //val Float.x: Float
 //  get() = this

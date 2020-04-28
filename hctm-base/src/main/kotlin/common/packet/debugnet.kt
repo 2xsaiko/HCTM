@@ -6,9 +6,9 @@ import net.dblsaiko.hctm.common.wire.getWireNetworkState
 import net.fabricmc.fabric.api.network.PacketContext
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry
 import net.minecraft.nbt.CompoundTag
+import net.minecraft.network.PacketByteBuf
 import net.minecraft.server.network.ServerPlayerEntity
 import net.minecraft.util.Identifier
-import net.minecraft.util.PacketByteBuf
 import net.minecraft.world.dimension.DimensionType
 
 fun onDebugNetUpdateRequest(context: PacketContext, buffer: PacketByteBuf) {

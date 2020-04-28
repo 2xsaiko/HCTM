@@ -2,7 +2,7 @@ import static org.gradle.api.JavaVersion.VERSION_1_8
 
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.3.61' apply false
-    id 'fabric-loom' version '0.2.7-SNAPSHOT' apply false
+    id 'fabric-loom' version '0.4.3' apply false
 }
 
 version = hctm_version
@@ -46,7 +46,7 @@ allprojects {
 
         modImplementation group: 'net.dblsaiko', name: 'libaddict', version: libaddict_version
 
-        modImplementation group: "net.dblsaiko.qcommon.croco", name: "croco", version: "1.1.1-7"
+        modImplementation group: "net.dblsaiko.qcommon.croco", name: "croco", version: croco_version
     }
 
     configurations {
@@ -209,7 +209,7 @@ repositories {
 
 dependencies {
     modRuntime group: 'net.dblsaiko', name: 'winwonders', version: '0.1.2-4'
-    modRuntime(group: 'io.github.prospector', name: 'modmenu', version: '1.8.5+build.23') {
+    modRuntime(group: 'io.github.prospector', name: 'modmenu', version: '1.11.2+build.6') {
         exclude module: 'fabric-api'
     }
 
