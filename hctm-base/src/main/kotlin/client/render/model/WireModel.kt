@@ -24,7 +24,7 @@ import net.fabricmc.fabric.api.renderer.v1.render.RenderContext
 import net.minecraft.block.BlockState
 import net.minecraft.client.render.model.BakedModel
 import net.minecraft.client.render.model.BakedQuad
-import net.minecraft.client.render.model.json.ModelItemPropertyOverrideList
+import net.minecraft.client.render.model.json.ModelOverrideList
 import net.minecraft.client.texture.Sprite
 import net.minecraft.item.ItemStack
 import net.minecraft.util.math.BlockPos
@@ -160,7 +160,7 @@ class WireModel(
 
   override fun isVanillaAdapter() = false
 
-  override fun getItemPropertyOverrides() = ModelItemPropertyOverrideList.EMPTY
+  override fun getOverrides() = ModelOverrideList.EMPTY
 
 }
 
